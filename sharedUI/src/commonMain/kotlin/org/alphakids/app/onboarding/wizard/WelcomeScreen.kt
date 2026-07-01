@@ -214,7 +214,7 @@ fun WelcomeScreen(
         AlphaPrimaryButton(
             text = "Ir al inicio",
             onClick = {
-                navController.navigate(Screen.PlaceholderHome.route) {
+                navController.navigate(Screen.AdventureHome.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             },

@@ -35,7 +35,10 @@ sealed class Screen(val route: String) {
     /** Welcome celebration with avatar + pet */
     data object Welcome : Screen("welcome")
 
-    /** Placeholder home screen ("¡Pronto!") */
+    /** AdventureHome dashboard with bottom navigation */
+    data object AdventureHome : Screen("adventure-home")
+
+    /** Placeholder home screen ("¡Pronto!") — kept for backward compat */
     data object PlaceholderHome : Screen("placeholder-home")
 
     companion object {
@@ -53,6 +56,7 @@ sealed class Screen(val route: String) {
             route == ChooseAvatar.route -> ChooseAvatar
             route == ChooseFirstPet.route -> ChooseFirstPet
             route == Welcome.route -> Welcome
+            route == AdventureHome.route -> AdventureHome
             route == PlaceholderHome.route -> PlaceholderHome
             else -> null
         }

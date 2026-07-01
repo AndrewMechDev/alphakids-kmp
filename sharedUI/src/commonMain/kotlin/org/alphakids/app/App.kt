@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.LoginScreen
+import org.alphakids.app.home.AdventureHomeScreen
 import org.alphakids.app.onboarding.PlaceholderHomeScreen
 import org.alphakids.app.onboarding.RegisterScreen
 import org.alphakids.app.onboarding.SplashScreen
@@ -109,6 +110,11 @@ fun App() {
                 )
             }
 
+            composable(Screen.AdventureHome.route) {
+                AdventureHomeScreen(navController = navController)
+            }
+
+            // PlaceholderHome kept for backward compatibility
             composable(Screen.PlaceholderHome.route) {
                 PlaceholderHomeScreen(navController = navController)
             }
