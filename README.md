@@ -48,37 +48,73 @@ Vista 2 — Welcome Selection (bienvenida)
 │  └──────────────────────────┘   │
 └──────────────────────────────────┘
         │
-        ├── "Tutor registrado" → Login → tras login:
-        │                          ├── ¿Sin hijos? → SetupWizard → CreateChild → Avatar → Pet → Welcome → AdventureHome 🏠
-        │                          └── ¿Con hijos? → [Elegir: Modo niños / Panel de padres]
-        │                                              ├── Modo niños → ChildProfileSelector → AdventureHome 🏠
-        │                                              │                     └── "Crear nuevo perfil" → SetupWizard
-        │                                              └── Panel de padres → [Dashboard | Hijos | Suscripción | Soporte]
-        │                                                     ├── "Agregar hijo" → SetupWizard
-        │                                                     └── "Cerrar sesión" → Welcome Selection
+        ├── "Tutor registrado" → Login
+        │   ← Botón "Volver" a WelcomeSelection
+        │   ← Toggle "Mostrar contraseña"
+        │   ← Opción "Recordarme"
+        │   → Login exitoso → Netflix de Perfiles 🎬
         │
-        └── "¿No estás registrado?" → Register → OTP → SetupWizard → ... → AdventureHome 🏠
+        │   Vista 3 — Netflix de Perfiles 👥
+        │   ┌──────────────────────────────────┐
+        │   │    ¿Quién va a usar AlphaKids?   │
+        │   │                                  │
+        │   │  ┌──────┐  ┌──────┐  ┌──────┐  │
+        │   │  │  👦   │  │  👶   │  │  👤   │  │
+        │   │  │ Sofía │  │ Mateo │  │ Padre │  │
+        │   │  │ Nv.3  │  │ Nv.1  │  │       │  │
+        │   │  └──────┘  └──────┘  └──────┘  │
+        │   │  ┌──────────────────────┐       │
+        │   │  │  ➕ Agregar perfil   │       │
+        │   │  └──────────────────────┘       │
+        │   └──────────────────────────────────┘
+        │    ├── Tap niño → AdventureHome 🏠
+        │    ├── Tap padre → Panel de padres
+        │    └── Tap ➕ → SetupWizard
+        │
+        ├── "¿No estás registrado?" → Register
+        │   ← Botón "Volver" a WelcomeSelection
+        │   → Register exitoso → OTP
+        │
+        └── OTP Verification
+            ← Botón "Volver" a Register
+            ← Auto-verificar al completar 6 dígitos
+            ← 30s cooldown para reenviar código
+            → OTP exitoso → SetupWizard → ... → AdventureHome 🏠
 
 AdventureHome 🏠 (5 tabs)
   ├── Inicio 📊  — Dashboard con progreso, mascota activa, actividades
+  │   ← Back: dialogo "¿Salir de AlphaKids?"
   ├── Diccionario 📖 — Cofre de palabras (A-Z, búsqueda, 43 palabras)
   ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
   ├── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
   └── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo
-        └── ⚙️ Settings → Panel de padres
-               └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
+        └── ⚙️ Settings → Netflix de Perfiles 🎬
 
-### Sistema de inactividad (próximamente)
+Parent Dashboard (4 tabs)
+  ├── Dashboard  — Resumen de todos los hijos
+  ├── Hijos     — Detalle por hijo
+  ├── Suscripción — Plan y beneficios
+  └── Soporte   — FAQ y contacto
+       └── "Cerrar sesión" → Welcome Selection
 
-Cuando el dispositivo detecte inactividad, Alphi reacciona de forma progresiva:
+### Mejoras planificadas
+
+| Mejora | Descripción | Estado |
+|--------|-------------|--------|
+| 🎬 **Netflix de Perfiles** | Selector visual de perfiles post-login (niños + padre) | 📋 Planificado |
+| 🔙 **Back buttons** | Botón "Volver" en Login, Register, y entre pasos del wizard | 📋 Planificado |
+| ✉️ **Auto-OTP** | Verificar código automático al completar 6 dígitos | 📋 Planificado |
+| 🔐 **Biométrico** | Login con huella/rostro en vez de contraseña | 💡 Futuro |
+| 🌓 **Circadian Theme** | Tema oscuro automático de noche | 💡 Futuro |
+| 😴 **Sistema inactividad** | Alphi reacciona al idle del dispositivo | 💡 Futuro |
+
+### Sistema de inactividad (futuro)
 
 ```
 Inactividad 30s → Alphi piensa  🤔  "¿Listo para seguir aprendiendo?"
 Inactividad 60s → Alphi descansa 😴  "Te espero cuando quieras jugar"
 Inactividad 120s → Alphi invita  🌱  "Tus palabras te están esperando"
 ```
-
-Sin ser hostigoso — solo mensajes suaves y animaciones de Alphi para invitar al niño a volver a jugar.
 
 ## Comandos
 
@@ -99,7 +135,13 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Logros, Mascotas)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
-- 📋 **Sistema de inactividad** — Estados de Alphi por idle time (planificado)
+- ✅ **Welcome Selection** — Pantalla de bienvenida con 2 cards (tutor / registro)
+- 📋 **Netflix de Perfiles** — Selector visual multiusuario post-login (planificado)
+- 📋 **Back buttons** — Botones de retroceso en Login, Register y wizard (planificado)
+- 📋 **Auto-OTP** — Verificación automática al completar 6 dígitos (planificado)
+- 💡 **Biométrico** — Login con huella/rostro (futuro)
+- 💡 **Circadian Theme** — Tema oscuro automático (futuro)
+- 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
 - ⏳ **iOS (SwiftUI)** — Próxima fase
