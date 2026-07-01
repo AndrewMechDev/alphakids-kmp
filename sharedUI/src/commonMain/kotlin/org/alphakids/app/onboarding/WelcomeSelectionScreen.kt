@@ -111,7 +111,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
             Card(
                 onClick = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.WelcomeSelection.route) { inclusive = true }
+                        popUpTo(Screen.WelcomeSelection.route) { inclusive = false }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -172,7 +172,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
             Card(
                 onClick = {
                     navController.navigate(Screen.Register.route) {
-                        popUpTo(Screen.WelcomeSelection.route) { inclusive = true }
+                        popUpTo(Screen.WelcomeSelection.route) { inclusive = false }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
