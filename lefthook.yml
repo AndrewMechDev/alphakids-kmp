@@ -1,0 +1,16 @@
+# lefthook.yml — AlphaKids KMP
+# Warning-only mode: non-conventional commits are warned but not blocked.
+# Remove `skip: true` to enable all hooks.
+
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      skip: true
+      run: echo "lint not yet configured"
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}
+      skip: true
