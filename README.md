@@ -38,8 +38,15 @@ AdventureHome 🏠 (5 tabs)
   ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
   ├── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
   └── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo
-       └── ⚙️ Settings → Panel de padres
-              └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
+        └── ⚙️ Settings → Panel de padres
+               └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
+
+### Sistema de inactividad (próximamente)
+
+```
+Inactividad 30s → Alphi piensa 🤔  "¿Listo para seguir aprendiendo?"
+Inactividad 60s → Alphi descansa 😴 "Te espero cuando quieras jugar"
+Inactividad 120s → Alphi invita 🌱 "Tus palabras te están esperando"
 ```
 
 ## Comandos
@@ -61,6 +68,7 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Logros, Mascotas)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
+- 📋 **Sistema de inactividad** — Estados de Alphi por idle time (planificado)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
 - ⏳ **iOS (SwiftUI)** — Próxima fase
