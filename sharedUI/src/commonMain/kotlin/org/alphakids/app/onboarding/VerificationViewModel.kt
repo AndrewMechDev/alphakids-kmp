@@ -64,10 +64,32 @@ class VerificationViewModel(
     /**
      * Called when the OTP code changes (from OTPInputField).
      * Pads the incoming code to 6 characters with spaces as needed.
+     * Auto-verifies when all 6 digits are filled (WhatsApp-style).
      */
     fun onCodeChanged(newCode: String) {
         val padded = newCode.padEnd(OTP_LENGTH, ' ').take(OTP_LENGTH)
         _uiState.update { it.copy(code = padded, error = null) }
+
+        // Auto-verify when all 6 digits are entered
+        val trimmed = padded.trim()
+        if (trimmed.length == OTP_LENGTH && trimmed.all { it.isDigit() }) {
+            autoVerify(trimmed)
+        }
+    }
+
+    private fun autoVerify(code: String) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            val verified = authRepository.verifyOtp(
+                email = _uiState.value.email,
+                code = code,
+            )
+            if (verified) {
+                _uiState.update { it.copy(isLoading = false, isVerified = true) }
+            } else {
+                _uiState.update { it.copy(isLoading = false, error = "Código incorrecto") }
+            }
+        }
     }
 
     fun onVerifyClick() {

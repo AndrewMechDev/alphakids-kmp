@@ -78,6 +78,7 @@ fun SetupWizardScreen(
                 currentStep = 1,
                 totalSteps = 5,
                 showAlphi = true,
+                onBack = { navController.popBackStack() },
             )
 
             Spacer(modifier = Modifier.height(8.dp))
