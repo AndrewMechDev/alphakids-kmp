@@ -22,17 +22,42 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 ## Flujo actual
 
 ```
-Splash (2.5s)
-  → Welcome Selection 🏠
-     ├── "Tutor registrado"     → Login (test@alphakids.com / 123456)
-     └── "¿No estás registrado?" → Register → OTP → SetupWizard → ...
-         ¿Sin hijos? → SetupWizard → CreateChild → Avatar → Pet → Welcome → AdventureHome 🏠
-         ¿Con hijos? → [Elegir: Modo niños / Panel de padres]
-                         ├── Modo niños → ChildProfileSelector → AdventureHome 🏠
-                         │                     └── "Crear nuevo perfil" → SetupWizard
-                         └── Panel de padres → [Dashboard | Hijos | Suscripción | Soporte]
-                                                ├── "Agregar hijo" → SetupWizard
-                                                └── "Cerrar sesión" → Welcome Selection
+Vista 1 — Splash (carga)
+┌──────────────────────────────────┐
+│      🖼️ Logo AlphaKids           │
+│      🦊 Alphi                    │
+│      ⏳ Cargando... (2.5s)       │
+│      → Valida sesión             │
+└──────────────────────────────────┘
+        │
+        ▼
+Vista 2 — Welcome Selection (bienvenida)
+┌──────────────────────────────────┐
+│    🖼️ Logo + 🦊 Alphi            │
+│                                  │
+│  ¡Bienvenido a AlphaKids!        │
+│  Elige la opción más adecuada    │
+│                                  │
+│  ┌──────────────────────────┐   │
+│  │ 👤 Tutor registrado      │   │
+│  │    Iniciar sesión        │   │
+│  └──────────────────────────┘   │
+│  ┌──────────────────────────┐   │
+│  │ ✨ ¿No estás registrado?  │   │
+│  │    Crear cuenta gratis   │   │
+│  └──────────────────────────┘   │
+└──────────────────────────────────┘
+        │
+        ├── "Tutor registrado" → Login → tras login:
+        │                          ├── ¿Sin hijos? → SetupWizard → CreateChild → Avatar → Pet → Welcome → AdventureHome 🏠
+        │                          └── ¿Con hijos? → [Elegir: Modo niños / Panel de padres]
+        │                                              ├── Modo niños → ChildProfileSelector → AdventureHome 🏠
+        │                                              │                     └── "Crear nuevo perfil" → SetupWizard
+        │                                              └── Panel de padres → [Dashboard | Hijos | Suscripción | Soporte]
+        │                                                     ├── "Agregar hijo" → SetupWizard
+        │                                                     └── "Cerrar sesión" → Welcome Selection
+        │
+        └── "¿No estás registrado?" → Register → OTP → SetupWizard → ... → AdventureHome 🏠
 
 AdventureHome 🏠 (5 tabs)
   ├── Inicio 📊  — Dashboard con progreso, mascota activa, actividades
