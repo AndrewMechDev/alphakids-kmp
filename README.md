@@ -105,7 +105,7 @@ Parent Dashboard (4 tabs)
 | 🔙 **Back buttons** | Botón "Volver" en Login, Register, AdventureHome, y wizard | ✅ Implementado |
 | ✉️ **Auto-OTP** | Verificar código automático al completar 6 dígitos | ✅ Implementado |
 | 🔐 **Biométrico** | Login con huella/rostro en vez de contraseña | 💡 Futuro |
-| 🌓 **Circadian Theme** | Tema oscuro automático de noche | 💡 Futuro |
+| 🌓 **Circadian Theme** | Tema oscuro automático de noche | ✅ Implementado |
 | 😴 **Sistema inactividad** | Alphi reacciona al idle del dispositivo | 💡 Futuro |
 
 ### Sistema de inactividad (futuro)
@@ -143,8 +143,9 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Empty states** — Componente reutilizable con Alphi para estados vacíos
 - ✅ **Settings → Netflix** — Gear del Home ahora va al selector de perfiles
 - ✅ **Fuentes instaladas** — DynaPuff + DM Sans conectadas vía expect/actual
+- ✅ **Circadian Theme** — Tema claro/oscuro automático según hora del sistema
+- ✅ **Keyboard handling** — `adjustResize` + teclado no tapa inputs
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
-- 💡 **Circadian Theme** — Tema oscuro automático (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
