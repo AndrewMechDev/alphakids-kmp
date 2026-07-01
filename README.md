@@ -42,4 +42,5 @@ Abrir iosApp/ en Xcode y compilar
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
 - ✅ **Phase 1** — Onboarding completo (10 pantallas, 61 tests)
-- ⏳ **Phase 2** — Home con tabs (próximo)
+- ✅ **Phase 2** — AdventureHome (Home con tabs + Dashboard)
+- ⏳ **Tabs restantes** — Diccionario, Tienda, Logros, Mascotas
