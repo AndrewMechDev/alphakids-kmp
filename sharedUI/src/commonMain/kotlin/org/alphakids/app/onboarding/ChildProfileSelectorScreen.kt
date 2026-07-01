@@ -41,6 +41,7 @@ import coil3.compose.AsyncImage
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.repository.ParentRepository
 
@@ -123,6 +124,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
                     ChildSelectorCard(
                         child = child,
                         onClick = {
+                            SessionManager.setActiveChild(child)
                             navController.navigate(Screen.AdventureHome.route) {
                                 popUpTo(Screen.ChildProfileSelector.route) { inclusive = true }
                             }
