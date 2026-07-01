@@ -5,6 +5,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 /**
  * [ImageAnalysis.Analyzer] that processes camera frames with ML Kit
@@ -15,7 +16,7 @@ class TextRecognitionAnalyzer(
     private val onTextDetected: (String) -> Unit,
 ) : ImageAnalysis.Analyzer {
 
-    private val recognizer = TextRecognition.getClient()
+    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {

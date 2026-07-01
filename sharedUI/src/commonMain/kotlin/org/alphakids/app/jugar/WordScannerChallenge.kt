@@ -53,6 +53,7 @@ import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.CardWhite
+import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.SlateGray
 import org.alphakids.app.theme.SuccessGreen
