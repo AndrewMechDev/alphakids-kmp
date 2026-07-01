@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.alphakids.app.navigation.Screen
 
 /**
  * Bottom navigation tab definition using emoji icons (no Material Icons dependency).
@@ -100,6 +101,9 @@ fun AdventureHomeScreen(navController: NavController) {
                 onPetProfile = { /* future */ },
                 onActivityClick = { wordName -> /* future: navigate to word activity */ },
                 onNavigateToTab = { tabIndex -> selectedTab = tabIndex },
+                onNavigateToHub = {
+                    navController.navigate(Screen.LearningAdventureHub.route)
+                },
                 modifier = Modifier.padding(innerPadding),
             )
             1 -> DictionaryScreen(

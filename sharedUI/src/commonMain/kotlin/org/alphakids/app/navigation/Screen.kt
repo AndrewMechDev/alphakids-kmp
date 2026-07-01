@@ -41,6 +41,22 @@ sealed class Screen(val route: String) {
     /** Placeholder home screen ("¡Pronto!") — kept for backward compat */
     data object PlaceholderHome : Screen("placeholder-home")
 
+    // ── Jugar / Activity Screens ──
+
+    /** LearningAdventureHub — activity picker (Scan / Spell) */
+    data object LearningAdventureHub : Screen("learning-adventure-hub")
+
+    /** Word Scanner Challenge with camera + OCR */
+    data object WordScannerChallenge : Screen("word-scanner-challenge/{wordIndex}") {
+        fun createRoute(wordIndex: Int): String = "word-scanner-challenge/$wordIndex"
+    }
+
+    /** OCR result with rewards and stats */
+    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}") {
+        fun createRoute(wordIndex: Int, attempts: Int, time: Long): String =
+            "ocr-result/$wordIndex/$attempts/$time"
+    }
+
     companion object {
         /**
          * Resolves a route string back to a Screen.
@@ -58,6 +74,9 @@ sealed class Screen(val route: String) {
             route == Welcome.route -> Welcome
             route == AdventureHome.route -> AdventureHome
             route == PlaceholderHome.route -> PlaceholderHome
+            route == LearningAdventureHub.route -> LearningAdventureHub
+            route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
+            route.startsWith("ocr-result/") -> OcrResult
             else -> null
         }
     }

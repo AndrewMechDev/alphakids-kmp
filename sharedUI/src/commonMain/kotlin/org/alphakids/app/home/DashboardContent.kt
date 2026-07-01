@@ -80,6 +80,7 @@ fun DashboardContent(
     onPetProfile: () -> Unit,
     onActivityClick: (String) -> Unit,
     onNavigateToTab: (Int) -> Unit,
+    onNavigateToHub: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -160,7 +161,10 @@ fun DashboardContent(
         }
 
         item(key = "quick-cards") {
-            QuickAccessGrid(onNavigateToTab = onNavigateToTab)
+            QuickAccessGrid(
+                onNavigateToTab = onNavigateToTab,
+                onNavigateToHub = onNavigateToHub,
+            )
         }
 
         // Bottom spacing
@@ -667,6 +671,7 @@ private fun PendingActivityCard(
 @Composable
 private fun QuickAccessGrid(
     onNavigateToTab: (Int) -> Unit,
+    onNavigateToHub: () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -679,7 +684,7 @@ private fun QuickAccessGrid(
                 emoji = "\uD83C\uDFAE",
                 title = "Jugar",
                 accent = Color(0xFF6C5CE7),
-                onClick = { onNavigateToTab(2) },  // Diccionario tab
+                onClick = { onNavigateToHub() },
                 modifier = Modifier.weight(1f),
             )
             QuickAccessCard(
