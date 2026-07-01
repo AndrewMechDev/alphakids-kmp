@@ -142,6 +142,7 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Screen transitions** — Animaciones slide + fade entre pantallas
 - ✅ **Empty states** — Componente reutilizable con Alphi para estados vacíos
 - ✅ **Settings → Netflix** — Gear del Home ahora va al selector de perfiles
+- ✅ **Fuentes instaladas** — DynaPuff + DM Sans en res/font/ (pendiente wiring CMP)
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Circadian Theme** — Tema oscuro automático (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
