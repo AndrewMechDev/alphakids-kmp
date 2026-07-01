@@ -139,6 +139,9 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Netflix de Perfiles** — Selector visual multiusuario post-login
 - ✅ **Back buttons** — Botones de retroceso en Login, Register, wizard y AdventureHome
 - ✅ **Auto-OTP** — Verificación automática al completar 6 dígitos
+- ✅ **Screen transitions** — Animaciones slide + fade entre pantallas
+- ✅ **Empty states** — Componente reutilizable con Alphi para estados vacíos
+- ✅ **Settings → Netflix** — Gear del Home ahora va al selector de perfiles
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Circadian Theme** — Tema oscuro automático (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
