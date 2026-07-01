@@ -23,14 +23,16 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 
 ```
 Splash (2.5s)
-  → Login (test@alphakids.com / 123456)
-    ├── ¿Sin hijos? → SetupWizard → CreateChild → Avatar → Pet → Welcome → AdventureHome 🏠
-    └── ¿Con hijos? → [Elegir: Modo niños / Panel de padres]
-                        ├── Modo niños → ChildProfileSelector → AdventureHome 🏠
-                        │                     └── "Crear nuevo perfil" → SetupWizard
-                        └── Panel de padres → [Dashboard | Hijos | Suscripción | Soporte]
-                                               ├── "Agregar hijo" → SetupWizard
-                                               └── "Cerrar sesión" → Login
+  → Welcome Selection 🏠
+     ├── "Tutor registrado"     → Login (test@alphakids.com / 123456)
+     └── "¿No estás registrado?" → Register → OTP → SetupWizard → ...
+         ¿Sin hijos? → SetupWizard → CreateChild → Avatar → Pet → Welcome → AdventureHome 🏠
+         ¿Con hijos? → [Elegir: Modo niños / Panel de padres]
+                         ├── Modo niños → ChildProfileSelector → AdventureHome 🏠
+                         │                     └── "Crear nuevo perfil" → SetupWizard
+                         └── Panel de padres → [Dashboard | Hijos | Suscripción | Soporte]
+                                                ├── "Agregar hijo" → SetupWizard
+                                                └── "Cerrar sesión" → Welcome Selection
 
 AdventureHome 🏠 (5 tabs)
   ├── Inicio 📊  — Dashboard con progreso, mascota activa, actividades
@@ -43,11 +45,15 @@ AdventureHome 🏠 (5 tabs)
 
 ### Sistema de inactividad (próximamente)
 
+Cuando el dispositivo detecte inactividad, Alphi reacciona de forma progresiva:
+
 ```
-Inactividad 30s → Alphi piensa 🤔  "¿Listo para seguir aprendiendo?"
-Inactividad 60s → Alphi descansa 😴 "Te espero cuando quieras jugar"
-Inactividad 120s → Alphi invita 🌱 "Tus palabras te están esperando"
+Inactividad 30s → Alphi piensa  🤔  "¿Listo para seguir aprendiendo?"
+Inactividad 60s → Alphi descansa 😴  "Te espero cuando quieras jugar"
+Inactividad 120s → Alphi invita  🌱  "Tus palabras te están esperando"
 ```
+
+Sin ser hostigoso — solo mensajes suaves y animaciones de Alphi para invitar al niño a volver a jugar.
 
 ## Comandos
 
