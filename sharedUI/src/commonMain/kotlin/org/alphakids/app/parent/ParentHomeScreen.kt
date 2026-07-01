@@ -1,12 +1,16 @@
 package org.alphakids.app.parent
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -17,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.alphakids.app.navigation.Screen
 
 /**
  * Bottom navigation tab definition for the parent dashboard using emoji icons.
@@ -35,14 +40,16 @@ private val parentTabs = listOf(
 )
 
 /**
- * Main parent dashboard screen with bottom navigation.
+ * Main parent dashboard screen with top bar and bottom navigation.
  *
- * Hosts [ParentInsightCenter], children list, [SubscriptionScreen], and [SupportScreen]
- * in a tab-based layout. Child detail is shown inline when a child is selected from the
- * Hijos tab or via onChildClick callback.
+ * Top bar includes "Modo niños" (navigates to [Screen.ChildProfileSelector]),
+ * and "Cerrar sesión" (clears back stack to [Screen.Login]).
+ * Bottom navigation hosts [ParentInsightCenter], children list, [SubscriptionScreen],
+ * and [SupportScreen] in a tab-based layout.
  *
- * @param navController Main app NavController — used to navigate back to child mode.
+ * @param navController Main app NavController — used for all navigation.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParentHomeScreen(
     navController: NavController,
@@ -51,6 +58,48 @@ fun ParentHomeScreen(
     var selectedChildId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "\uD83D\uDCCA Panel de Padres",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
+                actions = {
+                    TextButton(
+                        onClick = {
+                            navController.navigate(Screen.ChildProfileSelector.route) {
+                                popUpTo(Screen.ParentDashboard.route) { inclusive = true }
+                            }
+                        },
+                    ) {
+                        Text(
+                            text = "\uD83D\uDC76 Modo niños",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                    ) {
+                        Text(
+                            text = "\uD83D\uDEAA Cerrar sesión",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,

@@ -14,6 +14,7 @@ import org.alphakids.app.home.AdventureHomeScreen
 import org.alphakids.app.jugar.LearningAdventureHub
 import org.alphakids.app.jugar.OCRResultScreen
 import org.alphakids.app.jugar.WordScannerChallenge
+import org.alphakids.app.onboarding.ChildProfileSelectorScreen
 import org.alphakids.app.onboarding.LoginScreen
 import org.alphakids.app.onboarding.PlaceholderHomeScreen
 import org.alphakids.app.onboarding.RegisterScreen
@@ -113,6 +114,10 @@ fun App() {
                     navController = navController,
                     wizardViewModel = wizardViewModel,
                 )
+            }
+
+            composable(Screen.ChildProfileSelector.route) {
+                ChildProfileSelectorScreen(navController = navController)
             }
 
             composable(Screen.AdventureHome.route) {

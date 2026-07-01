@@ -42,6 +42,7 @@ import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
@@ -56,7 +57,8 @@ import alphakids_kmp.sharedui.generated.resources.alphi_padre
 fun LoginScreen(navController: NavController) {
     val viewModel = remember {
         val authRepository: AuthRepository = koinInject()
-        LoginViewModel(authRepository)
+        val parentRepository: ParentRepository = koinInject()
+        LoginViewModel(authRepository, parentRepository)
     }
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -64,10 +66,16 @@ fun LoginScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
     var showRoleDialog by remember { mutableStateOf(false) }
 
-    // Show role selection dialog on success
-    LaunchedEffect(state.isSuccess) {
+    // On login success: if children exist show role dialog, else auto-navigate to wizard
+    LaunchedEffect(state.isSuccess, state.hasChildren) {
         if (state.isSuccess) {
-            showRoleDialog = true
+            if (state.hasChildren) {
+                showRoleDialog = true
+            } else {
+                navController.navigate(Screen.SetupWizard.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                }
+            }
         }
     }
 
