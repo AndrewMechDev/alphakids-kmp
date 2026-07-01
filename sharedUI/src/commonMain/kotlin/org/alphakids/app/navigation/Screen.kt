@@ -12,6 +12,9 @@ sealed class Screen(val route: String) {
     /** Welcome selection — tutor login or new registration */
     data object WelcomeSelection : Screen("welcome-selection")
 
+    /** Netflix-style profile selector after login */
+    data object NetflixProfiles : Screen("netflix-profiles")
+
     /** Login with email/password */
     data object Login : Screen("login")
 
@@ -87,6 +90,7 @@ sealed class Screen(val route: String) {
         fun fromRoute(route: String): Screen? = when {
             route == Splash.route -> Splash
             route == WelcomeSelection.route -> WelcomeSelection
+            route == NetflixProfiles.route -> NetflixProfiles
             route == Login.route -> Login
             route == Register.route -> Register
             route.startsWith("verification/") -> Verification
