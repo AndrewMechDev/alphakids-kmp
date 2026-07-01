@@ -7,22 +7,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /*
- * Font strategy:
- *   - DynaPuff (variable wdth,wght): displayLarge, displayMedium, headlineLarge, headlineMedium,
- *     labelLarge, labelMedium — playful, rounded children's font
- *   - DM Sans (variable opsz,wght): titleLarge, titleMedium, titleSmall, bodyLarge, bodyMedium,
- *     bodySmall, labelSmall — clean readable sans for forms and body text
+ * FONT SETUP (pending CMP resource loading)
+ * ─────────────────────────────────────
+ * Fonts provided:
+ *   - DynaPuff (playful, rounded): for display, headline, labels
+ *   - DM Sans (clean, readable): for title, body, labelSmall
  *
- * Fonts reside in composeResources/font/:
- *   - DynaPuff-Variable.ttf
- *   - DMSans-Variable.ttf
+ * Files:
+ *   - Source:       DynaPuff/ and DM_Sans/ in project root
+ *   - CMP Assets:   sharedUI/.../composeResources/font/
+ *   - Android res:  androidApp/src/main/res/font/
  *
- * TODO: Register fonts via Font() in resourceRes when Compose resource loading
- * is available. Until then, FontFamily.Default is used as placeholder.
+ * Currently using FontFamily.Default because Compose Multiplatform 1.11.1
+ * does not auto-generate Res.font.* accessors for font resources.
+ * When upgrading CMP or using platform-specific Font loading, replace
+ * the FontFamily.Default below with actual font families.
  */
 
-private val DynaPuffFamily = FontFamily.Default // placeholder — register DynaPuff-Variable.ttf
-private val DMSansFamily = FontFamily.Default   // placeholder — register DMSans-Variable.ttf
+private val DynaPuffFamily = FontFamily.Default
+private val DMSansFamily = FontFamily.Default
 
 val AlphaKidsTypography = Typography(
     // ── Display (DynaPuff) ──
