@@ -111,9 +111,7 @@ fun AdventureHomeScreen(navController: NavController) {
                 childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
-            3 -> PlaceholderTabContent(
-                title = "Logros",
-                message = "Tus metas y recompensas te esperan.",
+            3 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
             )
             4 -> PlaceholderTabContent(
