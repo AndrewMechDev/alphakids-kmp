@@ -90,12 +90,9 @@ AdventureHome 🏠 (5 tabs)
   └── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo
         └── ⚙️ Settings → Netflix de Perfiles 🎬
 
-Parent Dashboard (4 tabs)
+Parent Dashboard (2 tabs)
   ├── Dashboard  — Resumen de todos los hijos
-  ├── Hijos     — Detalle por hijo
-  ├── Suscripción — Plan y beneficios
-  └── Soporte   — FAQ y contacto
-       └── "Cerrar sesión" → Welcome Selection
+  └── Hijos     — Detalle por hijo
 
 ### Mejoras implementadas
 
