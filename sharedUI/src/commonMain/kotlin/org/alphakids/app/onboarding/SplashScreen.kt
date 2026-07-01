@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.koinInject
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -43,6 +44,7 @@ import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
 @Composable
 fun SplashScreen(navController: NavController) {
     val authRepository: AuthRepository = koinInject()
+    val parentRepository: ParentRepository = koinInject()
     var logoVisible by remember { mutableStateOf(false) }
 
     // Fade-in animation
@@ -54,11 +56,18 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(2500L)
         if (authRepository.isLoggedIn()) {
-            navController.navigate(Screen.PlaceholderHome.route) {
-                popUpTo(Screen.Splash.route) { inclusive = true }
+            val children = parentRepository.getChildren()
+            if (children.isNotEmpty()) {
+                navController.navigate(Screen.NetflixProfiles.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            } else {
+                navController.navigate(Screen.WelcomeSelection.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
             }
         } else {
-            navController.navigate(Screen.Login.route) {
+            navController.navigate(Screen.WelcomeSelection.route) {
                 popUpTo(Screen.Splash.route) { inclusive = true }
             }
         }

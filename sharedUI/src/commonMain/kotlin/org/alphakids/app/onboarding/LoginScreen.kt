@@ -1,6 +1,8 @@
 package org.alphakids.app.onboarding
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,12 +19,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +43,7 @@ import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
@@ -45,24 +51,25 @@ import alphakids_kmp.sharedui.generated.resources.alphi_padre
 /**
  * Login screen with email/password fields, demo credentials hint, and navigation.
  *
- * On successful login navigates to [Screen.SetupWizard].
+ * On successful login navigates to [Screen.NetflixProfiles] (profile selector).
  * On "Crear cuenta" navigates to [Screen.Register].
  */
 @Composable
 fun LoginScreen(navController: NavController) {
     val viewModel = remember {
         val authRepository: AuthRepository = koinInject()
-        LoginViewModel(authRepository)
+        val parentRepository: ParentRepository = koinInject()
+        LoginViewModel(authRepository, parentRepository)
     }
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Navigate on success
+    // On login success: navigate to Netflix-style profile selector
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
-            navController.navigate(Screen.SetupWizard.route) {
+            navController.navigate(Screen.NetflixProfiles.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
@@ -79,7 +86,25 @@ fun LoginScreen(navController: NavController) {
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Back button to WelcomeSelection
+        Text(
+            text = "\u2B05\uFE0F Volver",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    navController.popBackStack()
+                },
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Alphi image
         Image(

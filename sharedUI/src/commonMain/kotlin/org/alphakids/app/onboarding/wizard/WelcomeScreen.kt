@@ -36,8 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.data.mock.Pet
+import org.alphakids.app.parent.data.mock.MockParentRepository
+import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.parent.domain.model.SessionManager
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
@@ -214,7 +219,26 @@ fun WelcomeScreen(
         AlphaPrimaryButton(
             text = "Ir al inicio",
             onClick = {
-                navController.navigate(Screen.PlaceholderHome.route) {
+                // Save child to session
+                val wizardState = wizardViewModel.state.value
+                val data = wizardState.data
+                val newChild = ChildSummary(
+                    id = (1000..9999).random().toString(),
+                    name = data.childName,
+                    avatarSeed = data.avatarSeed,
+                    level = 1,
+                    rank = "Semillita 🌱",
+                    lastActivity = "Recién creado",
+                    wordsLearned = 0,
+                    stars = 0,
+                )
+                SessionManager.setActiveChild(newChild)
+                // Add to parent repository so it appears in dashboard
+                val repo = koinInject<ParentRepository>()
+                if (repo is MockParentRepository) {
+                    repo.addChild(newChild)
+                }
+                navController.navigate(Screen.AdventureHome.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             },

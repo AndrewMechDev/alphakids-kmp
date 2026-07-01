@@ -9,6 +9,12 @@ sealed class Screen(val route: String) {
     /** Splash screen with animated logo */
     data object Splash : Screen("splash")
 
+    /** Welcome selection — tutor login or new registration */
+    data object WelcomeSelection : Screen("welcome-selection")
+
+    /** Netflix-style profile selector after login */
+    data object NetflixProfiles : Screen("netflix-profiles")
+
     /** Login with email/password */
     data object Login : Screen("login")
 
@@ -35,8 +41,46 @@ sealed class Screen(val route: String) {
     /** Welcome celebration with avatar + pet */
     data object Welcome : Screen("welcome")
 
-    /** Placeholder home screen ("¡Pronto!") */
+    /** AdventureHome dashboard with bottom navigation */
+    data object AdventureHome : Screen("adventure-home")
+
+    /** Child profile selector — pick or create a child */
+    data object ChildProfileSelector : Screen("child-profile-selector")
+
+    // ── Parent Dashboard Screens ──
+
+    /** Parent dashboard hub with bottom navigation */
+    data object ParentDashboard : Screen("parent-dashboard")
+
+    /** Child detail from parent dashboard */
+    data object ParentChildDetail : Screen("parent-child-detail/{childId}") {
+        fun createRoute(childId: String): String = "parent-child-detail/$childId"
+    }
+
+    /** Subscription management for parents */
+    data object ParentSubscription : Screen("parent-subscription")
+
+    /** Support / FAQ screen for parents */
+    data object ParentSupport : Screen("parent-support")
+
+    /** Placeholder home screen ("¡Pronto!") — kept for backward compat */
     data object PlaceholderHome : Screen("placeholder-home")
+
+    // ── Jugar / Activity Screens ──
+
+    /** LearningAdventureHub — activity picker (Scan / Spell) */
+    data object LearningAdventureHub : Screen("learning-adventure-hub")
+
+    /** Word Scanner Challenge with camera + OCR */
+    data object WordScannerChallenge : Screen("word-scanner-challenge/{wordIndex}") {
+        fun createRoute(wordIndex: Int): String = "word-scanner-challenge/$wordIndex"
+    }
+
+    /** OCR result with rewards and stats */
+    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}") {
+        fun createRoute(wordIndex: Int, attempts: Int, time: Long): String =
+            "ocr-result/$wordIndex/$attempts/$time"
+    }
 
     companion object {
         /**
@@ -45,6 +89,8 @@ sealed class Screen(val route: String) {
          */
         fun fromRoute(route: String): Screen? = when {
             route == Splash.route -> Splash
+            route == WelcomeSelection.route -> WelcomeSelection
+            route == NetflixProfiles.route -> NetflixProfiles
             route == Login.route -> Login
             route == Register.route -> Register
             route.startsWith("verification/") -> Verification
@@ -53,7 +99,16 @@ sealed class Screen(val route: String) {
             route == ChooseAvatar.route -> ChooseAvatar
             route == ChooseFirstPet.route -> ChooseFirstPet
             route == Welcome.route -> Welcome
+            route == AdventureHome.route -> AdventureHome
+            route == ChildProfileSelector.route -> ChildProfileSelector
             route == PlaceholderHome.route -> PlaceholderHome
+            route == LearningAdventureHub.route -> LearningAdventureHub
+            route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
+            route.startsWith("ocr-result/") -> OcrResult
+            route == ParentDashboard.route -> ParentDashboard
+            route.startsWith("parent-child-detail/") -> ParentChildDetail
+            route == ParentSubscription.route -> ParentSubscription
+            route == ParentSupport.route -> ParentSupport
             else -> null
         }
     }
