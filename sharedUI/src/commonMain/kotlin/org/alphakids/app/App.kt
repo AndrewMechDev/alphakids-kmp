@@ -10,8 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.onboarding.LoginScreen
 import org.alphakids.app.home.AdventureHomeScreen
+import org.alphakids.app.jugar.LearningAdventureHub
+import org.alphakids.app.jugar.OCRResultScreen
+import org.alphakids.app.jugar.WordScannerChallenge
+import org.alphakids.app.onboarding.LoginScreen
 import org.alphakids.app.onboarding.PlaceholderHomeScreen
 import org.alphakids.app.onboarding.RegisterScreen
 import org.alphakids.app.onboarding.SplashScreen
@@ -24,6 +27,7 @@ import org.alphakids.app.onboarding.wizard.CreateChildProfileScreen
 import org.alphakids.app.onboarding.wizard.SetupWizardScreen
 import org.alphakids.app.onboarding.wizard.WelcomeScreen
 import org.alphakids.app.onboarding.wizard.WizardViewModel
+import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
 import org.alphakids.app.theme.AlphaKidsTheme
 
@@ -112,6 +116,46 @@ fun App() {
 
             composable(Screen.AdventureHome.route) {
                 AdventureHomeScreen(navController = navController)
+            }
+
+            // ── Jugar / Activity Routes ──
+
+            composable(Screen.LearningAdventureHub.route) {
+                LearningAdventureHub(navController = navController)
+            }
+
+            composable(
+                route = Screen.WordScannerChallenge.route,
+                arguments = listOf(
+                    navArgument("wordIndex") { type = NavType.IntType },
+                ),
+            ) { backStackEntry ->
+                val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
+                val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                WordScannerChallenge(
+                    navController = navController,
+                    word = word,
+                )
+            }
+
+            composable(
+                route = Screen.OcrResult.route,
+                arguments = listOf(
+                    navArgument("wordIndex") { type = NavType.IntType },
+                    navArgument("attempts") { type = NavType.IntType },
+                    navArgument("time") { type = NavType.LongType },
+                ),
+            ) { backStackEntry ->
+                val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
+                val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
+                val time = backStackEntry.arguments?.getLong("time") ?: 0L
+                val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                OCRResultScreen(
+                    navController = navController,
+                    word = word,
+                    attempts = attempts,
+                    timeSpent = time,
+                )
             }
 
             // PlaceholderHome kept for backward compatibility

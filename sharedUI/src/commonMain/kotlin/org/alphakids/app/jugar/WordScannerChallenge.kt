@@ -1,0 +1,570 @@
+package org.alphakids.app.jugar
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import org.alphakids.app.domain.model.ChallengeWord
+import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.CardWhite
+import org.alphakids.app.theme.ErrorRed
+import org.alphakids.app.theme.PrimaryBlue
+import org.alphakids.app.theme.SlateGray
+import org.alphakids.app.theme.SuccessGreen
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.alphi_buscando
+
+/**
+ * Result of an OCR scan attempt.
+ */
+data class OcrResult(
+    val success: Boolean,
+    val detectedText: String,
+)
+
+/**
+ * Word Scanner Challenge screen.
+ *
+ * The child sees letter slots matching the target word length and uses the
+ * camera (placeholder or real CameraX) to scan physical letter tiles.
+ *
+ * @param navController  Navigation controller.
+ * @param word           The target word to scan.
+ * @param cameraContent  Composable lambda that renders the camera preview.
+ *                       Receives an [onTextDetected] callback to feed OCR
+ *                       results back into the challenge. Default is a
+ *                       placeholder showing a camera icon.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WordScannerChallenge(
+    navController: NavController,
+    word: ChallengeWord = WordBank.words.first(),
+    cameraContent: @Composable (onTextDetected: (String) -> Unit) -> Unit = { _ ->
+        CameraPlaceholder()
+    },
+) {
+    // ── Game state ──
+    val letters = word.word.toList().map { it.toString() }
+    val letterSlots = remember { mutableStateListOf(*Array(letters.size) { "" }) }
+    var attempts by remember { mutableIntStateOf(0) }
+    var isScanning by remember { mutableStateOf(false) }
+    var result by remember { mutableStateOf<OcrResult?>(null) }
+    var showResult by remember { mutableStateOf(false) }
+
+    // Prevent re-triggering during scan
+    var scanTriggered by remember { mutableStateOf(false) }
+
+    // ── Callback for OCR text ──
+    val onTextDetected: (String) -> Unit = {
+        if (scanTriggered) {
+            scanTriggered = false
+            isScanning = false
+            attempts++
+
+            val cleaned = it.trim().uppercase()
+            val chars = cleaned.filter { ch -> ch.isLetter() }.take(letterSlots.size)
+
+            // Fill slots character by character
+            for (i in chars.indices) {
+                if (i < letterSlots.size) {
+                    letterSlots[i] = chars[i].toString()
+                }
+            }
+
+            val fullWord = letterSlots.joinToString("")
+            val isComplete = fullWord.length == letters.size
+            val isMatch = isComplete && WordBank.validateWord(fullWord, word.word)
+
+            result = OcrResult(success = isMatch, detectedText = fullWord)
+            showResult = true
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Escaneo de Letras",
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    Text(
+                        text = "\u2B05\uFE0F",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { navController.popBackStack() },
+                            ),
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                ),
+            )
+        },
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFFF0F4FF),
+                            Color(0xFFFAF8FF),
+                        ),
+                    ),
+                )
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // ── Reference image / hint section ──
+            WordHintSection(word = word)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ── Letter slots ──
+            LetterSlotsRow(
+                letters = letters,
+                filledSlots = letterSlots.toList(),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ── Camera preview area ──
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color.Black.copy(alpha = 0.05f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                cameraContent(onTextDetected)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ── Capture button ──
+            Box(
+                modifier = Modifier.size(72.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Button(
+                    onClick = {
+                        scanTriggered = true
+                        isScanning = !isScanning
+                    },
+                    modifier = Modifier.size(64.dp),
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryBlue,
+                        contentColor = Color.White,
+                    ),
+                ) {
+                    Text(
+                        text = "\uD83D\uDCF7",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isScanning,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 8.dp),
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = PrimaryBlue,
+                    )
+                    Text(
+                        text = "Escaneando...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SlateGray,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ── Metrics row ──
+            MetricsRow(
+                attempts = attempts,
+                detectedCount = letterSlots.count { it.isNotEmpty() },
+                totalSlots = letterSlots.size,
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ── Alphi hint ──
+            AlphiHint()
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // ── Result / Retry actions ──
+            if (showResult && result != null) {
+                val r = result!!
+                if (r.success) {
+                    Button(
+                        onClick = {
+                            navController.navigate(
+                                Screen.OcrResult.createRoute(
+                                    wordIndex = WordBank.words.indexOf(word).coerceAtLeast(0),
+                                    attempts = attempts,
+                                    time = 0L,
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = SuccessGreen,
+                            contentColor = Color.White,
+                        ),
+                    ) {
+                        Text(
+                            text = "\u2705 \u00a1Palabra completada! Ver resultado",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            // Reset for retry
+                            showResult = false
+                            result = null
+                            letterSlots.forEachIndexed { index, _ ->
+                                letterSlots[index] = ""
+                            }
+                            isScanning = false
+                            scanTriggered = false
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ErrorRed,
+                            contentColor = Color.White,
+                        ),
+                    ) {
+                        Text(
+                            text = "Reintentar",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun WordHintSection(word: ChallengeWord) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Reference image placeholder
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xFF4FA8F0),
+                                Color(0xFF8B7CF6),
+                            ),
+                        ),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = word.word.first().toString(),
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = word.hint,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = word.category,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = PrimaryBlue,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .background(
+                                color = PrimaryBlue.copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(4.dp),
+                            )
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Letras: ${word.word.length}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = SlateGray,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Difficulty indicator
+            Text(
+                text = when (word.difficulty) {
+                    "f\u00e1cil" -> "\uD83D\uDFE2"
+                    "media" -> "\uD83D\uDFE1"
+                    "dif\u00edcil" -> "\uD83D\uDD34"
+                    else -> "\u26AA"
+                },
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LetterSlotsRow(
+    letters: List<String>,
+    filledSlots: List<String>,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        letters.forEachIndexed { index, _ ->
+            val letter = filledSlots.getOrElse(index) { "" }
+
+            Box(
+                modifier = Modifier
+                    .size(width = 44.dp, height = 52.dp)
+                    .padding(2.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(
+                        color = if (letter.isNotEmpty())
+                            PrimaryBlue.copy(alpha = 0.12f)
+                        else
+                            Color(0xFFE8EAF0),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (letter.isNotEmpty()) {
+                    Text(
+                        text = letter,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryBlue,
+                    )
+                } else {
+                    Text(
+                        text = "_",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color(0xFFC9CDD9),
+                    )
+                }
+            }
+
+            if (index < letters.size - 1) {
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun CameraPlaceholder() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "\uD83D\uDCF7",
+            style = MaterialTheme.typography.displayMedium,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "C\u00e1mara",
+            style = MaterialTheme.typography.bodyLarge,
+            color = SlateGray,
+            fontWeight = FontWeight.Medium,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Coloca las letras frente a la c\u00e1mara",
+            style = MaterialTheme.typography.bodySmall,
+            color = SlateGray.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun MetricsRow(
+    attempts: Int,
+    detectedCount: Int,
+    totalSlots: Int,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            MetricItem(
+                emoji = "\uD83D\uDD04",
+                label = "Intentos",
+                value = "$attempts",
+            )
+            MetricItem(
+                emoji = "\uD83D\uDD0D",
+                label = "Detectadas",
+                value = "$detectedCount/$totalSlots",
+            )
+        }
+    }
+}
+
+@Composable
+private fun MetricItem(
+    emoji: String,
+    label: String,
+    value: String,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = emoji, style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = SlateGray,
+        )
+    }
+}
+
+@Composable
+private fun AlphiHint() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = PrimaryBlue.copy(alpha = 0.06f),
+                shape = RoundedCornerShape(12.dp),
+            )
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(Res.drawable.alphi_buscando),
+            contentDescription = "Alphi hint",
+            modifier = Modifier.size(40.dp),
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = "\u00a1Busca las letras y col\u00f3calas en orden!",
+            style = MaterialTheme.typography.bodySmall,
+            color = SlateGray,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
