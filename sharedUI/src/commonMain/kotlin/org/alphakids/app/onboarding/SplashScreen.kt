@@ -58,7 +58,7 @@ fun SplashScreen(navController: NavController) {
         if (authRepository.isLoggedIn()) {
             val children = parentRepository.getChildren()
             if (children.isNotEmpty()) {
-                navController.navigate(Screen.ChildProfileSelector.route) {
+                navController.navigate(Screen.NetflixProfiles.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             } else {
