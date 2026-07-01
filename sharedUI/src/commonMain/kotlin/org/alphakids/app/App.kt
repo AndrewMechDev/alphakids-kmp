@@ -19,6 +19,7 @@ import org.alphakids.app.onboarding.LoginScreen
 import org.alphakids.app.onboarding.PlaceholderHomeScreen
 import org.alphakids.app.onboarding.RegisterScreen
 import org.alphakids.app.onboarding.SplashScreen
+import org.alphakids.app.onboarding.WelcomeSelectionScreen
 import org.alphakids.app.onboarding.VerificationScreen
 import org.alphakids.app.onboarding.wizard.ChooseAvatarScreen
 import org.alphakids.app.onboarding.wizard.ChooseAvatarViewModel
@@ -48,6 +49,10 @@ fun App() {
         ) {
             composable(Screen.Splash.route) {
                 SplashScreen(navController = navController)
+            }
+
+            composable(Screen.WelcomeSelection.route) {
+                WelcomeSelectionScreen(navController = navController)
             }
 
             composable(Screen.Login.route) {
