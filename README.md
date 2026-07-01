@@ -22,8 +22,24 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 ## Flujo actual
 
 ```
-Splash → Login → Register → OTP → SetupWizard → CreateChild 
-→ ChooseAvatar → ChooseFirstPet → Welcome → PlaceholderHome
+Splash (2.5s)
+  → Login (test@alphakids.com / 123456)
+    ├── ¿Sin hijos? → SetupWizard → CreateChild → Avatar → Pet → Welcome → AdventureHome 🏠
+    └── ¿Con hijos? → [Elegir: Modo niños / Panel de padres]
+                        ├── Modo niños → ChildProfileSelector → AdventureHome 🏠
+                        │                     └── "Crear nuevo perfil" → SetupWizard
+                        └── Panel de padres → [Dashboard | Hijos | Suscripción | Soporte]
+                                               ├── "Agregar hijo" → SetupWizard
+                                               └── "Cerrar sesión" → Login
+
+AdventureHome 🏠 (5 tabs)
+  ├── Inicio 📊  — Dashboard con progreso, mascota activa, actividades
+  ├── Diccionario 📖 — Cofre de palabras (A-Z, búsqueda, 43 palabras)
+  ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
+  ├── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
+  └── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo
+       └── ⚙️ Settings → Panel de padres
+              └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
 ```
 
 ## Comandos
@@ -41,6 +57,10 @@ Abrir iosApp/ en Xcode y compilar
 ## Estado del proyecto
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
-- ✅ **Phase 1** — Onboarding completo (10 pantallas, 61 tests)
-- ✅ **Phase 2** — AdventureHome (Home con tabs + Dashboard)
-- ⏳ **Tabs restantes** — Diccionario, Tienda, Logros, Mascotas
+- ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 5 pasos)
+- ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Logros, Mascotas)
+- ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
+- ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
+- ⏳ **Spelling (STT/TTS)** — Pendiente
+- ⏳ **Rive Animations** — Al final
+- ⏳ **iOS (SwiftUI)** — Próxima fase
