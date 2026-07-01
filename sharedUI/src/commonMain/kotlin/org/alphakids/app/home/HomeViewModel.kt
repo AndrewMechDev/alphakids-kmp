@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.alphakids.app.parent.domain.model.SessionManager
 
 /**
  * UI state for the AdventureHome dashboard (Tab 1 — Inicio).
@@ -80,16 +81,17 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadMockData() {
+        val child = SessionManager.currentChild
         _state.update {
             it.copy(
-                childName = "Valentina",
-                childLevel = 1,
-                childRank = "Semillita",
+                childName = child?.name ?: "Valentina",
+                childLevel = child?.level ?: 1,
+                childRank = child?.rank ?: "Semillita",
                 coins = 50,
-                stars = 3,
+                stars = child?.stars ?: 0,
                 xp = 30,
                 xpToNextLevel = 100,
-                wordsLearned = 5,
+                wordsLearned = child?.wordsLearned ?: 0,
                 wordsPending = 3,
                 streak = 2,
                 petName = "Inti Sol",

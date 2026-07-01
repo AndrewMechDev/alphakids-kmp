@@ -11,12 +11,17 @@ import org.alphakids.app.parent.domain.model.SubscriptionInfo
 import org.alphakids.app.parent.domain.repository.ParentRepository
 
 class MockParentRepository : ParentRepository {
-    private val children = listOf(
+    private val children = mutableListOf(
         ChildSummary("1", "Sofía", "sofia-seed", 3, "Hoja Verde 🍃", "Hoy: 2 palabras", 15, 8),
         ChildSummary("2", "Mateo", "mateo-seed", 1, "Semillita 🌱", "Ayer: 1 palabra", 5, 2),
     )
+    private val nextId = 3
 
-    override suspend fun getChildren(): List<ChildSummary> = children
+    fun addChild(child: ChildSummary) {
+        children.add(child)
+    }
+
+    override suspend fun getChildren(): List<ChildSummary> = children.toList()
 
     override suspend fun getChildStats(childId: String): ChildStats = ChildStats(
         wordsLearned = if (childId == "1") 15 else 5,
