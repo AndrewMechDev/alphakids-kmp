@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.sp
 /*
  * FONT STRATEGY
  * ─────────────
- * DynaPuff (playful, rounded) → display, headline, label
- * DM Sans (clean, readable)   → title, body, labelSmall
+ * DynaPuff (playful, rounded) → display, headline, title, label
+ * DM Sans (clean, readable)   → body, labelSmall
  *
  * Loaded via expect/actual:
  *   - Android: res/font/ in sharedUI androidMain
@@ -55,21 +55,21 @@ val AlphaKidsTypography = Typography(
         lineHeight = 32.sp,
     ),
 
-    // ── Title (DM Sans) ──
+    // ── Title (DynaPuff) ──
     titleLarge = TextStyle(
-        fontFamily = DMSansFont,
+        fontFamily = DynaPuffFont,
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
         lineHeight = 32.sp,
     ),
     titleMedium = TextStyle(
-        fontFamily = DMSansFont,
+        fontFamily = DynaPuffFont,
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         lineHeight = 28.sp,
     ),
     titleSmall = TextStyle(
-        fontFamily = DMSansFont,
+        fontFamily = DynaPuffFont,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
         lineHeight = 24.sp,
