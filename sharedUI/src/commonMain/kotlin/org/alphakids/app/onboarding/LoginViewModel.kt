@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.alphakids.app.onboarding.domain.model.LoginRequest
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.parent.domain.repository.ParentRepository
 
 /**
  * UI state for the login screen.
@@ -19,6 +20,7 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,
+    val hasChildren: Boolean = false,
 )
 
 /**
@@ -28,6 +30,7 @@ data class LoginUiState(
  */
 class LoginViewModel(
     private val authRepository: AuthRepository,
+    private val parentRepository: ParentRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -60,7 +63,7 @@ class LoginViewModel(
             return
         }
 
-        _uiState.update { it.copy(isLoading = true, error = null) }
+        _uiState.update { it.copy(isLoading = true, error = null, isSuccess = false) }
 
         viewModelScope.launch {
             val response = authRepository.login(
@@ -68,7 +71,10 @@ class LoginViewModel(
             )
 
             if (response.success) {
-                _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+                val children = parentRepository.getChildren()
+                _uiState.update {
+                    it.copy(isLoading = false, isSuccess = true, hasChildren = children.isNotEmpty())
+                }
             } else {
                 _uiState.update { it.copy(isLoading = false, error = response.message) }
             }

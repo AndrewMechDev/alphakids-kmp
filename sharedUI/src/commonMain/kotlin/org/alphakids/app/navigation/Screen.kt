@@ -38,6 +38,9 @@ sealed class Screen(val route: String) {
     /** AdventureHome dashboard with bottom navigation */
     data object AdventureHome : Screen("adventure-home")
 
+    /** Child profile selector — pick or create a child */
+    data object ChildProfileSelector : Screen("child-profile-selector")
+
     // ── Parent Dashboard Screens ──
 
     /** Parent dashboard hub with bottom navigation */
@@ -89,6 +92,7 @@ sealed class Screen(val route: String) {
             route == ChooseFirstPet.route -> ChooseFirstPet
             route == Welcome.route -> Welcome
             route == AdventureHome.route -> AdventureHome
+            route == ChildProfileSelector.route -> ChildProfileSelector
             route == PlaceholderHome.route -> PlaceholderHome
             route == LearningAdventureHub.route -> LearningAdventureHub
             route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
