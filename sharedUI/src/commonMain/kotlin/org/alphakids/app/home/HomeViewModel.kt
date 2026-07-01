@@ -72,6 +72,11 @@ data class PendingActivity(
  * real data from the child repository and pet repository.
  */
 class HomeViewModel : ViewModel() {
+    companion object {
+        /** Persists during app session even if ViewModel is recreated. */
+        private var sessionCoins: Int = 50
+        private var sessionStars: Int = 0
+    }
 
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -87,8 +92,8 @@ class HomeViewModel : ViewModel() {
                 childName = child?.name ?: "Valentina",
                 childLevel = child?.level ?: 1,
                 childRank = child?.rank ?: "Semillita",
-                coins = 50,
-                stars = child?.stars ?: 0,
+                coins = sessionCoins,
+                stars = child?.stars ?: sessionStars,
                 xp = 30,
                 xpToNextLevel = 100,
                 wordsLearned = child?.wordsLearned ?: 0,
@@ -119,6 +124,7 @@ class HomeViewModel : ViewModel() {
 
     /** Deduct coins when the child buys something from the Tienda. */
     fun spendCoins(amount: Int) {
-        _state.update { it.copy(coins = maxOf(0, it.coins - amount)) }
+        sessionCoins = maxOf(0, sessionCoins - amount)
+        _state.update { it.copy(coins = sessionCoins) }
     }
 }
