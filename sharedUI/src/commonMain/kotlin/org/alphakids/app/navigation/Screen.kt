@@ -38,6 +38,22 @@ sealed class Screen(val route: String) {
     /** AdventureHome dashboard with bottom navigation */
     data object AdventureHome : Screen("adventure-home")
 
+    // ── Parent Dashboard Screens ──
+
+    /** Parent dashboard hub with bottom navigation */
+    data object ParentDashboard : Screen("parent-dashboard")
+
+    /** Child detail from parent dashboard */
+    data object ParentChildDetail : Screen("parent-child-detail/{childId}") {
+        fun createRoute(childId: String): String = "parent-child-detail/$childId"
+    }
+
+    /** Subscription management for parents */
+    data object ParentSubscription : Screen("parent-subscription")
+
+    /** Support / FAQ screen for parents */
+    data object ParentSupport : Screen("parent-support")
+
     /** Placeholder home screen ("¡Pronto!") — kept for backward compat */
     data object PlaceholderHome : Screen("placeholder-home")
 
@@ -77,6 +93,10 @@ sealed class Screen(val route: String) {
             route == LearningAdventureHub.route -> LearningAdventureHub
             route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
             route.startsWith("ocr-result/") -> OcrResult
+            route == ParentDashboard.route -> ParentDashboard
+            route.startsWith("parent-child-detail/") -> ParentChildDetail
+            route == ParentSubscription.route -> ParentSubscription
+            route == ParentSupport.route -> ParentSupport
             else -> null
         }
     }

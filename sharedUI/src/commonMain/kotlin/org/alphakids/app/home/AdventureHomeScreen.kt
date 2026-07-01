@@ -104,6 +104,9 @@ fun AdventureHomeScreen(navController: NavController) {
                 onNavigateToHub = {
                     navController.navigate(Screen.LearningAdventureHub.route)
                 },
+                onNavigateToParentDashboard = {
+                    navController.navigate(Screen.ParentDashboard.route)
+                },
                 modifier = Modifier.padding(innerPadding),
             )
             1 -> DictionaryScreen(
