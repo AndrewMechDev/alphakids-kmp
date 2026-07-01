@@ -24,6 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,6 +76,7 @@ fun WelcomeScreen(
     val wizardState by wizardViewModel.state.collectAsState()
     val data = wizardState.data
     val scrollState = rememberScrollState()
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     val dicebearUrl = if (data.avatarSeed.isNotBlank()) {
         "https://api.dicebear.com/10.x/${data.avatarStyle}/svg?seed=${data.avatarSeed}"
@@ -218,34 +224,55 @@ fun WelcomeScreen(
         // "Ir al inicio" button
         AlphaPrimaryButton(
             text = "Ir al inicio",
-            onClick = {
-                // Save child to session
-                val wizardState = wizardViewModel.state.value
-                val data = wizardState.data
-                val newChild = ChildSummary(
-                    id = (1000..9999).random().toString(),
-                    name = data.childName,
-                    avatarSeed = data.avatarSeed,
-                    level = 1,
-                    rank = "Semillita 🌱",
-                    lastActivity = "Recién creado",
-                    wordsLearned = 0,
-                    stars = 0,
-                )
-                SessionManager.setActiveChild(newChild)
-                // Add to parent repository so it appears in dashboard
-                val repo = koinInject<ParentRepository>()
-                if (repo is MockParentRepository) {
-                    repo.addChild(newChild)
-                }
-                navController.navigate(Screen.AdventureHome.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-            },
+            onClick = { showConfirmDialog = true },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
 
         Spacer(modifier = Modifier.height(48.dp))
+    }
+
+    // Confirmation dialog before creating the child profile
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("¿Confirmar perfil?") },
+            text = {
+                Text("Se creará el perfil de ${data.childName} con la mascota elegida")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    // Save child to session
+                    val dialogState = wizardViewModel.state.value
+                    val dialogData = dialogState.data
+                    val newChild = ChildSummary(
+                        id = (1000..9999).random().toString(),
+                        name = dialogData.childName,
+                        avatarSeed = dialogData.avatarSeed,
+                        level = 1,
+                        rank = "Semillita 🌱",
+                        lastActivity = "Recién creado",
+                        wordsLearned = 0,
+                        stars = 0,
+                    )
+                    SessionManager.setActiveChild(newChild)
+                    val repo = koinInject<ParentRepository>()
+                    if (repo is MockParentRepository) {
+                        repo.addChild(newChild)
+                    }
+                    navController.navigate(Screen.AdventureHome.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+        )
     }
 }
 
