@@ -13,21 +13,25 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.components.AlphaTextField
@@ -51,8 +55,9 @@ fun LoginScreen(navController: NavController) {
         LoginViewModel(authRepository)
     }
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     // Navigate on success
     LaunchedEffect(state.isSuccess) {
@@ -63,9 +68,13 @@ fun LoginScreen(navController: NavController) {
         }
     }
 
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    ) { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -154,9 +163,9 @@ fun LoginScreen(navController: NavController) {
         AlphaTextButton(
             text = "¿Olvidaste tu contraseña?",
             onClick = {
-                android.widget.Toast
-                    .makeText(context, "Función próximamente", android.widget.Toast.LENGTH_SHORT)
-                    .show()
+                scope.launch {
+                    snackbarHostState.showSnackbar("Función próximamente")
+                }
             },
         )
 
@@ -172,5 +181,6 @@ fun LoginScreen(navController: NavController) {
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
