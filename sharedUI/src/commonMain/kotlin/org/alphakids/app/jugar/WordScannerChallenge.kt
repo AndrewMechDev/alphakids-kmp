@@ -52,10 +52,7 @@ import androidx.navigation.NavController
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.theme.CardWhite
 import org.alphakids.app.theme.ErrorRed
-import org.alphakids.app.theme.PrimaryBlue
-import org.alphakids.app.theme.SlateGray
 import org.alphakids.app.theme.SuccessGreen
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -155,14 +152,7 @@ fun WordScannerChallenge(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFFF0F4FF),
-                            Color(0xFFFAF8FF),
-                        ),
-                    ),
-                )
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -204,8 +194,8 @@ fun WordScannerChallenge(
                     modifier = Modifier.size(64.dp),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryBlue,
-                        contentColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ) {
                     Text(
@@ -228,12 +218,12 @@ fun WordScannerChallenge(
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp,
-                        color = PrimaryBlue,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         text = "Escaneando...",
                         style = MaterialTheme.typography.bodySmall,
-                        color = SlateGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -274,7 +264,7 @@ fun WordScannerChallenge(
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SuccessGreen,
-                            contentColor = Color.White,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                         ),
                     ) {
                         Text(
@@ -301,7 +291,7 @@ fun WordScannerChallenge(
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = ErrorRed,
-                            contentColor = Color.White,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                         ),
                     ) {
                         Text(
@@ -323,7 +313,7 @@ private fun WordHintSection(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
@@ -369,11 +359,11 @@ private fun WordHintSection(word: ChallengeWord) {
                     Text(
                         text = word.category,
                         style = MaterialTheme.typography.labelSmall,
-                        color = PrimaryBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier
                             .background(
-                                color = PrimaryBlue.copy(alpha = 0.1f),
+                                color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(4.dp),
                             )
                             .padding(horizontal = 8.dp, vertical = 2.dp),
@@ -382,7 +372,7 @@ private fun WordHintSection(word: ChallengeWord) {
                     Text(
                         text = "Letras: ${word.word.length}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = SlateGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -423,9 +413,9 @@ private fun LetterSlotsRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (letter.isNotEmpty())
-                            PrimaryBlue.copy(alpha = 0.12f)
+                            MaterialTheme.colorScheme.primaryContainer
                         else
-                            Color(0xFFE8EAF0),
+                            MaterialTheme.colorScheme.surfaceVariant,
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -434,13 +424,13 @@ private fun LetterSlotsRow(
                         text = letter,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = PrimaryBlue,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 } else {
                     Text(
                         text = "_",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = Color(0xFFC9CDD9),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     )
                 }
             }
@@ -466,14 +456,14 @@ private fun CameraPlaceholder() {
         Text(
             text = "C\u00e1mara",
             style = MaterialTheme.typography.bodyLarge,
-            color = SlateGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Medium,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "Coloca las letras frente a la c\u00e1mara",
             style = MaterialTheme.typography.bodySmall,
-            color = SlateGray.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
         )
     }
@@ -488,7 +478,7 @@ private fun MetricsRow(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(
@@ -528,7 +518,7 @@ private fun MetricItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = SlateGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -539,7 +529,7 @@ private fun AlphiHint() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = PrimaryBlue.copy(alpha = 0.06f),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(12.dp),
             )
             .padding(12.dp),
@@ -554,7 +544,7 @@ private fun AlphiHint() {
         Text(
             text = "\u00a1Busca las letras y col\u00f3calas en orden!",
             style = MaterialTheme.typography.bodySmall,
-            color = SlateGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f),
         )
     }

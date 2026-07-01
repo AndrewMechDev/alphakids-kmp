@@ -43,10 +43,7 @@ import androidx.navigation.NavController
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.theme.CardWhite
 import org.alphakids.app.theme.CoinGold
-import org.alphakids.app.theme.PrimaryBlue
-import org.alphakids.app.theme.SlateGray
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
@@ -104,14 +101,7 @@ fun OCRResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFFF0FFF0),
-                            Color(0xFFFAFFF8),
-                        ),
-                    ),
-                )
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -171,8 +161,8 @@ fun OCRResultScreen(
                     .height(50.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryBlue,
-                    contentColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
             ) {
                 Text(
@@ -199,8 +189,8 @@ fun OCRResultScreen(
                     .height(50.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CardWhite,
-                    contentColor = PrimaryBlue,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary,
                 ),
             ) {
                 Text(
@@ -224,7 +214,7 @@ fun OCRResultScreen(
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
-                    contentColor = SlateGray,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             ) {
                 Text(
@@ -267,7 +257,7 @@ private fun WordDisplay(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
@@ -295,7 +285,7 @@ private fun WordDisplay(word: ChallengeWord) {
                     text = word.word.first().toString(),
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
             }
 
@@ -306,13 +296,13 @@ private fun WordDisplay(word: ChallengeWord) {
                     text = word.word,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryBlue,
+                    color = MaterialTheme.colorScheme.primary,
                     letterSpacing = 4.sp,
                 )
                 Text(
                     text = word.hint,
                     style = MaterialTheme.typography.bodySmall,
-                    color = SlateGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -340,7 +330,7 @@ private fun RewardsCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF8E1),
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -373,7 +363,7 @@ private fun RewardsCard(
                     emoji = "\u26A1",
                     label = "XP",
                     value = "+$xp",
-                    color = PrimaryBlue,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 RewardItem(
                     emoji = "\u2B50",
@@ -407,7 +397,7 @@ private fun RewardItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = SlateGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -426,7 +416,7 @@ private fun StatsCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(
@@ -471,7 +461,7 @@ private fun StatItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = SlateGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

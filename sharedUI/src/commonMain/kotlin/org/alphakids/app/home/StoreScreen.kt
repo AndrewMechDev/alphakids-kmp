@@ -120,14 +120,7 @@ fun StoreScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF0F4FF),
-                        Color(0xFFFAF8FF),
-                    ),
-                ),
-            ),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         // ── Header: title + coins ──
         StoreHeader(coins = coins)

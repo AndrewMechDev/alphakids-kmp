@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
+import org.alphakids.app.theme.SuccessGreen
 
 /**
  * Child detail screen showing full profile, stats, weekly progress, pets, and achievements.
@@ -85,7 +86,9 @@ fun ChildDetailScreen(
     val child = state.child ?: return
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -277,14 +280,14 @@ private fun WeeklyProgressSection(weeklyProgress: List<Boolean>) {
                                 .size(32.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (active) Color(0xFF34C759)
+                                    if (active) SuccessGreen
                                     else MaterialTheme.colorScheme.surfaceVariant,
                                 ),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 text = if (active) "\u2713" else "",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                             )

@@ -40,8 +40,6 @@ private data class ParentNavTab(
 private val parentTabs = listOf(
     ParentNavTab(label = "Dashboard", emoji = "\uD83D\uDCCA", index = 0),
     ParentNavTab(label = "Hijos", emoji = "\uD83D\uDC76", index = 1),
-    ParentNavTab(label = "Suscripción", emoji = "\uD83D\uDCB3", index = 2),
-    ParentNavTab(label = "Soporte", emoji = "\u2753", index = 3),
 )
 
 /**
@@ -174,12 +172,7 @@ fun ParentHomeScreen(
                     )
                 }
             }
-            2 -> SubscriptionScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
-            3 -> SupportScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
+
         }
     }
 }
