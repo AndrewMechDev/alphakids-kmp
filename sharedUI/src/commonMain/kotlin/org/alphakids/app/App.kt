@@ -27,6 +27,7 @@ import org.alphakids.app.onboarding.wizard.CreateChildProfileScreen
 import org.alphakids.app.onboarding.wizard.SetupWizardScreen
 import org.alphakids.app.onboarding.wizard.WelcomeScreen
 import org.alphakids.app.onboarding.wizard.WizardViewModel
+import org.alphakids.app.parent.ParentHomeScreen
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
 import org.alphakids.app.theme.AlphaKidsTheme
@@ -116,6 +117,11 @@ fun App() {
 
             composable(Screen.AdventureHome.route) {
                 AdventureHomeScreen(navController = navController)
+            }
+
+            // ── Parent Dashboard Route ──
+            composable(Screen.ParentDashboard.route) {
+                ParentHomeScreen(navController = navController)
             }
 
             // ── Jugar / Activity Routes ──

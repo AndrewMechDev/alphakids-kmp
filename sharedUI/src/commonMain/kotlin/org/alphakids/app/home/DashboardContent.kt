@@ -81,6 +81,7 @@ fun DashboardContent(
     onActivityClick: (String) -> Unit,
     onNavigateToTab: (Int) -> Unit,
     onNavigateToHub: () -> Unit = {},
+    onNavigateToParentDashboard: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -104,7 +105,7 @@ fun DashboardContent(
     ) {
         // ── 1. Header ──
         item(key = "header") {
-            HeaderSection(state = state, onSettings = { /* future */ })
+            HeaderSection(state = state, onSettings = onNavigateToParentDashboard)
         }
 
         // ── 2. Welcome Panel ──
