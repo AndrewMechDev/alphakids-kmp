@@ -1,36 +1,46 @@
+# AlphaKids KMP
 
-This is a Kotlin Multiplatform project targeting Android, iOS.
+Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform + Compose Multiplatform.
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Stack
 
-* [/sharedLogic](./sharedLogic/src) is for the code that will be shared between app targets in the project.
-  The most important subfolder is [commonMain](./sharedLogic/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+- **Kotlin Multiplatform** (KMP) — lógica compartida entre Android e iOS
+- **Compose Multiplatform** — UI compartida para Android
+- **SwiftUI nativo** — UI para iOS
+- **Clean Architecture** (Hexagonal) + MVVM por plataforma
+- **Koin** — Inyección de dependencias multiplatform
+- **Ktor** — Networking REST (preparado, desactivado por ahora)
+- **SQLDelight** — Base de datos local
 
-* [/sharedUI](./sharedUI/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./sharedUI/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./sharedUI/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./sharedUI/src/jvmMain/kotlin)
-    folder is the appropriate location.
+## Módulos
 
-### Running the apps
+- [`/androidApp`](./androidApp) — Aplicación Android (Compose Multiplatform + Navigation Compose)
+- [`/iosApp`](./iosApp) — Aplicación iOS (SwiftUI)
+- [`/sharedUI`](./sharedUI) — UI compartida Compose Multiplatform
+- [`/sharedLogic`](./sharedLogic) — Lógica de negocio compartida (domain/data/di/platform)
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Flujo actual
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+```
+Splash → Login → Register → OTP → SetupWizard → CreateChild 
+→ ChooseAvatar → ChooseFirstPet → Welcome → PlaceholderHome
+```
 
-### Running tests
+## Comandos
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+```bash
+# Android
+./gradlew :androidApp:installDebug          # Instalar en dispositivo
+./gradlew :androidApp:assembleDebug          # Build APK
+./gradlew allTests                           # Tests compartidos
 
-- Android tests: `./gradlew :sharedUI:testAndroidHostTest :sharedLogic:testAndroidHostTest`
-- iOS tests: `./gradlew :sharedLogic:iosSimulatorArm64Test`
+# iOS
+Abrir iosApp/ en Xcode y compilar
+```
 
----
+## Estado del proyecto
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+- ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
+- ✅ **Phase 1** — Onboarding completo (10 pantallas, 61 tests)
+- ✅ **Phase 2** — AdventureHome (Home con tabs + Dashboard)
+- ⏳ **Tabs restantes** — Diccionario, Tienda, Logros, Mascotas
