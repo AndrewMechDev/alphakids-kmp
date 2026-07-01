@@ -40,10 +40,9 @@ private data class BottomNavTab(
 
 private val tabs = listOf(
     BottomNavTab(label = "Inicio", emoji = "\uD83C\uDFE0", index = 0),
-    BottomNavTab(label = "Diccionario", emoji = "\uD83D\uDCD6", index = 1),
-    BottomNavTab(label = "Tienda", emoji = "\uD83D\uDED2", index = 2),
+    BottomNavTab(label = "Tienda", emoji = "\uD83D\uDED2", index = 1),
+    BottomNavTab(label = "Mascotas", emoji = "\uD83D\uDC3E", index = 2),
     BottomNavTab(label = "Logros", emoji = "\uD83C\uDFC6", index = 3),
-    BottomNavTab(label = "Mascotas", emoji = "\uD83D\uDC3E", index = 4),
 )
 
 /**
@@ -143,9 +142,6 @@ fun AdventureHomeScreen(navController: NavController) {
                 state = state,
                 onFeed = { viewModel.feedPet() },
                 onPlay = { viewModel.playWithPet() },
-                onPetProfile = { /* future */ },
-                onActivityClick = { wordName -> /* future: navigate to word activity */ },
-                onNavigateToTab = { tabIndex -> selectedTab = tabIndex },
                 onNavigateToHub = {
                     navController.navigate(Screen.LearningAdventureHub.route)
                 },
@@ -154,22 +150,19 @@ fun AdventureHomeScreen(navController: NavController) {
                 },
                 modifier = Modifier.padding(innerPadding),
             )
-            1 -> DictionaryScreen(
+            1 -> StoreScreen(
+                coins = state.coins,
+                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
+                childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
-            2 -> StoreScreen(
+            2 -> PetsScreen(
                 coins = state.coins,
                 onSpendCoins = { amount -> viewModel.spendCoins(amount) },
                 childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
             3 -> AchievementsScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
-            4 -> PetsScreen(
-                coins = state.coins,
-                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
-                childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
         }

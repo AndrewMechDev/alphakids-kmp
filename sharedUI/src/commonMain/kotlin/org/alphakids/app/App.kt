@@ -4,6 +4,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -48,9 +51,14 @@ fun App() {
         // Shared wizard ViewModel — survives navigation across wizard screens
         val wizardViewModel = remember { WizardViewModel() }
 
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Splash.route,
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding(),
+        ) {
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Splash.route,
         ) {
             composable(
                 Screen.Splash.route,
@@ -290,5 +298,6 @@ fun App() {
                 PlaceholderHomeScreen(navController = navController)
             }
         }
+    }
     }
 }
