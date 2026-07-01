@@ -45,8 +45,9 @@ private val tabs = listOf(
  * Main post-onboarding screen with bottom navigation.
  *
  * Tab 1 (Inicio) shows the full dashboard with child stats, active pet,
- * pending activities, and quick-access cards. Tabs 2–5 show placeholder
- * text stubs.
+ * pending activities, and quick-access cards. Tab 2 (Diccionario) shows
+ * the word treasure chest with alphabet nav, search, and filters.
+ * Tabs 3–5 show placeholder text stubs.
  */
 @Composable
 fun AdventureHomeScreen(navController: NavController) {
@@ -101,14 +102,13 @@ fun AdventureHomeScreen(navController: NavController) {
                 onNavigateToTab = { tabIndex -> selectedTab = tabIndex },
                 modifier = Modifier.padding(innerPadding),
             )
-            1 -> PlaceholderTabContent(
-                title = "Diccionario",
-                message = "Explora palabras nuevas y su significado.",
+            1 -> DictionaryScreen(
                 modifier = Modifier.padding(innerPadding),
             )
-            2 -> PlaceholderTabContent(
-                title = "Tienda",
-                message = "Personaliza tu experiencia con objetos especiales.",
+            2 -> StoreScreen(
+                coins = state.coins,
+                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
+                childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
             3 -> PlaceholderTabContent(
