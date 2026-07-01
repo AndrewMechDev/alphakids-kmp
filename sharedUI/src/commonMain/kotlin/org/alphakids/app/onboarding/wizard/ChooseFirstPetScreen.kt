@@ -118,7 +118,9 @@ fun ChooseFirstPetScreen(
             onConfirm = {
                 if (choosePetViewModel.onNameConfirmed()) {
                     wizardViewModel.updateStep(WizardStep.Welcome)
-                    navController.navigate(Screen.Welcome.route)
+                    navController.navigate(Screen.Welcome.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             },
             onDismiss = choosePetViewModel::onDismissNaming,
