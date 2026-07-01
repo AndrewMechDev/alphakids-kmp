@@ -16,12 +16,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.parent.domain.model.SessionManager
 
 /**
  * Bottom navigation tab definition for the parent dashboard using emoji icons.
@@ -80,8 +85,14 @@ fun ParentHomeScreen(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
+                    val authRepository: AuthRepository = koinInject()
+                    val scope = rememberCoroutineScope()
                     TextButton(
                         onClick = {
+                            scope.launch {
+                                authRepository.logout()
+                            }
+                            SessionManager.clearSession()
                             navController.navigate(Screen.Login.route) {
                                 popUpTo(0) { inclusive = true }
                             }

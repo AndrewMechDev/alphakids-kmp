@@ -183,6 +183,10 @@ class MockAuthRepository : AuthRepository {
 
     override suspend fun isLoggedIn(): Boolean = loggedIn
 
+    override suspend fun logout() {
+        loggedIn = false
+    }
+
     // ── Helpers ──
 
     private fun generateOtpCode(): String {

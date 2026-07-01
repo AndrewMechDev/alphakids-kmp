@@ -27,4 +27,7 @@ interface AuthRepository {
 
     /** Check if a user is currently logged in. */
     suspend fun isLoggedIn(): Boolean
+
+    /** Log out the current user. */
+    suspend fun logout()
 }
