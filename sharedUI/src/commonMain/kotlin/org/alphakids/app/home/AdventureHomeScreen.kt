@@ -114,9 +114,10 @@ fun AdventureHomeScreen(navController: NavController) {
             3 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
             )
-            4 -> PlaceholderTabContent(
-                title = "Mascotas",
-                message = "Cuida y juega con tus mascotas.",
+            4 -> PetsScreen(
+                coins = state.coins,
+                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
+                childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
         }

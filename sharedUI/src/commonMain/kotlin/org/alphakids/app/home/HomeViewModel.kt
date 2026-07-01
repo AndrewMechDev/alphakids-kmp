@@ -114,4 +114,9 @@ class HomeViewModel : ViewModel() {
     fun playWithPet() {
         _state.update { it.copy(petHappiness = minOf(100, it.petHappiness + 10)) }
     }
+
+    /** Deduct coins when the child buys something from the Tienda. */
+    fun spendCoins(amount: Int) {
+        _state.update { it.copy(coins = maxOf(0, it.coins - amount)) }
+    }
 }
