@@ -51,32 +51,36 @@ Chain strategy: pending
 
 ## Phase 2: Auth Screens
 
-- [ ] 2.1 Create SplashScreen.kt (logo, Alphi, 2-3s auto-nav)
-- [ ] 2.2 Create LoginScreen.kt + LoginViewModel.kt (email/password validation)
-- [ ] 2.3 Create RegisterScreen.kt + RegisterViewModel.kt (6 fields + terms)
-- [ ] 2.4 Create VerificationScreen.kt + VerificationViewModel.kt (OTP match + resend cooldown)
-- [ ] 2.5 Modify App.kt: replace placeholder with NavHost + auth routes
+- [x] 2.1 Create SplashScreen.kt (logo, Alphi, 2.5s auto-nav with isLoggedIn check)
+- [x] 2.2 Create LoginScreen.kt + LoginViewModel.kt (email/password validation + demo hint)
+- [x] 2.3 Create RegisterScreen.kt + RegisterViewModel.kt (7 fields + terms + validation)
+- [x] 2.4 Create VerificationScreen.kt + VerificationViewModel.kt (OTP 6-digit + 30s resend cooldown)
+- [x] 2.5 Wire App.kt: replace placeholder with AlphaKidsTheme + NavHost + auth routes
 
 ## Phase 3: Wizard + PlaceholderHome
 
-- [ ] 3.1 Create WizardState.kt shared state (name, age, avatar, pet)
-- [ ] 3.2 Create SetupWizardScreen.kt (benefit cards + "Comenzar")
-- [ ] 3.3 Create CreateChildProfileScreen.kt (name, age picker, birthdate)
-- [ ] 3.4 Create components/AvatarCard.kt (DiceBear SVG + shimmer + initials fallback)
-- [ ] 3.5 Create ChooseAvatarScreen.kt + ChooseAvatarViewModel.kt (3 categories)
-- [ ] 3.6 Create components/PetCard.kt (image + name + description)
-- [ ] 3.7 Create components/NamePetModal.kt (field + confirm, 1-20 chars)
-- [ ] 3.8 Create ChooseFirstPetScreen.kt + ChooseFirstPetViewModel.kt
-- [ ] 3.9 Create WelcomeScreen.kt (avatar + pet + coins + level + XP bar)
-- [ ] 3.10 Create PlaceholderHomeScreen.kt ("¡Pronto!" + restart button)
+- [x] 3.1 Create WizardViewModel.kt with shared wizard state (step, data, reset)
+- [x] 3.2 Create SetupWizardScreen.kt (benefit cards + "Comenzar configuración")
+- [x] 3.3 Create CreateChildProfileScreen.kt (name, age dropdown, avatar preview)
+- [x] 3.4 Create ChooseAvatarViewModel.kt + ChooseAvatarScreen.kt (3 DiceBear categories, grid, selection)
+- [x] 3.5 Create ChooseFirstPetViewModel.kt + ChooseFirstPetScreen.kt (pet selection + naming modal)
+- [x] 3.6 Create WelcomeScreen.kt (avatar, pet, coins, level, rank celebration)
+- [x] 3.7 Create PlaceholderHomeScreen.kt ("¡Pronto!" + restart button)
+- [x] 3.8 Wire App.kt with all remaining routes (SetupWizard, CreateChild, ChooseAvatar, ChooseFirstPet, Welcome, PlaceholderHome)
 
 ## Phase 4: Testing
 
-- [ ] 4.1 LoginViewModel test: email validation, error states against mock
-- [ ] 4.2 RegisterViewModel test: field validation, terms toggle
-- [ ] 4.3 VerificationViewModel test: OTP match, resend cooldown timer
-- [ ] 4.4 WizardViewModel test: state accumulation across 5 steps
-- [ ] 4.5 MockAuthRepository test: happy path + error path
-- [ ] 4.6 OTPInputField test: 6-digit auto-advance state machine
-- [ ] 4.7 Screen route parsing test: route strings map correctly
-- [ ] 4.8 Run `./gradlew allTests` and fix failures
+- [x] 4.1 LoginViewModel test: email validation, error states against mock
+- [x] 4.2 RegisterViewModel test: field validation, terms toggle
+- [x] 4.3 VerificationViewModel test: OTP match, resend cooldown timer
+- [x] 4.4 WizardViewModel test: state accumulation across 5 steps
+- [x] 4.5 MockAuthRepository test: happy path + error path
+- [ ] 4.6 OTPInputField test: 6-digit auto-advance state machine (requires Compose UI test infra)
+- [ ] 4.7 Screen route parsing test: route strings map correctly (requires navigation test infra)
+- [x] 4.8 Run `./gradlew allTests` and fix failures
+
+### Bonus tests (beyond original tasks)
+
+- [x] ChooseAvatarViewModel test: 3 categories, 6-8 variants each, URL format, selection
+- [x] ChooseFirstPetViewModel test: pet loading, selection, naming modal, name validation (max 20)
+- [x] MockPetsRepository test: 3 pets, correct data, lookup by id, invalid id returns null

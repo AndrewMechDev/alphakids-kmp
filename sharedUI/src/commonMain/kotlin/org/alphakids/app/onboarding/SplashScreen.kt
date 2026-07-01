@@ -54,7 +54,7 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(2500L)
         if (authRepository.isLoggedIn()) {
-            navController.navigate(Screen.PlaceholderHome.route) {
+            navController.navigate(Screen.AdventureHome.route) {
                 popUpTo(Screen.Splash.route) { inclusive = true }
             }
         } else {
