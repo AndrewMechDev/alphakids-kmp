@@ -1,6 +1,8 @@
 package org.alphakids.app.onboarding
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -50,7 +51,7 @@ import alphakids_kmp.sharedui.generated.resources.alphi_padre
 /**
  * Login screen with email/password fields, demo credentials hint, and navigation.
  *
- * On successful login navigates to [Screen.SetupWizard].
+ * On successful login navigates to [Screen.NetflixProfiles] (profile selector).
  * On "Crear cuenta" navigates to [Screen.Register].
  */
 @Composable
@@ -64,72 +65,14 @@ fun LoginScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    var showRoleDialog by remember { mutableStateOf(false) }
 
-    // On login success: if children exist show role dialog, else auto-navigate to wizard
-    LaunchedEffect(state.isSuccess, state.hasChildren) {
+    // On login success: navigate to Netflix-style profile selector
+    LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
-            if (state.hasChildren) {
-                showRoleDialog = true
-            } else {
-                navController.navigate(Screen.SetupWizard.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                }
+            navController.navigate(Screen.NetflixProfiles.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
-    }
-
-    // Role selection dialog
-    if (showRoleDialog) {
-        AlertDialog(
-            onDismissRequest = { showRoleDialog = false },
-            shape = MaterialTheme.shapes.large,
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = {
-                Text(
-                    text = "\uD83D\uDC4B ¡Bienvenido!",
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-            },
-            text = {
-                Text(
-                    text = "¿Cómo quieres entrar?",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showRoleDialog = false
-                        navController.navigate(Screen.SetupWizard.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
-                    },
-                ) {
-                    Text(
-                        text = "\uD83D\uDC76 Modo niños",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showRoleDialog = false
-                        navController.navigate(Screen.ParentDashboard.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
-                    },
-                ) {
-                    Text(
-                        text = "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66 Panel de padres",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
-                }
-            },
-        )
     }
 
     Scaffold(
@@ -143,7 +86,25 @@ fun LoginScreen(navController: NavController) {
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Back button to WelcomeSelection
+        Text(
+            text = "\u2B05\uFE0F Volver",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    navController.popBackStack()
+                },
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Alphi image
         Image(
