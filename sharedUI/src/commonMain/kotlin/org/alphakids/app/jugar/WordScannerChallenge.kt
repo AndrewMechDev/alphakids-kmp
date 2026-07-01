@@ -73,23 +73,17 @@ data class OcrResult(
  * Word Scanner Challenge screen.
  *
  * The child sees letter slots matching the target word length and uses the
- * camera (placeholder or real CameraX) to scan physical letter tiles.
+ * camera to scan physical letter tiles. CameraX + ML Kit OCR is provided
+ * via the platform-specific [CameraView] composable.
  *
  * @param navController  Navigation controller.
  * @param word           The target word to scan.
- * @param cameraContent  Composable lambda that renders the camera preview.
- *                       Receives an [onTextDetected] callback to feed OCR
- *                       results back into the challenge. Default is a
- *                       placeholder showing a camera icon.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordScannerChallenge(
     navController: NavController,
     word: ChallengeWord = WordBank.words.first(),
-    cameraContent: @Composable (onTextDetected: (String) -> Unit) -> Unit = { _ ->
-        CameraPlaceholder()
-    },
 ) {
     // ── Game state ──
     val letters = word.word.toList().map { it.toString() }
@@ -186,17 +180,14 @@ fun WordScannerChallenge(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Camera preview area ──
-            Box(
+            // ── Camera preview area (platform-specific: CameraX + ML Kit) ──
+            CameraView(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color.Black.copy(alpha = 0.05f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                cameraContent(onTextDetected)
-            }
+                    .height(280.dp),
+                onTextDetected = onTextDetected,
+                onError = { /* handled by UI state if needed */ },
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
