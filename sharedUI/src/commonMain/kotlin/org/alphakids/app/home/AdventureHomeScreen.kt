@@ -150,7 +150,7 @@ fun AdventureHomeScreen(navController: NavController) {
                     navController.navigate(Screen.LearningAdventureHub.route)
                 },
                 onNavigateToParentDashboard = {
-                    navController.navigate(Screen.ParentDashboard.route)
+                    navController.navigate(Screen.NetflixProfiles.route)
                 },
                 modifier = Modifier.padding(innerPadding),
             )

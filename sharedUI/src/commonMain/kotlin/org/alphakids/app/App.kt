@@ -1,5 +1,9 @@
 package org.alphakids.app
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -48,29 +52,63 @@ fun App() {
             navController = navController,
             startDestination = Screen.Splash.route,
         ) {
-            composable(Screen.Splash.route) {
+            composable(
+                Screen.Splash.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 SplashScreen(navController = navController)
             }
 
-            composable(Screen.WelcomeSelection.route) {
+            composable(
+                Screen.WelcomeSelection.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 WelcomeSelectionScreen(navController = navController)
             }
 
-            composable(Screen.NetflixProfiles.route) {
+            composable(
+                Screen.NetflixProfiles.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 NetflixProfilesScreen(navController = navController)
             }
 
-            composable(Screen.Login.route) {
+            composable(
+                Screen.Login.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 LoginScreen(navController = navController)
             }
 
-            composable(Screen.Register.route) {
+            composable(
+                Screen.Register.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 RegisterScreen(navController = navController)
             }
 
             composable(
                 route = Screen.Verification.route,
                 arguments = listOf(navArgument("email") { type = NavType.StringType }),
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
             ) { backStackEntry ->
                 val email = backStackEntry.arguments?.getString("email") ?: ""
                 VerificationScreen(
@@ -79,21 +117,39 @@ fun App() {
                 )
             }
 
-            composable(Screen.SetupWizard.route) {
+            composable(
+                Screen.SetupWizard.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 SetupWizardScreen(
                     navController = navController,
                     wizardViewModel = wizardViewModel,
                 )
             }
 
-            composable(Screen.CreateChild.route) {
+            composable(
+                Screen.CreateChild.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 CreateChildProfileScreen(
                     navController = navController,
                     wizardViewModel = wizardViewModel,
                 )
             }
 
-            composable(Screen.ChooseAvatar.route) {
+            composable(
+                Screen.ChooseAvatar.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 val chooseAvatarViewModel = remember {
                     ChooseAvatarViewModel(wizardViewModel)
                 }
@@ -104,7 +160,13 @@ fun App() {
                 )
             }
 
-            composable(Screen.ChooseFirstPet.route) {
+            composable(
+                Screen.ChooseFirstPet.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 val petsRepository: MockPetsRepository = koinInject()
                 val choosePetViewModel = remember {
                     ChooseFirstPetViewModel(
@@ -119,29 +181,59 @@ fun App() {
                 )
             }
 
-            composable(Screen.Welcome.route) {
+            composable(
+                Screen.Welcome.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 WelcomeScreen(
                     navController = navController,
                     wizardViewModel = wizardViewModel,
                 )
             }
 
-            composable(Screen.ChildProfileSelector.route) {
+            composable(
+                Screen.ChildProfileSelector.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 ChildProfileSelectorScreen(navController = navController)
             }
 
-            composable(Screen.AdventureHome.route) {
+            composable(
+                Screen.AdventureHome.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 AdventureHomeScreen(navController = navController)
             }
 
             // ── Parent Dashboard Route ──
-            composable(Screen.ParentDashboard.route) {
+            composable(
+                Screen.ParentDashboard.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 ParentHomeScreen(navController = navController)
             }
 
             // ── Jugar / Activity Routes ──
 
-            composable(Screen.LearningAdventureHub.route) {
+            composable(
+                Screen.LearningAdventureHub.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 LearningAdventureHub(navController = navController)
             }
 
@@ -150,6 +242,10 @@ fun App() {
                 arguments = listOf(
                     navArgument("wordIndex") { type = NavType.IntType },
                 ),
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
             ) { backStackEntry ->
                 val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
                 val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
@@ -166,6 +262,10 @@ fun App() {
                     navArgument("attempts") { type = NavType.IntType },
                     navArgument("time") { type = NavType.LongType },
                 ),
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
             ) { backStackEntry ->
                 val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
                 val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
@@ -180,7 +280,13 @@ fun App() {
             }
 
             // PlaceholderHome kept for backward compatibility
-            composable(Screen.PlaceholderHome.route) {
+            composable(
+                Screen.PlaceholderHome.route,
+                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            ) {
                 PlaceholderHomeScreen(navController = navController)
             }
         }
