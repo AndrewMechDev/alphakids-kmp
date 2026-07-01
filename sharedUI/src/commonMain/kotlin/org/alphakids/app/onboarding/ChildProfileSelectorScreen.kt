@@ -74,7 +74,8 @@ fun ChildProfileSelectorScreen(navController: NavController) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
     ) {
         // Header
         Spacer(modifier = Modifier.height(48.dp))

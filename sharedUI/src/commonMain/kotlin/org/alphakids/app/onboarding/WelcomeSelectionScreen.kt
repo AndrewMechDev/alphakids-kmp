@@ -49,14 +49,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF0F4FF),
-                        Color(0xFFFFF8F0),
-                    ),
-                ),
-            ),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         Column(
             modifier = Modifier
@@ -116,7 +109,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             ) {
                 Column(
@@ -160,7 +153,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             text = "Iniciar sesión",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 }
@@ -178,7 +171,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = PrimaryBlue.copy(alpha = 0.08f),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
@@ -221,7 +214,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             text = "Crear cuenta gratis",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 }
