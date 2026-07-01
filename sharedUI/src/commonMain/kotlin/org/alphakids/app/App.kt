@@ -37,12 +37,12 @@ import org.alphakids.app.onboarding.wizard.WizardViewModel
 import org.alphakids.app.parent.ParentHomeScreen
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
-import org.alphakids.app.theme.AlphaKidsTheme
+import org.alphakids.app.theme.CircadianTheme
 
 @Composable
 @Preview
 fun App() {
-    AlphaKidsTheme {
+    CircadianTheme {
         val navController = rememberNavController()
 
         // Shared wizard ViewModel — survives navigation across wizard screens
