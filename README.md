@@ -97,13 +97,13 @@ Parent Dashboard (4 tabs)
   └── Soporte   — FAQ y contacto
        └── "Cerrar sesión" → Welcome Selection
 
-### Mejoras planificadas
+### Mejoras implementadas
 
 | Mejora | Descripción | Estado |
 |--------|-------------|--------|
-| 🎬 **Netflix de Perfiles** | Selector visual de perfiles post-login (niños + padre) | 📋 Planificado |
-| 🔙 **Back buttons** | Botón "Volver" en Login, Register, y entre pasos del wizard | 📋 Planificado |
-| ✉️ **Auto-OTP** | Verificar código automático al completar 6 dígitos | 📋 Planificado |
+| 🎬 **Netflix de Perfiles** | Selector visual de perfiles post-login (niños + padre) | ✅ Implementado |
+| 🔙 **Back buttons** | Botón "Volver" en Login, Register, AdventureHome, y wizard | ✅ Implementado |
+| ✉️ **Auto-OTP** | Verificar código automático al completar 6 dígitos | ✅ Implementado |
 | 🔐 **Biométrico** | Login con huella/rostro en vez de contraseña | 💡 Futuro |
 | 🌓 **Circadian Theme** | Tema oscuro automático de noche | 💡 Futuro |
 | 😴 **Sistema inactividad** | Alphi reacciona al idle del dispositivo | 💡 Futuro |
@@ -136,9 +136,9 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
 - ✅ **Welcome Selection** — Pantalla de bienvenida con 2 cards (tutor / registro)
-- 📋 **Netflix de Perfiles** — Selector visual multiusuario post-login (planificado)
-- 📋 **Back buttons** — Botones de retroceso en Login, Register y wizard (planificado)
-- 📋 **Auto-OTP** — Verificación automática al completar 6 dígitos (planificado)
+- ✅ **Netflix de Perfiles** — Selector visual multiusuario post-login
+- ✅ **Back buttons** — Botones de retroceso en Login, Register, wizard y AdventureHome
+- ✅ **Auto-OTP** — Verificación automática al completar 6 dígitos
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Circadian Theme** — Tema oscuro automático (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
