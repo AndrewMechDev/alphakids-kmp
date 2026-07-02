@@ -91,8 +91,10 @@ fun OCRResultScreen(
                     studentId = studentId,
                     wordId = null, // API word ID not available from WordBank
                     gameType = "OCR_SCAN",
-                    isCorrect = true, // OCRResultScreen only shown on success
+                    status = "COMPLETED", // Zod enum expects "COMPLETED" | "FAILED"
                     attempts = attempts,
+                    coinsEarned = rewards.coins,
+                    starsEarned = rewards.stars,
                 )
             )
         }
