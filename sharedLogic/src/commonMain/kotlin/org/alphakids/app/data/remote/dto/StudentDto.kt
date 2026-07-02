@@ -1,14 +1,15 @@
 package org.alphakids.app.data.remote.dto
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 
 // ── Requests ──
 //
-// IMPORTANT: API Zod schemas expect camelCase field names.
-// REQUEST DTOs must NOT use @SerialName for snake_case.
-// RESPONSE DTOs (StudentResponseDto) still use @SerialName
-// because Prisma returns snake_case from the database.
+// IMPORTANT: API Zod schemas use camelCase field names for both requests
+// AND responses. Prisma returns model field names (camelCase), NOT database
+// column names. All DTOs must use camelCase to match the API.
+//
+// Only auth-specific DTOs (AuthDto.kt) use @SerialName because the auth
+// endpoints explicitly return snake_case in TypeScript code.
 
 @Serializable
 data class CreateChildRequestDto(
@@ -30,32 +31,20 @@ data class CreateChildRequestDto(
 @Serializable
 data class StudentResponseDto(
     val id: String,
-    @SerialName("first_name")
     val firstName: String,
-    @SerialName("last_name")
     val lastName: String,
-    @SerialName("birth_date")
     val birthDate: String? = null,
     val gender: String? = null,
-    @SerialName("avatar_url")
     val avatarUrl: String? = null,
-    @SerialName("is_active")
     val isActive: Boolean = true,
-    @SerialName("verification_status")
     val verificationStatus: String = "PENDING",
-    @SerialName("student_type")
     val studentType: String = "FREEMIUM",
-    @SerialName("registered_by")
     val registeredById: String,
-    @SerialName("institution_id")
     val institutionId: String? = null,
     val institution: InstitutionItemDto? = null,
-    @SerialName("section_id")
     val sectionId: String? = null,
     val section: SectionItemDto? = null,
-    @SerialName("created_at")
     val createdAt: String,
-    @SerialName("updated_at")
     val updatedAt: String,
     val progress: StudentProgressDto? = null,
 )
@@ -66,23 +55,14 @@ data class StudentResponseDto(
 @Serializable
 data class StudentProgressDto(
     val id: String,
-    @SerialName("student_id")
     val studentId: String,
-    @SerialName("coins_balance")
     val coinsBalance: Int = 0,
-    @SerialName("total_stars")
     val totalStars: Int = 0,
-    @SerialName("words_completed")
     val wordsCompleted: Int = 0,
-    @SerialName("current_level")
     val currentLevel: Int = 1,
-    @SerialName("current_rank_id")
     val currentRankId: String,
-    @SerialName("current_rank")
     val currentRank: RankDto,
-    @SerialName("created_at")
     val createdAt: String,
-    @SerialName("updated_at")
     val updatedAt: String,
 )
 
@@ -93,9 +73,7 @@ data class StudentProgressDto(
 data class RankDto(
     val id: String,
     val name: String,
-    @SerialName("min_stars")
     val minStars: Int = 0,
-    @SerialName("icon_url")
     val iconUrl: String? = null,
     val order: Int,
 )
@@ -106,7 +84,6 @@ data class RankDto(
 @Serializable
 data class AchievementsResponseDto(
     val progress: StudentProgressDto,
-    @SerialName("unlocked_trophies")
     val unlockedTrophies: List<TrophyDto> = emptyList(),
 )
 
@@ -117,14 +94,10 @@ data class AchievementsResponseDto(
 data class TrophyDto(
     val id: String,
     val name: String,
-    @SerialName("icon_url")
     val iconUrl: String? = null,
     val description: String? = null,
-    @SerialName("condition_type")
     val conditionType: String,
-    @SerialName("condition_value")
     val conditionValue: Int,
-    @SerialName("unlocked_at")
     val unlockedAt: String? = null,
 )
 
@@ -141,13 +114,9 @@ data class PlayableWordsResponseDto(
 data class WordDto(
     val id: String,
     val text: String,
-    @SerialName("difficulty_label")
     val difficultyLabel: String = "",
-    @SerialName("image_url")
     val imageUrl: String? = null,
-    @SerialName("audio_url")
     val audioUrl: String? = null,
-    @SerialName("is_active")
     val isActive: Boolean = true,
 )
 
@@ -174,15 +143,10 @@ data class InventoryItemDto(
 data class AccessoryCatalogDto(
     val id: String,
     val name: String = "",
-    @SerialName("coin_price")
     val coinPrice: Int = 0,
-    @SerialName("hunger_restore")
     val hungerRestore: Int = 0,
-    @SerialName("happiness_restore")
     val happinessRestore: Int = 0,
-    @SerialName("compatible_species")
     val compatibleSpecies: String = "*",
-    @SerialName("is_active")
     val isActive: Boolean = true,
 )
 
