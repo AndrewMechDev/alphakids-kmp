@@ -20,11 +20,16 @@ data class RegisterRequest(
 
 /**
  * Response from auth operations.
+ *
+ * [accessToken] and [refreshToken] are populated by the real API implementation.
+ * They default to null so existing ViewModels (which only check [success]) continue to work.
  */
 data class AuthResponse(
     val success: Boolean,
     val message: String,
     val email: String,
+    val accessToken: String? = null,
+    val refreshToken: String? = null,
 )
 
 /**
