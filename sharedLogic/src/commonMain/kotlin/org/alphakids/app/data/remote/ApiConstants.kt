@@ -31,4 +31,11 @@ object ApiConstants {
     fun studentPlayableWords(id: String) = "students/$id/playable-words"
     fun studentDictionary(id: String) = "students/$id/dictionary"
     fun studentInventory(id: String) = "students/$id/inventory"
+
+    // ── Game Sessions ──
+    const val GAME_SESSIONS_COMPLETE = "game-sessions/complete"
+
+    // ── Pets ──
+    fun pets(studentId: String) = "pets/$studentId"
+    fun feedPet(petId: String) = "pets/$petId/feed"
 }

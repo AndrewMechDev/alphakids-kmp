@@ -118,3 +118,61 @@ data class TrophyDto(
     @SerialName("unlocked_at")
     val unlockedAt: String? = null,
 )
+
+/**
+ * Response from GET /students/:id/playable-words
+ */
+@Serializable
+data class PlayableWordsResponseDto(
+    val flow: String, // "ASSIGNED" | "CATALOG"
+    val words: List<WordDto> = emptyList(),
+)
+
+@Serializable
+data class WordDto(
+    val id: String,
+    val text: String,
+    @SerialName("difficulty_label")
+    val difficultyLabel: String = "",
+    @SerialName("image_url")
+    val imageUrl: String? = null,
+    @SerialName("audio_url")
+    val audioUrl: String? = null,
+    @SerialName("is_active")
+    val isActive: Boolean = true,
+)
+
+/**
+ * Response from GET /students/:id/dictionary
+ * Dictionary is grouped by first letter.
+ */
+@Serializable
+data class DictionaryResponseDto(
+    val dictionary: Map<String, List<WordDto>> = emptyMap(),
+)
+
+/**
+ * Response item from GET /students/:id/inventory
+ */
+@Serializable
+data class InventoryItemDto(
+    val id: String,
+    val quantity: Int = 0,
+    val accessory: AccessoryCatalogDto? = null,
+)
+
+@Serializable
+data class AccessoryCatalogDto(
+    val id: String,
+    val name: String = "",
+    @SerialName("coin_price")
+    val coinPrice: Int = 0,
+    @SerialName("hunger_restore")
+    val hungerRestore: Int = 0,
+    @SerialName("happiness_restore")
+    val happinessRestore: Int = 0,
+    @SerialName("compatible_species")
+    val compatibleSpecies: String = "*",
+    @SerialName("is_active")
+    val isActive: Boolean = true,
+)

@@ -1,14 +1,15 @@
 package org.alphakids.app.data.repository
 
-import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
-import org.alphakids.app.data.remote.TokenStorage
-import org.alphakids.app.data.remote.authorize
-import org.alphakids.app.data.remote.doRefreshTokens
 import org.alphakids.app.data.remote.dto.AchievementsResponseDto
+import org.alphakids.app.data.remote.dto.CreateChildRequestDto
+import org.alphakids.app.data.remote.dto.DictionaryResponseDto
+import org.alphakids.app.data.remote.dto.InventoryItemDto
+import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
 import org.alphakids.app.data.remote.dto.StudentResponseDto
 import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
@@ -19,66 +20,68 @@ import org.alphakids.app.parent.domain.model.SubscriptionInfo
 import org.alphakids.app.parent.domain.repository.ParentRepository
 
 /**
- * Real implementation of [ParentRepository] backed by the AlphaKids API.
+ * Real implementation of [ParentRepository] via [AlphaKidsApiClient].
  *
- * Endpoints with real API support:
+ * Endpoints con soporte real:
  * - [getChildren] → GET /tutors/children
+ * - [createChild] → POST /tutors/children          (NUEVO)
  * - [getChildStats] → GET /students/:id/achievements
- *
- * Endpoints without API support yet (return mock data):
- * - [getRecentActivity]
- * - [getSubscription]
- * - [getFAQs]
- * - [submitContactForm]
+ * Sin endpoint aún (mock por defecto):
+ * - getRecentActivity, getSubscription, getFAQs, submitContactForm
  */
 class ParentRepositoryImpl(
-    private val client: HttpClient,
-    private val tokenStorage: TokenStorage,
+    private val api: AlphaKidsApiClient,
 ) : ParentRepository {
 
     override suspend fun getChildren(): List<ChildSummary> {
         return try {
-            val response = client.get(ApiConstants.TUTORS_CHILDREN) {
-                authorize(tokenStorage)
-            }
+            val response = api.httpClient.get(ApiConstants.TUTORS_CHILDREN)
 
-            if (!response.status.isSuccess()) {
-                if (response.status == HttpStatusCode.Unauthorized) {
-                    doRefreshTokens(client, tokenStorage)
-                    // Retry once
-                    val retry = client.get(ApiConstants.TUTORS_CHILDREN) {
-                        authorize(tokenStorage)
-                    }
+            if (response.status == HttpStatusCode.Unauthorized) {
+                if (api.refreshTokens()) {
+                    val retry = api.httpClient.get(ApiConstants.TUTORS_CHILDREN)
                     if (!retry.status.isSuccess()) return emptyList()
                     return retry.body<List<StudentResponseDto>>().map { it.toChildSummary() }
                 }
                 return emptyList()
             }
 
+            if (!response.status.isSuccess()) return emptyList()
             response.body<List<StudentResponseDto>>().map { it.toChildSummary() }
         } catch (_: Exception) {
             emptyList()
         }
     }
 
+    /**
+     * Crea un perfil de hijo desde el tutor.
+     * POST /tutors/children
+     */
+    suspend fun createChild(request: CreateChildRequestDto): Boolean {
+        return try {
+            val response = api.httpClient.post(ApiConstants.TUTORS_CHILDREN) {
+                setBody(request)
+            }
+            response.status.isSuccess()
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     override suspend fun getChildStats(childId: String): ChildStats {
         return try {
-            val response = client.get(ApiConstants.studentAchievements(childId)) {
-                authorize(tokenStorage)
-            }
+            val response = api.httpClient.get(ApiConstants.studentAchievements(childId))
 
-            if (!response.status.isSuccess()) {
-                if (response.status == HttpStatusCode.Unauthorized) {
-                    doRefreshTokens(client, tokenStorage)
-                    val retry = client.get(ApiConstants.studentAchievements(childId)) {
-                        authorize(tokenStorage)
-                    }
+            if (response.status == HttpStatusCode.Unauthorized) {
+                if (api.refreshTokens()) {
+                    val retry = api.httpClient.get(ApiConstants.studentAchievements(childId))
                     if (!retry.status.isSuccess()) return ChildStats()
                     return retry.body<AchievementsResponseDto>().toChildStats()
                 }
                 return ChildStats()
             }
 
+            if (!response.status.isSuccess()) return ChildStats()
             response.body<AchievementsResponseDto>().toChildStats()
         } catch (_: Exception) {
             ChildStats()
@@ -86,24 +89,52 @@ class ParentRepositoryImpl(
     }
 
     /**
-     * No dedicated API endpoint for recent activity yet.
-     * Returns empty list — add mock data or a real endpoint later.
+     * Obtiene las palabras jugables para un estudiante.
+     * GET /students/:id/playable-words
      */
+    suspend fun getPlayableWords(studentId: String): PlayableWordsResponseDto? {
+        return try {
+            val response = api.httpClient.get(ApiConstants.studentPlayableWords(studentId))
+            if (!response.status.isSuccess()) return null
+            response.body<PlayableWordsResponseDto>()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Obtiene el diccionario del estudiante.
+     * GET /students/:id/dictionary
+     */
+    suspend fun getDictionary(studentId: String): DictionaryResponseDto? {
+        return try {
+            val response = api.httpClient.get(ApiConstants.studentDictionary(studentId))
+            if (!response.status.isSuccess()) return null
+            response.body<DictionaryResponseDto>()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Obtiene el inventario del estudiante.
+     * GET /students/:id/inventory
+     */
+    suspend fun getInventory(studentId: String): List<InventoryItemDto> {
+        return try {
+            val response = api.httpClient.get(ApiConstants.studentInventory(studentId))
+            if (!response.status.isSuccess()) return emptyList()
+            response.body<List<InventoryItemDto>>()
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    // ── Sin endpoint API — valores por defecto ──
+
     override suspend fun getRecentActivity(): List<ChildActivity> = emptyList()
-
-    /**
-     * No subscription API endpoint yet.
-     */
     override suspend fun getSubscription(): SubscriptionInfo = SubscriptionInfo()
-
-    /**
-     * No FAQ API endpoint yet.
-     */
     override suspend fun getFAQs(): List<FAQItem> = emptyList()
-
-    /**
-     * No contact form API endpoint yet.
-     */
     override suspend fun submitContactForm(form: ContactForm): Boolean = false
 
     // ── Mappers ──
@@ -129,12 +160,12 @@ class ParentRepositoryImpl(
     private fun AchievementsResponseDto.toChildStats(): ChildStats {
         val p = progress
         return ChildStats(
-            wordsLearned = p?.wordsCompleted ?: 0,
+            wordsLearned = p.wordsCompleted,
             ocrCompleted = 0,
             spellingCompleted = 0,
             timePlayedMinutes = 0,
-            coinsEarned = p?.coinsBalance ?: 0,
-            starsEarned = p?.totalStars ?: 0,
+            coinsEarned = p.coinsBalance,
+            starsEarned = p.totalStars,
             weeklyProgress = List(7) { false },
         )
     }
