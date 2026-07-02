@@ -32,6 +32,7 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
+import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 /**
  * Wizard header — screen header with optional subtitle, step indicator, back
