@@ -60,6 +60,7 @@ import org.alphakids.app.theme.SuccessGreen
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_buscando
+import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 
 /**
@@ -341,22 +342,32 @@ private fun WordHintSection(word: ChallengeWord) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Reference image placeholder
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        brush = AlphaGradients.angled(AlphaGradients.Nature),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = word.word.first().toString(),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
+            // Reference image — Cloudinary URL from teacher or gradient fallback
+            if (word.imageUrl != null && word.imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = word.imageUrl,
+                    contentDescription = word.word,
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(16.dp)),
                 )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            brush = AlphaGradients.angled(AlphaGradients.Nature),
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = word.word.first().toString(),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(14.dp))

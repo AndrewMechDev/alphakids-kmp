@@ -28,15 +28,21 @@ object GameSessionState {
     var currentDifficulty: String = ""
         private set
 
-    fun setWord(text: String, id: String = "", difficulty: String = "") {
+    /** Cloudinary image URL for the reference image in the game. */
+    var currentImageUrl: String = ""
+        private set
+
+    fun setWord(text: String, id: String = "", difficulty: String = "", imageUrl: String = "") {
         currentWordText = text
         currentWordId = id
         currentDifficulty = difficulty
+        currentImageUrl = imageUrl
     }
 
     fun clear() {
         currentWordText = ""
         currentWordId = ""
         currentDifficulty = ""
+        currentImageUrl = ""
     }
 }

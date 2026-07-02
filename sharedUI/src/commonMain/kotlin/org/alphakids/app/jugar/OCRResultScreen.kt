@@ -218,6 +218,7 @@ fun OCRResultScreen(
                             text = GameSessionState.currentWordText,
                             id = GameSessionState.currentWordId,
                             difficulty = GameSessionState.currentDifficulty,
+                            imageUrl = GameSessionState.currentImageUrl,
                         )
                         navController.navigate(Screen.WordSelection.route) {
                             popUpTo(Screen.AdventureHome.route)
