@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,14 +66,7 @@ fun NetflixProfilesScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF0F4FF), // Light gradient matching app theme
-                        Color(0xFFFFF8F0),
-                    ),
-                ),
-            ),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         Column(
             modifier = Modifier

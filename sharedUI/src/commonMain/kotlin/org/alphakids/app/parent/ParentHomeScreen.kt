@@ -1,6 +1,10 @@
 package org.alphakids.app.parent
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -40,6 +44,7 @@ private data class ParentNavTab(
 private val parentTabs = listOf(
     ParentNavTab(label = "Dashboard", emoji = "\uD83D\uDCCA", index = 0),
     ParentNavTab(label = "Hijos", emoji = "\uD83D\uDC76", index = 1),
+    ParentNavTab(label = "Suscripción", emoji = "\uD83D\uDCB3", index = 2),
 )
 
 /**
@@ -59,6 +64,9 @@ fun ParentHomeScreen(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedChildId by remember { mutableStateOf<String?>(null) }
+    var showMenu by remember { mutableStateOf(false) }
+    val authRepository: AuthRepository = koinInject()
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -83,24 +91,38 @@ fun ParentHomeScreen(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    val authRepository: AuthRepository = koinInject()
-                    val scope = rememberCoroutineScope()
-                    TextButton(
-                        onClick = {
-                            scope.launch {
-                                authRepository.logout()
-                            }
-                            SessionManager.clearSession()
-                            navController.navigate(Screen.Login.route) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        },
-                    ) {
+                    // Settings gear with dropdown
+                    Box {
                         Text(
-                            text = "\uD83D\uDEAA Cerrar sesión",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.error,
+                            text = "\u2699\uFE0F",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.clickable(onClick = { showMenu = true }),
                         )
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("\u2753 Soporte") },
+                                onClick = {
+                                    showMenu = false
+                                    selectedTab = 3 // Soporte tab
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("\uD83D\uDEAA Cerrar sesión", color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    showMenu = false
+                                    scope.launch {
+                                        authRepository.logout()
+                                    }
+                                    SessionManager.clearSession()
+                                    navController.navigate(Screen.WelcomeSelection.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -173,6 +195,13 @@ fun ParentHomeScreen(
                 }
             }
 
+            2 -> SubscriptionScreen(
+                modifier = Modifier.padding(innerPadding),
+            )
+
+            3 -> SupportScreen(
+                modifier = Modifier.padding(innerPadding),
+            )
         }
     }
 }
