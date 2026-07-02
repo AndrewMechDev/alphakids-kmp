@@ -69,7 +69,7 @@ fun SetupWizardScreen(
             AlphaHeader(
                 title = "Configuración",
                 currentStep = 1,
-                totalSteps = 5,
+                totalSteps = WizardStep.TOTAL_STEPS,
                 showAlphi = true,
                 onBack = { navController.popBackStack() },
             )

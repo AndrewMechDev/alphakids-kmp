@@ -266,7 +266,10 @@ fun WelcomeScreen(
             onDismissRequest = { showConfirmDialog = false },
             title = { Text("¿Confirmar perfil?") },
             text = {
-                Text("Se creará el perfil de ${data.childName} con la mascota elegida")
+                val instNote = if (data.institutionName != null) {
+                    "\n\nVinculado a: ${data.institutionName}"
+                } else ""
+                Text("Se creará el perfil de ${data.childName} con la mascota elegida$instNote")
             },
             confirmButton = {
                 TextButton(onClick = {

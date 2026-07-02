@@ -35,6 +35,9 @@ sealed class Screen(val route: String) {
     /** DiceBear avatar selection grid */
     data object ChooseAvatar : Screen("choose-avatar")
 
+    /** Optional institution assignment before pet selection */
+    data object AssignInstitution : Screen("assign-institution")
+
     /** First pet selection from 3 starters */
     data object ChooseFirstPet : Screen("choose-first-pet")
 
@@ -97,6 +100,7 @@ sealed class Screen(val route: String) {
             route == SetupWizard.route -> SetupWizard
             route == CreateChild.route -> CreateChild
             route == ChooseAvatar.route -> ChooseAvatar
+            route == AssignInstitution.route -> AssignInstitution
             route == ChooseFirstPet.route -> ChooseFirstPet
             route == Welcome.route -> Welcome
             route == AdventureHome.route -> AdventureHome

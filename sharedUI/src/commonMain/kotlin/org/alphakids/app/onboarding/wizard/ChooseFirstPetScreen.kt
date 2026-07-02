@@ -83,7 +83,7 @@ fun ChooseFirstPetScreen(
             title = "Tu primera mascota",
             subtitle = "Elige a tu compañero de aventuras",
             currentStep = 4,
-            totalSteps = 5,
+            totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = false,
             onBack = { navController.popBackStack() },
         )

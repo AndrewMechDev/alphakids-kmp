@@ -90,7 +90,7 @@ fun CreateChildProfileScreen(
             title = "Perfil del niño",
             subtitle = "Cuéntanos sobre tu hijo",
             currentStep = 2,
-            totalSteps = 5,
+            totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
             onBack = { navController.popBackStack() },
         )

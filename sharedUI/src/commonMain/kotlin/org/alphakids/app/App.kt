@@ -31,6 +31,8 @@ import org.alphakids.app.onboarding.SplashScreen
 import org.alphakids.app.onboarding.WelcomeSelectionScreen
 import org.alphakids.app.onboarding.NetflixProfilesScreen
 import org.alphakids.app.onboarding.VerificationScreen
+import org.alphakids.app.onboarding.wizard.AssignInstitutionScreen
+import org.alphakids.app.onboarding.wizard.AssignInstitutionViewModel
 import org.alphakids.app.onboarding.wizard.ChooseAvatarScreen
 import org.alphakids.app.onboarding.wizard.ChooseAvatarViewModel
 import org.alphakids.app.onboarding.wizard.ChooseFirstPetScreen
@@ -42,6 +44,7 @@ import org.alphakids.app.onboarding.wizard.WizardViewModel
 import org.alphakids.app.parent.ParentHomeScreen
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.CircadianTheme
 
 @Composable
@@ -167,6 +170,27 @@ fun App() {
                     navController = navController,
                     wizardViewModel = wizardViewModel,
                     chooseAvatarViewModel = chooseAvatarViewModel,
+                )
+            }
+
+            composable(
+                Screen.AssignInstitution.route,
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
+            ) {
+                val parentRepo: ParentRepository = koinInject()
+                val assignViewModel = remember {
+                    AssignInstitutionViewModel(
+                        parentRepository = parentRepo,
+                        wizardViewModel = wizardViewModel,
+                    )
+                }
+                AssignInstitutionScreen(
+                    navController = navController,
+                    wizardViewModel = wizardViewModel,
+                    assignViewModel = assignViewModel,
                 )
             }
 
