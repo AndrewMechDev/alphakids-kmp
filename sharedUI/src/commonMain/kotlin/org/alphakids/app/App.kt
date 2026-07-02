@@ -332,10 +332,26 @@ fun App() {
                 popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
-                val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
                 val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
                 val time = backStackEntry.arguments?.getLong("time") ?: 0L
-                val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                val ocrWordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
+                val word = if (ocrWordText.isNotBlank()) {
+                    val safeText = ocrWordText.uppercase().filter { it.isLetter() }
+                        .ifBlank { "ABC" }
+                    org.alphakids.app.domain.model.ChallengeWord(
+                        word = safeText,
+                        hint = "Escanea las letras",
+                        imageName = safeText.first().toString(),
+                        category = "Palabras",
+                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
+                            .ifBlank { "fácil" },
+                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
+                            .ifBlank { null },
+                    )
+                } else {
+                    val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
+                    WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                }
                 OCRResultScreen(
                     navController = navController,
                     word = word,
