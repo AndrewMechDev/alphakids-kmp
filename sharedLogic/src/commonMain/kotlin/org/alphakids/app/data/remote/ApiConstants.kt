@@ -38,4 +38,10 @@ object ApiConstants {
     // ── Pets ──
     fun pets(studentId: String) = "pets/$studentId"
     fun feedPet(petId: String) = "pets/$petId/feed"
+
+    // ── Store ──
+    fun storePetsCatalog(studentId: String) = "students/$studentId/store/catalogs/pets"
+    fun storeAccessoriesCatalog(studentId: String) = "students/$studentId/store/catalogs/accessories"
+    fun storeBuyPet(studentId: String) = "students/$studentId/store/pets/buy"
+    fun storeBuyAccessory(studentId: String) = "students/$studentId/store/accessories/buy"
 }
