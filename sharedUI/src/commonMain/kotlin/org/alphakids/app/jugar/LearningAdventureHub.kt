@@ -44,8 +44,13 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.CardWhite
+import org.alphakids.app.theme.CoinGold
+import org.alphakids.app.theme.CoinGoldBorder
+import org.alphakids.app.theme.DisabledGray
 import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.SlateGray
+import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.TrophyGold
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
@@ -96,8 +101,8 @@ fun LearningAdventureHub(navController: NavController) {
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFFF0F4FF),
-                            Color(0xFFFAF8FF),
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.surface,
                         ),
                     ),
                 )
@@ -115,7 +120,7 @@ fun LearningAdventureHub(navController: NavController) {
                 description = "Forma palabras con letras f\u00edsicas y escan\u00e9alas",
                 rewardsBadge = "\uD83E\uDE99 +50 \u26A1 +20 \u2B50 +1",
                 difficultyBadge = "F\u00e1cil",
-                difficultyColor = Color(0xFF34C759),
+                difficultyColor = SuccessGreen,
                 buttonText = "Comenzar",
                 buttonColor = PrimaryBlue,
                 onButtonClick = {
@@ -130,9 +135,9 @@ fun LearningAdventureHub(navController: NavController) {
                 description = "Deletrea palabras con tu voz",
                 rewardsBadge = "\uD83E\uDE99 +30 \u26A1 +15 \u2B50 +1",
                 difficultyBadge = "Media",
-                difficultyColor = Color(0xFFF5A623),
+                difficultyColor = TrophyGold,
                 buttonText = "Pr\u00f3ximamente",
-                buttonColor = Color(0xFFC9CDD9),
+                buttonColor = DisabledGray,
                 enabled = false,
                 onButtonClick = {
                     scope.launch {
@@ -156,8 +161,8 @@ private fun AlphiHeader() {
             .background(
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        Color(0xFF4FA8F0),
-                        Color(0xFF8B7CF6),
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary,
                     ),
                 ),
                 shape = RoundedCornerShape(20.dp),
@@ -254,7 +259,7 @@ private fun ActivityCard(
             Row(
                 modifier = Modifier
                     .background(
-                        color = Color(0xFFFFC93C).copy(alpha = 0.12f),
+                        color = CoinGold.copy(alpha = 0.12f),
                         shape = RoundedCornerShape(8.dp),
                     )
                     .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -264,7 +269,7 @@ private fun ActivityCard(
                     text = rewardsBadge,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFB8860B),
+                    color = CoinGoldBorder,
                 )
             }
 
@@ -301,7 +306,7 @@ private fun ActivityCard(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = buttonColor,
                     contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFC9CDD9),
+                    disabledContainerColor = DisabledGray,
                     disabledContentColor = Color.White,
                 ),
             ) {
