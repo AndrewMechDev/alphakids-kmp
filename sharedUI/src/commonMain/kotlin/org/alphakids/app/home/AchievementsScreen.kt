@@ -171,11 +171,13 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
         )
 
         // ── Content ──
-        when (selectedSubTab) {
-            AchievementsSubTab.Rangos.index -> RangosContent()
-            AchievementsSubTab.Trofeos.index -> TrofeosContent()
-            AchievementsSubTab.Estadisticas.index -> EstadisticasContent()
-            AchievementsSubTab.Historial.index -> HistorialContent()
+        Box(modifier = Modifier.weight(1f)) {
+            when (selectedSubTab) {
+                AchievementsSubTab.Rangos.index -> RangosContent()
+                AchievementsSubTab.Trofeos.index -> TrofeosContent()
+                AchievementsSubTab.Estadisticas.index -> EstadisticasContent()
+                AchievementsSubTab.Historial.index -> HistorialContent()
+            }
         }
     }
 }
