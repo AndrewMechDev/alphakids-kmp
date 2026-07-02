@@ -46,13 +46,14 @@ class LoginViewModel(
 
     fun onLoginClick() {
         val state = _uiState.value
+        val email = state.email.trim()
 
         // Validate email
-        if (state.email.isBlank()) {
+        if (email.isBlank()) {
             _uiState.update { it.copy(error = "El email es requerido") }
             return
         }
-        if (!isValidEmail(state.email)) {
+        if (!isValidEmail(email)) {
             _uiState.update { it.copy(error = "Formato de email inválido") }
             return
         }
@@ -67,7 +68,7 @@ class LoginViewModel(
 
         viewModelScope.launch {
             val response = authRepository.login(
-                LoginRequest(email = state.email, password = state.password),
+                LoginRequest(email = email, password = state.password),
             )
 
             if (response.success) {
@@ -86,6 +87,7 @@ class LoginViewModel(
     }
 
     private fun isValidEmail(email: String): Boolean {
-        return email.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"))
+        val cleaned = email.trim().lowercase()
+        return cleaned.contains("@") && cleaned.contains(".") && cleaned.length >= 5
     }
 }
