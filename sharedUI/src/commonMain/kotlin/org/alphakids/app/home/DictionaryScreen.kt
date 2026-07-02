@@ -58,6 +58,7 @@ import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
+import org.alphakids.app.theme.circadianBackground
 
 // ── Category colour palette ──
 
@@ -194,7 +195,7 @@ fun DictionaryScreen(
     Row(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         // ── Alphabet sidebar ──
         AlphabetNavColumn(
@@ -206,7 +207,8 @@ fun DictionaryScreen(
         )
 
         // ── Main content ──
-        Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+        Column(modifier = Modifier.circadianBackground(alpha = 0.3f)
+            .weight(1f).fillMaxHeight()) {
             // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
             onBack?.let { back ->
                 Text(

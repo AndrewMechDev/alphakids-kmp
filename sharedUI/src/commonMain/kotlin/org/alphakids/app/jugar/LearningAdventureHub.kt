@@ -55,6 +55,7 @@ import org.alphakids.app.theme.TrophyGold
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Hub screen between Home and the individual activities.
@@ -70,6 +71,7 @@ fun LearningAdventureHub(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -83,7 +85,8 @@ fun LearningAdventureHub(navController: NavController) {
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .circadianBackground(alpha = 0.3f)
+            .padding(start = 8.dp)
                             .clickable { navController.popBackStack() },
                     )
                 },

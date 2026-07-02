@@ -44,6 +44,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.PrimaryIndigo
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Netflix-style profile selector shown after login.
@@ -65,8 +66,9 @@ fun NetflixProfilesScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         Column(
             modifier = Modifier

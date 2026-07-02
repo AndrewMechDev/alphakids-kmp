@@ -52,6 +52,7 @@ import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import org.alphakids.app.theme.circadianBackground
 
 private fun petImageResource(petId: String?) = when (petId) {
     "inti-sol" -> Res.drawable.mascota_inti_sol
@@ -82,9 +83,10 @@ fun WelcomeScreen(
 
     Column(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(48.dp))

@@ -43,6 +43,7 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Maps a pet ID to its corresponding Compose resource drawable.
@@ -71,8 +72,9 @@ fun ChooseFirstPetScreen(
 
     Column(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

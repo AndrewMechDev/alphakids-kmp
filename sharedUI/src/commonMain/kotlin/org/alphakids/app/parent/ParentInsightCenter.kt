@@ -40,6 +40,7 @@ import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Parent dashboard — insight center tab.
@@ -58,7 +59,7 @@ fun ParentInsightCenter(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -75,7 +76,8 @@ fun ParentInsightCenter(
         // Welcome card
         item(key = "welcome") {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.circadianBackground(alpha = 0.3f)
+            .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,

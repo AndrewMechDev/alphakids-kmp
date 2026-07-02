@@ -47,6 +47,7 @@ import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGold
 import org.alphakids.app.theme.XpBarEnd
+import org.alphakids.app.theme.circadianBackground
 
 // ── Sub-tab definitions ──
 
@@ -161,7 +162,7 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         // ── Sub-tab bar ──
         AchievementsSubTabBar(
@@ -188,6 +189,7 @@ private fun AchievementsSubTabBar(
 ) {
     Row(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
