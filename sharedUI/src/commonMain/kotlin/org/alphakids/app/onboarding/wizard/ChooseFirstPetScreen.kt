@@ -83,8 +83,16 @@ fun ChooseFirstPetScreen(
             subtitle = "Elige a tu compañero de aventuras",
             currentStep = 4,
             totalSteps = 5,
-            showAlphi = true,
+            showAlphi = false,
             onBack = { navController.popBackStack() },
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Image(
+            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_estudiando),
+            contentDescription = "Alphi estudiando",
+            modifier = Modifier.size(100.dp),
         )
 
         Spacer(modifier = Modifier.height(16.dp))

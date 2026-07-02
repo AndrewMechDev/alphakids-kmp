@@ -170,7 +170,7 @@ private fun AlphiHeader() {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            painter = painterResource(Res.drawable.alphi_estudiando),
+            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_trabajando),
             contentDescription = "Alphi",
             modifier = Modifier.size(64.dp),
         )

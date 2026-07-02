@@ -83,15 +83,41 @@ fun WelcomeScreen(
         "https://api.dicebear.com/10.x/${data.avatarStyle}/svg?seed=${data.avatarSeed}"
     } else null
 
+    var isVisible by remember { mutableStateOf(false) }
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0.8f,
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = org.alphakids.app.theme.AlphaMotion.Slow),
+        label = "welcomeScale"
+    )
+    val alpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = org.alphakids.app.theme.AlphaMotion.Slow),
+        label = "welcomeAlpha"
+    )
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     Column(
         modifier = Modifier
             .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
+            .androidx.compose.ui.graphics.graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Secondary Alphi (corriendo)
+        Image(
+            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_corriendo),
+            contentDescription = "Alphi corriendo",
+            modifier = Modifier.size(60.dp),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Welcome message
         Text(
