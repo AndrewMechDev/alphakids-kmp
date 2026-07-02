@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Welcome selection screen shown after splash.
@@ -46,8 +47,9 @@ import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
 fun WelcomeSelectionScreen(navController: NavController) {
     Box(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         Column(
             modifier = Modifier

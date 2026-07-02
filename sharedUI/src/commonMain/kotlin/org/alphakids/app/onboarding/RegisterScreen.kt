@@ -42,6 +42,7 @@ import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Registration screen with full name, email, phone, password, confirm password,
@@ -67,6 +68,7 @@ fun RegisterScreen(navController: NavController) {
 
     Column(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),

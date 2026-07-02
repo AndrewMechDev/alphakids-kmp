@@ -52,6 +52,7 @@ import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Step 3 of 5 — DiceBear avatar selection screen.
@@ -77,8 +78,9 @@ fun ChooseAvatarScreen(
 
     Column(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

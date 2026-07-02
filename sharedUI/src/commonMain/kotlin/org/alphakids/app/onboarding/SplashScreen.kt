@@ -33,6 +33,7 @@ import org.alphakids.app.koinInject
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Full-screen splash with gradient background, logo, mascot, and auto-navigation.
@@ -74,8 +75,9 @@ fun SplashScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(AlphaGradients.vertical(AlphaGradients.Adventure)),
+            .background(AlphaGradients.vertical(AlphaGradients.Adventure.map { it.copy(alpha = 0.8f) })),
         contentAlignment = Alignment.Center,
     ) {
         Column(

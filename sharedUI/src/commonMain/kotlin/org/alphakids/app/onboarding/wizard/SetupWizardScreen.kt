@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.bg_dia
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Step 1 of 5 — Wizard setup intro screen.
@@ -55,8 +56,9 @@ fun SetupWizardScreen(
 
     Box(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         Column(
             modifier = Modifier
