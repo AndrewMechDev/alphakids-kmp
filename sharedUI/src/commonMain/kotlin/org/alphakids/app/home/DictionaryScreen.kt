@@ -215,28 +215,36 @@ fun DictionaryScreen(
         }
     }
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground(alpha = 0.3f),
     ) {
-        // ── Alphabet sidebar ──
-        AlphabetNavColumn(
-            activeLetter = activeLetter,
-            availableLetters = availableLetters,
-            onLetterSelected = { letter ->
-                val index = letterIndexMap[letter]
-                if (index != null) {
-                    coroutineScope.launch {
-                        gridState.animateScrollToItem(index)
-                    }
-                }
-            },
+        // Color overlay for readability (behind content, over circadian)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
         )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            // ── Alphabet sidebar ──
+            AlphabetNavColumn(
+                activeLetter = activeLetter,
+                availableLetters = availableLetters,
+                onLetterSelected = { letter ->
+                    val index = letterIndexMap[letter]
+                    if (index != null) {
+                        coroutineScope.launch {
+                            gridState.animateScrollToItem(index)
+                        }
+                    }
+                },
+            )
 
-        // ── Main content ──
-        Column(modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .weight(1f).fillMaxHeight()) {
+            // ── Main content ──
+            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
             // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
             onBack?.let { back ->
                 Text(
@@ -310,7 +318,8 @@ fun DictionaryScreen(
                 }
             }
         }
-    }
+    }  // ← cierra Row
+    }  // ← cierra Box (circadian wrapper)
 }
 
 // ── Alphabet Navigation Sidebar ──
