@@ -220,7 +220,7 @@ private fun WordCard(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = word.text.first().uppercase(),
+                    text = word.text.firstOrNull()?.uppercase() ?: "?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = diffColor,

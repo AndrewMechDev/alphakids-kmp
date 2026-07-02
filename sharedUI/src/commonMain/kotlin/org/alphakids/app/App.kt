@@ -294,14 +294,18 @@ fun App() {
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
                 val gameWordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
-                val word = if (gameWordText.isNotBlank()) {
+                val fallbackText = if (gameWordText.isNotBlank()) gameWordText else ""
+                val word = if (fallbackText.isNotBlank()) {
                     // Dynamic word from API (WordSelectionScreen)
+                    val safeText = fallbackText.uppercase().filter { it.isLetter() || it.isWhitespace() }
+                        .ifBlank { "ABC" }
                     org.alphakids.app.domain.model.ChallengeWord(
-                        word = gameWordText.uppercase(),
+                        word = safeText,
                         hint = "Escanea las letras",
-                        imageName = gameWordText.first().uppercase().toString(),
+                        imageName = safeText.first().toString(),
                         category = "Palabras",
-                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty,
+                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
+                            .ifBlank { "fácil" },
                     )
                 } else {
                     // Hardcoded word from WordBank (direct navigation)
