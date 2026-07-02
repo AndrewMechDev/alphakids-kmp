@@ -66,6 +66,11 @@ import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import org.alphakids.app.game.domain.repository.GameRepository
+import org.alphakids.app.koinInject
+import org.alphakids.app.parent.domain.model.SessionManager
 
 // ── Category colour palette ──
 
@@ -102,55 +107,6 @@ private val filterChips = listOf(
 
 // ── Mock data ──
 
-private val mockWords = listOf(
-    // Animales
-    DictionaryWord("Gato", "word_gato", "Animales", "fácil", 2, true, "2025-01-15"),
-    DictionaryWord("Perro", "word_perro", "Animales", "fácil", 3, true, "2025-01-14"),
-    DictionaryWord("Elefante", "word_elefante", "Animales", "media", 1, false),
-    DictionaryWord("Mariposa", "word_mariposa", "Animales", "media", 0, false),
-    DictionaryWord("Tiburón", "word_tiburon", "Animales", "difícil", 0, false),
-    DictionaryWord("Búho", "word_buho", "Animales", "fácil", 1, false),
-    DictionaryWord("Caracol", "word_caracol", "Animales", "media", 2, true, "2025-01-16"),
-    DictionaryWord("Delfín", "word_delfin", "Animales", "difícil", 0, false),
-    // Colores
-    DictionaryWord("Rojo", "word_rojo", "Colores", "fácil", 3, true, "2025-01-10"),
-    DictionaryWord("Azul", "word_azul", "Colores", "fácil", 3, true, "2025-01-11"),
-    DictionaryWord("Amarillo", "word_amarillo", "Colores", "fácil", 2, true, "2025-01-12"),
-    DictionaryWord("Naranja", "word_naranja", "Colores", "fácil", 1, false),
-    DictionaryWord("Turquesa", "word_turquesa", "Colores", "difícil", 0, false),
-    // Objetos
-    DictionaryWord("Libro", "word_libro", "Objetos", "fácil", 2, true, "2025-01-13"),
-    DictionaryWord("Ventana", "word_ventana", "Objetos", "fácil", 1, false),
-    DictionaryWord("Computadora", "word_computadora", "Objetos", "media", 0, false),
-    DictionaryWord("Paraguas", "word_paraguas", "Objetos", "media", 0, false),
-    DictionaryWord("Bicicleta", "word_bicicleta", "Objetos", "media", 2, true, "2025-01-17"),
-    DictionaryWord("Cama", "word_cama", "Objetos", "fácil", 1, false),
-    DictionaryWord("Pelota", "word_pelota", "Objetos", "fácil", 3, true, "2025-01-10"),
-    DictionaryWord("Reloj", "word_reloj", "Objetos", "media", 0, false),
-    DictionaryWord("Silla", "word_silla", "Objetos", "fácil", 1, false),
-    // Alimentos
-    DictionaryWord("Manzana", "word_manzana", "Alimentos", "fácil", 3, true, "2025-01-09"),
-    DictionaryWord("Sandía", "word_sandia", "Alimentos", "media", 1, false),
-    DictionaryWord("Chocolate", "word_chocolate", "Alimentos", "difícil", 0, false),
-    DictionaryWord("Queso", "word_queso", "Alimentos", "fácil", 2, true, "2025-01-15"),
-    DictionaryWord("Helado", "word_helado", "Alimentos", "fácil", 3, true, "2025-01-08"),
-    DictionaryWord("Tomate", "word_tomate", "Alimentos", "media", 0, false),
-    // Naturaleza
-    DictionaryWord("Sol", "word_sol", "Naturaleza", "fácil", 3, true, "2025-01-08"),
-    DictionaryWord("Luna", "word_luna", "Naturaleza", "fácil", 2, true, "2025-01-14"),
-    DictionaryWord("Estrella", "word_estrella", "Naturaleza", "fácil", 1, false),
-    DictionaryWord("Montaña", "word_montana", "Naturaleza", "media", 0, false),
-    DictionaryWord("Arcoíris", "word_arcoiris", "Naturaleza", "difícil", 0, false),
-    DictionaryWord("Flor", "word_flor", "Naturaleza", "fácil", 2, true, "2025-01-12"),
-    DictionaryWord("Fuego", "word_fuego", "Naturaleza", "media", 0, false),
-    DictionaryWord("Isla", "word_isla", "Naturaleza", "fácil", 1, false),
-    DictionaryWord("Jardín", "word_jardin", "Naturaleza", "media", 0, false),
-    DictionaryWord("Río", "word_rio", "Naturaleza", "fácil", 1, false),
-    // Cuerpo
-    DictionaryWord("Mano", "word_mano", "Cuerpo", "fácil", 2, true, "2025-01-12"),
-    DictionaryWord("Ojos", "word_ojos", "Cuerpo", "fácil", 1, false),
-    DictionaryWord("Corazón", "word_corazon", "Cuerpo", "media", 0, false),
-)
 
 // ── Public composable ──
 
@@ -171,6 +127,34 @@ fun DictionaryScreen(
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
 ) {
+    val gameRepo: GameRepository = remember { koinInject() }
+    val childId = remember { SessionManager.currentChild?.id }
+    
+    var fetchedWords by remember { mutableStateOf<List<DictionaryWord>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(childId) {
+        try {
+            if (childId != null) {
+                val result = gameRepo.getPlayableWords(childId)
+                if (result != null) {
+                    fetchedWords = result.words.map { dto ->
+                        DictionaryWord(
+                            word = dto.text,
+                            imageName = "",
+                            category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
+                            difficulty = dto.difficultyLabel.ifBlank { "media" },
+                            stars = 0,
+                            learned = false
+                        )
+                    }.sortedBy { it.word.uppercase() }
+                }
+            }
+        } finally {
+            isLoading = false
+        }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
     var selectedWord by remember { mutableStateOf<DictionaryWord?>(null) }
@@ -178,7 +162,7 @@ fun DictionaryScreen(
     val filteredWords by remember(searchQuery, selectedFilterIndex) {
         derivedStateOf {
             val q = searchQuery.trim().lowercase()
-            mockWords.filter { word ->
+            fetchedWords.filter { word ->
                 val matchesSearch = q.isEmpty() || word.word.lowercase().contains(q)
                 val matchesFilter = when (selectedFilterIndex) {
                     1 -> word.learned
@@ -193,7 +177,7 @@ fun DictionaryScreen(
     }
 
     val availableLetters = remember {
-        mockWords.map { it.word.first().uppercaseChar() }.distinct().sorted()
+        fetchedWords.map { it.word.first().uppercaseChar() }.distinct().sorted()
     }
 
     val gridState = rememberLazyGridState()
@@ -580,9 +564,9 @@ private fun WordDetailCard(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     DifficultyLabel(difficulty = word.difficulty)
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     StarRating(stars = word.stars)
                 }
 

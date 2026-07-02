@@ -50,50 +50,50 @@ Vista 2 — Welcome Selection (bienvenida)
         │
         ├── "Tutor registrado" → Login
         │   ← Botón "Volver" a WelcomeSelection
-        │   ← Toggle "Mostrar contraseña"
-        │   ← Opción "Recordarme"
         │   → Login exitoso → Netflix de Perfiles 🎬
         │
-        │   Vista 3 — Netflix de Perfiles 👥
-        │   ┌──────────────────────────────────┐
-        │   │    ¿Quién va a usar AlphaKids?   │
-        │   │                                  │
-        │   │  ┌──────┐  ┌──────┐  ┌──────┐  │
-        │   │  │  👦   │  │  👶   │  │  👤   │  │
-        │   │  │ Sofía │  │ Mateo │  │ Padre │  │
-        │   │  │ Nv.3  │  │ Nv.1  │  │       │  │
-        │   │  └──────┘  └──────┘  └──────┘  │
-        │   │  ┌──────────────────────┐       │
-        │   │  │  ➕ Agregar perfil   │       │
-        │   │  └──────────────────────┘       │
-        │   └──────────────────────────────────┘
-        │    ├── Tap niño → AdventureHome 🏠
-        │    ├── Tap padre → Panel de padres
-        │    └── Tap ➕ → SetupWizard
+        │   Vista 3 — Netflix de Perfiles 👥 → SetupWizard
+        │   ┌─────────────────────────────────┐
+        │   │  Wizard 6 pasos (1 opcional):   │
+        │   │  1. SetupIntro (bienvenida)     │
+        │   │  2. CreateChild (nombre, edad)  │
+        │   │  3. ChooseAvatar (DiceBear)     │
+        │   │  4. AssignInstitution (opcional)│
+        │   │     → GET /institutions/public  │
+        │   │     → Selecciona colegio+sección│
+        │   │  5. ChooseFirstPet              │
+        │   │  6. Welcome → POST /tutors/child│
+        │   │     ├── con institución → PENDING│
+        │   │     └── sin institución → VERIFIED│
+        │   └─────────────────────────────────┘
         │
-        ├── "¿No estás registrado?" → Register
-        │   ← Botón "Volver" a WelcomeSelection
-        │   → Register exitoso → OTP
+        ├── "¿No estás registrado?" → Register → OTP → SetupWizard
         │
-        └── OTP Verification
-            ← Botón "Volver" a Register
-            ← Auto-verificar al completar 6 dígitos
-            ← 30s cooldown para reenviar código
-            → OTP exitoso → SetupWizard → ... → AdventureHome 🏠
+        └── OTP → SetupWizard → AdventureHome 🏠
 
 AdventureHome 🏠 (4 tabs)
-  ├── Inicio 📊  — Header (nombre + monedas) → Alphi bienvenida → ¡A Jugar! → Diccionario
-  ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
-  ├── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo por nivel
+  ├── Inicio 📊  — Dashboard → Jugar → Diccionario (scroll-sync A–Z)
+  ├── Tienda 🛒  — Mascotas, alimentos, accesorios
+  ├── Mascotas 🐾 — Perfiles, estados, desbloqueo por nivel
   └── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
-        └── ⚙️ Settings → Netflix de Perfiles 🎬
-               └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
+        │
+        └── 🎮 Jugar → WordSelection (palabras del API)
+              ├── ASIGNED → "📢 Tienes palabras del profesor!" + badge
+              └── CATALOG → palabras generales
+                    │
+                    ▼
+              WordScannerChallenge 📷
+              ├── Muestra imagen de referencia (Cloudinary)
+              ├── Cámara + OCR (ML Kit)
+              └── Éxito → OCRResult 🎉
+                    ├── Reporta: POST /game-sessions/complete
+                    ├── "Seguir jugando" → WordSelection
+                    └── "Repetir" → misma palabra
 
 Parent Dashboard (3 tabs)
-  ├── Dashboard  — Resumen de todos los hijos
+  ├── Dashboard  — Resumen hijos
   ├── Hijos     — Detalle por hijo
   └── Suscripción — Plan y beneficios
-       └── ⚙️ Gear menu → Soporte + Cerrar sesión
 
 ### Mejoras implementadas
 
@@ -129,7 +129,7 @@ Abrir iosApp/ en Xcode y compilar
 ## Estado del proyecto
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
-- ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 5 pasos)
+- ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 6 pasos)
 - ✅ **Phase 2** — AdventureHome (4 tabs: Inicio, Tienda, Mascotas, Logros)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
@@ -143,6 +143,15 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Fuentes instaladas** — DynaPuff + DM Sans conectadas vía expect/actual
 - ✅ **Circadian Theme** — Tema claro/oscuro automático según hora del sistema
 - ✅ **Keyboard handling** — `adjustResize` + teclado no tapa inputs
+- ✅ **Institución en onboarding** — Paso opcional para asignar colegio + grado + sección
+- ✅ **POST /tutors/children con API** — Creación real de perfiles con verificación (PENDING/VERIFIED)
+- ✅ **Palabras del API** — `GET /students/:id/playable-words` con flujo ASSIGNED/CATALOG
+- ✅ **Imagen Cloudinary** — Muestra imagen de referencia del profesor en el juego
+- ✅ **GameSessionState** — Singleton para pasar palabra API → juego → resultado
+- ✅ **POST /game-sessions/complete** — Reporta resultados al API con coins y stars
+- ✅ **Scroll-sync alphabet** — Navegador A–Z sincronizado con scroll progresivo
+- ✅ **Koin modules registrados** — gameModule, storeModule, studentPetModule en AlphaKidsApp
+- ✅ **Background circadian** — Todas las pantallas con imagen de fondo día/tarde/noche
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
