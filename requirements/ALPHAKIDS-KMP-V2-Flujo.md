@@ -10,7 +10,7 @@ Primera Instalación
 
 AlphaKidsSplash ↓ ParentLogin ↓ ParentRegister ↓ Verificación de Cuenta ↓ ParentSetupWizard ↓
 
-CreateChildProfile ↓ ChooseChildAvatar ↓ ChooseFirstPet ↓ WelcomeAdventure ↓ AdventureHome
+CreateChildProfile ↓ ChooseChildAvatar ↓ AssignInstitution (opcional) ↓ ChooseFirstPet ↓ WelcomeAdventure ↓ AdventureHome
 
 Uso Diario
 
