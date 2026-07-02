@@ -50,7 +50,12 @@ data class StudentResponseDto(
 )
 
 /**
- * StudentProgress model with included currentRank.
+ * StudentProgress model — may optionally include currentRank.
+ *
+ * NOTE: POST /tutors/children only includes progress without the
+ * currentRank relation, while GET /tutors/children includes it via
+ * `include: { progress: { include: { currentRank: true } } }`.
+ * Always keep currentRank nullable to handle both cases.
  */
 @Serializable
 data class StudentProgressDto(
@@ -61,7 +66,7 @@ data class StudentProgressDto(
     val wordsCompleted: Int = 0,
     val currentLevel: Int = 1,
     val currentRankId: String,
-    val currentRank: RankDto,
+    val currentRank: RankDto? = null,
     val createdAt: String,
     val updatedAt: String,
 )
