@@ -83,9 +83,9 @@ sealed class Screen(val route: String) {
     data object WordSelection : Screen("word-selection")
 
     /** OCR result with rewards and stats */
-    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}") {
-        fun createRoute(wordIndex: Int, attempts: Int, time: Long): String =
-            "ocr-result/$wordIndex/$attempts/$time"
+    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}/{wordText}") {
+        fun createRoute(wordIndex: Int, attempts: Int, time: Long, wordText: String = ""): String =
+            "ocr-result/$wordIndex/$attempts/$time/$wordText"
     }
 
     companion object {

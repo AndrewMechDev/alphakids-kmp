@@ -326,6 +326,7 @@ fun App() {
                     navArgument("wordIndex") { type = NavType.IntType },
                     navArgument("attempts") { type = NavType.IntType },
                     navArgument("time") { type = NavType.LongType },
+                    navArgument("wordText") { type = NavType.StringType; defaultValue = "" },
                 ),
                 enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
                 exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
@@ -334,7 +335,9 @@ fun App() {
             ) { backStackEntry ->
                 val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
                 val time = backStackEntry.arguments?.getLong("time") ?: 0L
-                val ocrWordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
+                val wordTextArg = backStackEntry.arguments?.getString("wordText") ?: ""
+                val ocrWordText = if (wordTextArg.isNotBlank()) wordTextArg
+                    else org.alphakids.app.game.domain.model.GameSessionState.currentWordText
                 val word = if (ocrWordText.isNotBlank()) {
                     val safeText = ocrWordText.uppercase().filter { it.isLetter() }
                         .ifBlank { "ABC" }

@@ -270,14 +270,14 @@ fun WordScannerChallenge(
                 if (r.success) {
                     Button(
                         onClick = {
-                            // Use wordIndex=0 for API words (GameSessionState overrides it)
-                            val isApiWord = org.alphakids.app.game.domain.model.GameSessionState.currentWordText.isNotBlank()
-                            val wordIndex = if (isApiWord) 0 else WordBank.words.indexOf(word).coerceAtLeast(0)
+                            val wordText = word.word.uppercase()
+                            val wordIndex = WordBank.words.indexOf(word).coerceAtLeast(0)
                             navController.navigate(
                                 Screen.OcrResult.createRoute(
                                     wordIndex = wordIndex,
                                     attempts = attempts,
                                     time = 0L,
+                                    wordText = wordText,
                                 )
                             )
                         },
