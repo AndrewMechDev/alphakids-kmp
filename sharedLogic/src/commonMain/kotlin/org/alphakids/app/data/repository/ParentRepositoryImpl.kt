@@ -19,6 +19,8 @@ import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.ContactForm
+import org.alphakids.app.parent.domain.model.CreateChildRequest
+import org.alphakids.app.parent.domain.model.CreateChildResult
 import org.alphakids.app.parent.domain.model.FAQItem
 import org.alphakids.app.parent.domain.model.SubscriptionInfo
 import org.alphakids.app.parent.domain.repository.ParentRepository
@@ -61,14 +63,29 @@ class ParentRepositoryImpl(
      * Crea un perfil de hijo desde el tutor.
      * POST /tutors/children
      */
-    suspend fun createChild(request: CreateChildRequestDto): Boolean {
+    override suspend fun createChild(request: CreateChildRequest): CreateChildResult? {
         return try {
+            val dto = CreateChildRequestDto(
+                firstName = request.firstName,
+                lastName = request.lastName,
+                birthDate = request.birthDate,
+                gender = request.gender,
+                avatarUrl = request.avatarUrl,
+                institutionId = request.institutionId,
+                sectionId = request.sectionId,
+            )
             val response = api.httpClient.post(ApiConstants.TUTORS_CHILDREN) {
-                setBody(request)
+                setBody(dto)
             }
-            response.status.isSuccess()
+            if (!response.status.isSuccess()) return null
+            val studentDto = response.body<StudentResponseDto>()
+            CreateChildResult(
+                id = studentDto.id,
+                verificationStatus = studentDto.verificationStatus,
+                studentType = studentDto.studentType,
+            )
         } catch (_: Exception) {
-            false
+            null
         }
     }
 

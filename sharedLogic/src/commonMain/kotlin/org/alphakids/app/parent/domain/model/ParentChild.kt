@@ -27,3 +27,26 @@ data class ChildActivity(
     val type: String,
     val detail: String,
 )
+
+/**
+ * Domain request for creating a child profile.
+ * Mapped to [org.alphakids.app.data.remote.dto.CreateChildRequestDto] in the data layer.
+ */
+data class CreateChildRequest(
+    val firstName: String,
+    val lastName: String,
+    val birthDate: String? = null,
+    val gender: String? = null,
+    val avatarUrl: String? = null,
+    val institutionId: String? = null,
+    val sectionId: String? = null,
+)
+
+/**
+ * Domain result from creating a child profile.
+ */
+data class CreateChildResult(
+    val id: String,
+    val verificationStatus: String,
+    val studentType: String,
+)

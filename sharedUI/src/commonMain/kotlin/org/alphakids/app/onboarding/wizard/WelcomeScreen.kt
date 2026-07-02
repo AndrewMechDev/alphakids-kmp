@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
@@ -41,12 +43,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.data.mock.Pet
-import org.alphakids.app.parent.data.mock.MockParentRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.parent.domain.model.CreateChildRequest
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
@@ -96,6 +99,13 @@ fun WelcomeScreen(
         animationSpec = androidx.compose.animation.core.tween(durationMillis = org.alphakids.app.theme.AlphaMotion.Slow),
         label = "welcomeAlpha"
     )
+
+    val scope = rememberCoroutineScope()
+
+    // Creation state
+    var isCreating by remember { mutableStateOf(false) }
+    var creationError by remember { mutableStateOf<String?>(null) }
+    var pendingVerification by remember { mutableStateOf(false) }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
         isVisible = true
@@ -260,8 +270,18 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(48.dp))
     }
 
-    // Confirmation dialog before creating the child profile
-    if (showConfirmDialog) {
+    // ── Loading overlay ──
+    if (isCreating) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+    }
+
+    // ── Confirmation dialog before creating the child profile ──
+    if (showConfirmDialog && !isCreating) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
             title = { Text("¿Confirmar perfil?") },
@@ -274,26 +294,64 @@ fun WelcomeScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showConfirmDialog = false
-                    // Save child to session
-                    val dialogState = wizardViewModel.state.value
-                    val dialogData = dialogState.data
-                    val newChild = ChildSummary(
-                        id = (1000..9999).random().toString(),
-                        name = dialogData.childName,
-                        avatarSeed = dialogData.avatarSeed,
-                        level = 1,
-                        rank = "Semillita 🌱",
-                        lastActivity = "Recién creado",
-                        wordsLearned = 0,
-                        stars = 0,
+                    isCreating = true
+                    creationError = null
+
+                    val d = wizardViewModel.state.value.data
+
+                    // Split childName into firstName / lastName
+                    val nameParts = d.childName.trim().split(" ", limit = 2)
+                    val firstName = nameParts.getOrElse(0) { d.childName }
+                    val lastName = nameParts.getOrElse(1) { "" }
+
+                    // Birth date is optional in the API — skip for now
+                    val birthDate: String? = null
+
+                    // DiceBear avatar URL
+                    val avatarUrl = if (d.avatarSeed.isNotBlank()) {
+                        "https://api.dicebear.com/10.x/${d.avatarStyle}/svg?seed=${d.avatarSeed}"
+                    } else null
+
+                    val request = CreateChildRequest(
+                        firstName = firstName,
+                        lastName = lastName,
+                        birthDate = birthDate,
+                        avatarUrl = avatarUrl,
+                        institutionId = d.institutionId,
+                        sectionId = d.sectionId,
                     )
-                    SessionManager.setActiveChild(newChild)
+
                     val repo = koinInject<ParentRepository>()
-                    if (repo is MockParentRepository) {
-                        repo.addChild(newChild)
-                    }
-                    navController.navigate(Screen.AdventureHome.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    scope.launch {
+                        val result = repo.createChild(request)
+                        isCreating = false
+
+                        if (result != null) {
+                            // Build child summary for session
+                            val fullName = "$firstName $lastName"
+                            val childSummary = ChildSummary(
+                                id = result.id,
+                                name = fullName,
+                                avatarSeed = d.avatarSeed,
+                                level = 1,
+                                rank = "Semillita 🌱",
+                                lastActivity = "Recién creado",
+                                wordsLearned = 0,
+                                stars = 0,
+                            )
+                            SessionManager.setActiveChild(childSummary)
+                            wizardViewModel.resetWizard()
+
+                            if (result.verificationStatus == "PENDING") {
+                                pendingVerification = true
+                            } else {
+                                navController.navigate(Screen.AdventureHome.route) {
+                                    popUpTo(Screen.Splash.route) { inclusive = true }
+                                }
+                            }
+                        } else {
+                            creationError = "No se pudo crear el perfil. Verifica tu conexión e intenta de nuevo."
+                        }
                     }
                 }) {
                     Text("Confirmar")
@@ -301,6 +359,53 @@ fun WelcomeScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+        )
+    }
+
+    // ── Pending verification dialog (institution assigned) ──
+    if (pendingVerification) {
+        AlertDialog(
+            onDismissRequest = { pendingVerification = false },
+            title = { Text("¡Perfil creado!") },
+            text = {
+                Text(
+                    "El perfil de ${data.childName} ha sido vinculado a ${data.institutionName ?: "la institución"}.\n\n" +
+                    "Un director debe verificar el registro para que ${data.childName} " +
+                    "pueda acceder. Te notificaremos cuando sea aprobado."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingVerification = false
+                    navController.navigate(Screen.AdventureHome.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }) {
+                    Text("Entendido")
+                }
+            },
+        )
+    }
+
+    // ── Error dialog ──
+    if (creationError != null) {
+        AlertDialog(
+            onDismissRequest = { creationError = null },
+            title = { Text("Error") },
+            text = { Text(creationError!!) },
+            confirmButton = {
+                TextButton(onClick = {
+                    creationError = null
+                    showConfirmDialog = true
+                }) {
+                    Text("Reintentar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { creationError = null }) {
                     Text("Cancelar")
                 }
             },

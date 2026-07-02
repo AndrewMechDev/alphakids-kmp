@@ -7,6 +7,8 @@ import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.ContactForm
+import org.alphakids.app.parent.domain.model.CreateChildRequest
+import org.alphakids.app.parent.domain.model.CreateChildResult
 import org.alphakids.app.parent.domain.model.FAQItem
 import org.alphakids.app.parent.domain.model.PlanBenefit
 import org.alphakids.app.parent.domain.model.PlanType
@@ -111,4 +113,28 @@ class MockParentRepository : ParentRepository {
             grades = emptyList(),
         ),
     )
+
+    override suspend fun createChild(request: CreateChildRequest): CreateChildResult? {
+        val fullName = "${request.firstName} ${request.lastName}"
+        val verificationStatus = if (request.institutionId != null) "PENDING" else "VERIFIED"
+        val studentType = if (request.institutionId != null) "INSTITUTIONAL" else "FREEMIUM"
+        val mockId = "mock-student-${(1000..9999).random()}"
+
+        children.add(0, ChildSummary(
+            id = mockId,
+            name = fullName,
+            avatarSeed = request.avatarUrl ?: mockId,
+            level = 1,
+            rank = "Semillita 🌱",
+            lastActivity = "Recién creado",
+            wordsLearned = 0,
+            stars = 0,
+        ))
+
+        return CreateChildResult(
+            id = mockId,
+            verificationStatus = verificationStatus,
+            studentType = studentType,
+        )
+    }
 }
