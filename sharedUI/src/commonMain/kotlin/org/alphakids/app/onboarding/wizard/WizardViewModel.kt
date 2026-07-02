@@ -48,6 +48,22 @@ class WizardViewModel : ViewModel() {
         _state.update { it.copy(data = it.data.copy(petName = name)) }
     }
 
+    fun setInstitution(id: String, name: String, slug: String) {
+        _state.update { it.copy(data = it.data.copy(
+            institutionId = id,
+            institutionName = name,
+            institutionSlug = slug,
+        ))}
+    }
+
+    fun clearInstitution() {
+        _state.update { it.copy(data = it.data.copy(
+            institutionId = null,
+            institutionName = null,
+            institutionSlug = "",
+        ))}
+    }
+
     fun resetWizard() {
         _state.update { WizardState() }
     }
