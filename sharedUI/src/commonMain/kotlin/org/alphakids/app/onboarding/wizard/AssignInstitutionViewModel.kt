@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.parent.domain.repository.ParentRepository
 
@@ -16,30 +17,19 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
  */
 data class AssignInstitutionUiState(
     val wantsInstitution: Boolean = false,
-    val slugInput: String = "",
-    val searchStatus: SearchStatus = SearchStatus.Idle,
-    val foundInstitution: Institution? = null,
-    val errorMessage: String? = null,
+    val institutions: List<Institution> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val selectedInstitution: Institution? = null,
+    val selectedGrade: Grade? = null,
+    val expandedInstitutionId: String? = null,
 )
-
-/**
- * Search lifecycle for institution lookup.
- */
-sealed class SearchStatus {
-    data object Idle : SearchStatus()
-    data object Loading : SearchStatus()
-    data object NotFound : SearchStatus()
-    data class Error(val message: String) : SearchStatus()
-    data class Found(val institution: Institution) : SearchStatus()
-}
 
 /**
  * ViewModel for [AssignInstitutionScreen].
  *
- * Manages the optional institution lookup flow during child onboarding:
- * - Toggle to opt in/out
- * - Slug input and search
- * - Graceful degradation when the API is not yet available
+ * Fetches the list of active institutions via [ParentRepository.getPublicInstitutions]
+ * and manages the picker state for institution → grade → section selection.
  */
 class AssignInstitutionViewModel(
     private val parentRepository: ParentRepository,
@@ -49,18 +39,32 @@ class AssignInstitutionViewModel(
     private val _uiState = MutableStateFlow(AssignInstitutionUiState())
     val uiState: StateFlow<AssignInstitutionUiState> = _uiState.asStateFlow()
 
-    /**
-     * Toggle whether the child attends an institution.
-     * Clears any previously selected institution when toggling off.
-     */
+    /** Load the public institution list from the API. */
+    fun loadInstitutions() {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+
+        scope.launch {
+            val result = parentRepository.getPublicInstitutions()
+            _uiState.update {
+                it.copy(
+                    institutions = result,
+                    isLoading = false,
+                    error = if (result.isEmpty() && it.wantsInstitution) {
+                        "No se pudieron cargar los colegios. Verifica tu conexión."
+                    } else null,
+                )
+            }
+        }
+    }
+
+    /** Toggle whether the child attends an institution. */
     fun setWantsInstitution(wants: Boolean) {
         _uiState.update {
             it.copy(
                 wantsInstitution = wants,
-                searchStatus = SearchStatus.Idle,
-                foundInstitution = null,
-                slugInput = "",
-                errorMessage = null,
+                selectedInstitution = null,
+                selectedGrade = null,
+                expandedInstitutionId = null,
             )
         }
         if (!wants) {
@@ -68,55 +72,41 @@ class AssignInstitutionViewModel(
         }
     }
 
-    /** Update the slug/code the parent is typing. */
-    fun onSlugChanged(slug: String) {
+    /** Select an institution and expand its grade list. */
+    fun selectInstitution(inst: Institution) {
         _uiState.update {
             it.copy(
-                slugInput = slug,
-                searchStatus = SearchStatus.Idle,
-                foundInstitution = null,
-                errorMessage = null,
+                selectedInstitution = inst,
+                selectedGrade = null,
+                expandedInstitutionId = if (it.expandedInstitutionId == inst.id) null else inst.id,
             )
         }
+        wizardViewModel.setInstitution(inst.id, inst.name)
     }
 
-    /** Search for an institution by the current slug input. */
-    fun search() {
-        val slug = _uiState.value.slugInput.trim()
-        if (slug.isBlank()) return
-
-        _uiState.update { it.copy(searchStatus = SearchStatus.Loading, errorMessage = null) }
-
-        scope.launch {
-            val result = parentRepository.lookupInstitution(slug)
-            _uiState.update {
-                if (result != null) {
-                    it.copy(searchStatus = SearchStatus.Found(result), foundInstitution = result)
-                } else {
-                    it.copy(searchStatus = SearchStatus.NotFound)
-                }
-            }
-        }
+    /** Select a grade within the chosen institution. */
+    fun selectGrade(grade: Grade) {
+        _uiState.update { it.copy(selectedGrade = grade) }
+        wizardViewModel.setGrade(grade.id, grade.name)
     }
 
-    /** Confirm the selected institution and save to wizard data. */
+    /** Confirm the selection and save to wizard data. */
     fun confirmSelection() {
-        val inst = _uiState.value.foundInstitution ?: return
-        wizardViewModel.setInstitution(inst.id, inst.name, inst.slug)
+        // Institution is already saved via selectInstitution / selectGrade
     }
 
-    /** Skip the institution step — no institution will be assigned. */
+    /** Skip the institution step. */
     fun skip() {
         wizardViewModel.clearInstitution()
     }
 
-    /** Whether the user has completed the interaction (confirmed or skipped). */
+    /** Whether the user can continue (skip is always valid). */
     fun isComplete(): Boolean {
         val state = _uiState.value
         return if (state.wantsInstitution) {
-            state.foundInstitution != null
+            state.selectedInstitution != null
         } else {
-            true // skipping is always valid
+            true
         }
     }
 }

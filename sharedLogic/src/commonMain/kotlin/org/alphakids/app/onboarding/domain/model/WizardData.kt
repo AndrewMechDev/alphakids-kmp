@@ -3,8 +3,9 @@ package org.alphakids.app.onboarding.domain.model
 /**
  * Shared state for the 6-step onboarding wizard.
  *
- * [institutionId] and [institutionName] are set when the parent optionally
+ * Institution, grade, and section are set when the parent optionally
  * assigns this child to a school during [WizardStep.AssignInstitution].
+ * All three are nullable — the step is fully skippable.
  */
 data class WizardData(
     val childName: String = "",
@@ -15,7 +16,9 @@ data class WizardData(
     val petName: String = "",
     val institutionId: String? = null,
     val institutionName: String? = null,
-    val institutionSlug: String = "",
+    val gradeId: String? = null,
+    val gradeName: String? = null,
+    val sectionId: String? = null,
 ) {
     val isComplete: Boolean
         get() = childName.isNotBlank()

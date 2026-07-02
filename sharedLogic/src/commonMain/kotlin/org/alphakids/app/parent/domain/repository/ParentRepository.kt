@@ -17,10 +17,10 @@ interface ParentRepository {
     suspend fun submitContactForm(form: ContactForm): Boolean
 
     /**
-     * Look up an institution by its slug/code.
-     * Returns null when the institution is not found or the API is unavailable.
+     * Get all active institutions with their grades and sections.
+     * Returns an empty list when the API is unavailable.
      *
-     * Backed by: GET /institutions/lookup?slug=<slug>
+     * Backed by: GET /institutions/public
      */
-    suspend fun lookupInstitution(slug: String): Institution?
+    suspend fun getPublicInstitutions(): List<Institution>
 }

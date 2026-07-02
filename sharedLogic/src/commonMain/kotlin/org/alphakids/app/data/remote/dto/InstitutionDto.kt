@@ -4,13 +4,29 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Response from GET /institutions/lookup?slug=...
+ * Response item from GET /institutions/public
  *
- * Lightweight institution data for parent-facing lookup during onboarding.
+ * Matches the Prisma controller response which returns active institutions
+ * with their grades and sections for parent-facing institution assignment.
  */
 @Serializable
-data class InstitutionLookupResponseDto(
+data class PublicInstitutionDto(
     val id: String,
     val name: String,
-    val slug: String,
+    @SerialName("logo_url")
+    val logoUrl: String? = null,
+    val grades: List<PublicGradeDto> = emptyList(),
+)
+
+@Serializable
+data class PublicGradeDto(
+    val id: String,
+    val name: String,
+    val sections: List<PublicSectionDto> = emptyList(),
+)
+
+@Serializable
+data class PublicSectionDto(
+    val id: String,
+    val name: String,
 )

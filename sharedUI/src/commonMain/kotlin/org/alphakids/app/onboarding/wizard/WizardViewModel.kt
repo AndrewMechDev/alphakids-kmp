@@ -9,7 +9,7 @@ import org.alphakids.app.onboarding.domain.model.WizardData
 import org.alphakids.app.onboarding.domain.model.WizardStep
 
 /**
- * Shared ViewModel for the 5-step onboarding wizard.
+ * Shared ViewModel for the 6-step onboarding wizard.
  *
  * Holds [WizardState] including current [WizardStep] and the accumulated [WizardData].
  * One instance is created in [org.alphakids.app.App] and passed to each wizard screen.
@@ -48,19 +48,35 @@ class WizardViewModel : ViewModel() {
         _state.update { it.copy(data = it.data.copy(petName = name)) }
     }
 
-    fun setInstitution(id: String, name: String, slug: String) {
+    fun setInstitution(id: String, name: String) {
         _state.update { it.copy(data = it.data.copy(
             institutionId = id,
             institutionName = name,
-            institutionSlug = slug,
+            gradeId = null,
+            gradeName = null,
+            sectionId = null,
         ))}
+    }
+
+    fun setGrade(id: String, name: String) {
+        _state.update { it.copy(data = it.data.copy(
+            gradeId = id,
+            gradeName = name,
+            sectionId = null,
+        ))}
+    }
+
+    fun setSection(id: String) {
+        _state.update { it.copy(data = it.data.copy(sectionId = id)) }
     }
 
     fun clearInstitution() {
         _state.update { it.copy(data = it.data.copy(
             institutionId = null,
             institutionName = null,
-            institutionSlug = "",
+            gradeId = null,
+            gradeName = null,
+            sectionId = null,
         ))}
     }
 

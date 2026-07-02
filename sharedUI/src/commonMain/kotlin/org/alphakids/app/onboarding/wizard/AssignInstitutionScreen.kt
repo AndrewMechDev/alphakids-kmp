@@ -22,13 +22,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.domain.model.Grade
+import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.jetbrains.compose.resources.painterResource
@@ -49,13 +49,11 @@ import alphakids_kmp.sharedui.generated.resources.ic_school
 /**
  * Step 4 of 6 — Optional institution assignment screen.
  *
- * Lets the parent optionally assign the child to a school by entering
- * the institution's slug/code. The step can be fully skipped if the
- * child does not attend any institution.
+ * Lets the parent optionally assign the child to an institution by picking
+ * from the list returned by GET /institutions/public.
+ * The parent can also select grade and section within the institution.
  *
- * Search delegates to [AssignInstitutionViewModel] which calls
- * [org.alphakids.app.parent.domain.repository.ParentRepository.lookupInstitution].
- * When the API is not yet available, the repository returns null gracefully.
+ * All selections are optional — the step can be fully skipped.
  */
 @Composable
 fun AssignInstitutionScreen(
@@ -67,6 +65,13 @@ fun AssignInstitutionScreen(
     val uiState by assignViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
+    // Auto-load institutions when the user opts in
+    LaunchedEffect(uiState.wantsInstitution) {
+        if (uiState.wantsInstitution && uiState.institutions.isEmpty() && !uiState.isLoading) {
+            assignViewModel.loadInstitutions()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +81,7 @@ fun AssignInstitutionScreen(
     ) {
         AlphaHeader(
             title = "¿Pertenece a un colegio?",
-            subtitle = "Asigna el perfil a una institución educativa",
+            subtitle = "Vincula el perfil a una institución educativa",
             currentStep = 4,
             totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
@@ -85,7 +90,6 @@ fun AssignInstitutionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // School icon
         Image(
             painter = painterResource(Res.drawable.ic_school),
             contentDescription = "Colegio",
@@ -106,7 +110,7 @@ fun AssignInstitutionScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Si tu hijo va a un colegio, puedes vincular su perfil para que sus maestros sigan su progreso",
+            text = "Elige el colegio al que asiste para que sus maestros puedan seguir su progreso",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -115,19 +119,17 @@ fun AssignInstitutionScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Yes/No toggle chips
+        // Sí / No toggle
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // "No" chip
             ChipOption(
                 text = "No",
                 selected = !uiState.wantsInstitution,
                 onClick = { assignViewModel.setWantsInstitution(false) },
                 modifier = Modifier.weight(1f),
             )
-            // "Sí" chip
             ChipOption(
                 text = "Sí",
                 selected = uiState.wantsInstitution,
@@ -136,91 +138,77 @@ fun AssignInstitutionScreen(
             )
         }
 
-        // Slug input section (only when "Sí" is selected)
+        // Institution picker (only when "Sí")
         if (uiState.wantsInstitution) {
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "Código del colegio",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-
-            OutlinedTextField(
-                value = uiState.slugInput,
-                onValueChange = { assignViewModel.onSlugChanged(it) },
-                label = { Text("Ej: san-martin") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                shape = MaterialTheme.shapes.small,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            FilledTonalButton(
-                onClick = { assignViewModel.search() },
-                enabled = uiState.slugInput.isNotBlank() && uiState.searchStatus !is SearchStatus.Loading,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Text("Buscar colegio")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Search result area
-            when (val status = uiState.searchStatus) {
-                is SearchStatus.Loading -> {
+            when {
+                uiState.isLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.size(32.dp),
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                is SearchStatus.Found -> {
-                    InstitutionFoundCard(
-                        name = status.institution.name,
-                    )
-                }
-                is SearchStatus.NotFound -> {
+                uiState.error != null -> {
                     Text(
-                        text = "No encontramos un colegio con ese código",
+                        text = uiState.error!!,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedButton(
+                        onClick = { assignViewModel.loadInstitutions() },
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text("Reintentar")
+                    }
                 }
-                is SearchStatus.Error -> {
+                uiState.institutions.isEmpty() -> {
                     Text(
-                        text = status.message,
+                        text = "No hay colegios disponibles. Puedes omitir este paso.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     )
                 }
-                is SearchStatus.Idle -> { /* nothing */ }
+                else -> {
+                    // Institution list
+                    Text(
+                        text = "Selecciona un colegio",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    uiState.institutions.forEach { institution ->
+                        InstitutionCard(
+                            institution = institution,
+                            isSelected = uiState.selectedInstitution?.id == institution.id,
+                            isExpanded = uiState.expandedInstitutionId == institution.id,
+                            selectedGrade = if (uiState.selectedInstitution?.id == institution.id)
+                                uiState.selectedGrade else null,
+                            onSelect = { assignViewModel.selectInstitution(institution) },
+                            onSelectGrade = { assignViewModel.selectGrade(it) },
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
             }
         }
 
         Spacer(modifier = Modifier.weight(1f))
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // Bottom buttons
-        val canContinue = assignViewModel.isComplete()
-
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Skip button (always visible)
             OutlinedButton(
                 onClick = {
                     assignViewModel.skip()
@@ -235,20 +223,17 @@ fun AssignInstitutionScreen(
                 Text("Omitir")
             }
 
-            // Continue button
             AlphaPrimaryButton(
                 text = "Continuar",
                 onClick = {
-                    if (uiState.wantsInstitution && uiState.foundInstitution != null) {
-                        assignViewModel.confirmSelection()
-                    }
+                    assignViewModel.confirmSelection()
                     wizardViewModel.updateStep(WizardStep.ChoosePet)
                     navController.navigate(Screen.ChooseFirstPet.route) {
                         popUpTo(Screen.AssignInstitution.route) { inclusive = true }
                     }
                 },
                 modifier = Modifier.weight(1f),
-                enabled = canContinue,
+                enabled = assignViewModel.isComplete(),
             )
         }
 
@@ -256,9 +241,8 @@ fun AssignInstitutionScreen(
     }
 }
 
-/**
- * A selectable chip for Yes/No toggle.
- */
+// ── Subcomponents ──
+
 @Composable
 private fun ChipOption(
     text: String,
@@ -294,51 +278,103 @@ private fun ChipOption(
     }
 }
 
-/**
- * A small card showing the found institution with a confirmation checkmark.
- */
 @Composable
-private fun InstitutionFoundCard(
-    name: String,
+private fun InstitutionCard(
+    institution: Institution,
+    isSelected: Boolean,
+    isExpanded: Boolean,
+    selectedGrade: Grade?,
+    onSelect: () -> Unit,
+    onSelectGrade: (Grade) -> Unit,
 ) {
+    val borderColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(12.dp),
+            )
+            .clickable(onClick = onSelect),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isExpanded) 4.dp else 1.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center,
-            ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = institution.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+            )
+
+            // Show grade picker when expanded
+            if (isExpanded && institution.grades.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
-                    text = "✓",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = "Colegio confirmado",
-                    style = MaterialTheme.typography.labelSmall,
+                    text = "Grado (opcional)",
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                )
+                Spacer(modifier = Modifier.height(6.dp))
+
+                institution.grades.forEach { grade ->
+                    val isGradeSelected = selectedGrade?.id == grade.id
+                    val gradeBg = if (isGradeSelected) {
+                        MaterialTheme.colorScheme.secondaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(gradeBg)
+                            .clickable { onSelectGrade(grade) }
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = if (isGradeSelected) "✓" else "·",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (isGradeSelected) {
+                                MaterialTheme.colorScheme.onSecondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.width(20.dp),
+                        )
+                        Text(
+                            text = grade.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        if (grade.sections.isNotEmpty()) {
+                            Text(
+                                text = " (${grade.sections.size} secciones)",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
         }
     }
