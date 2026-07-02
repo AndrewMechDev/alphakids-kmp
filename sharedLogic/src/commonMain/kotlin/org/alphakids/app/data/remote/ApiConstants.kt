@@ -8,8 +8,8 @@ package org.alphakids.app.data.remote
  */
 object ApiConstants {
 
-    /** Default to local dev server. Change this for production builds. */
-    const val BASE_URL: String = "http://10.0.2.2:3000"
+    /** Production API. */
+    const val BASE_URL: String = "https://api.alphakids.org.pe"
 
     // ── Auth ──
     const val LOGIN = "auth/login"
