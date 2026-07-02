@@ -35,7 +35,9 @@ class AlphaKidsApiClient(
                 prettyPrint = false
                 isLenient = true
                 ignoreUnknownKeys = true
-                encodeDefaults = true
+                // Only encode non-default fields in requests so Zod's
+                // .optional() (which rejects null) receives undefined instead.
+                encodeDefaults = false
             })
         }
 

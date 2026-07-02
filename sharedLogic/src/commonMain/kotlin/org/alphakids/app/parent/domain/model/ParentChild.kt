@@ -44,9 +44,14 @@ data class CreateChildRequest(
 
 /**
  * Domain result from creating a child profile.
+ *
+ * When [id] is blank, the creation failed and [errorMessage] describes why.
  */
 data class CreateChildResult(
     val id: String,
     val verificationStatus: String,
     val studentType: String,
-)
+    val errorMessage: String? = null,
+) {
+    val isSuccess: Boolean get() = id.isNotBlank()
+}

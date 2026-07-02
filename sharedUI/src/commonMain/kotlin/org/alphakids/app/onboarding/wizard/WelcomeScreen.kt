@@ -299,10 +299,11 @@ fun WelcomeScreen(
 
                     val d = wizardViewModel.state.value.data
 
-                    // Split childName into firstName / lastName
+                    // Split childName into firstName / lastName.
+                    // If only one word is entered, use it for both (API requires both non-empty).
                     val nameParts = d.childName.trim().split(" ", limit = 2)
                     val firstName = nameParts.getOrElse(0) { d.childName }
-                    val lastName = nameParts.getOrElse(1) { "" }
+                    val lastName = nameParts.getOrElse(1) { firstName }
 
                     // Birth date is optional in the API — skip for now
                     val birthDate: String? = null
@@ -326,7 +327,7 @@ fun WelcomeScreen(
                         val result = repo.createChild(request)
                         isCreating = false
 
-                        if (result != null) {
+                        if (result != null && result.isSuccess) {
                             // Build child summary for session
                             val fullName = "$firstName $lastName"
                             val childSummary = ChildSummary(
@@ -350,7 +351,9 @@ fun WelcomeScreen(
                                 }
                             }
                         } else {
-                            creationError = "No se pudo crear el perfil. Verifica tu conexión e intenta de nuevo."
+                            // Show the actual API error message
+                            creationError = result?.errorMessage
+                                ?: "No se pudo crear el perfil. Verifica los datos e intenta de nuevo."
                         }
                     }
                 }) {

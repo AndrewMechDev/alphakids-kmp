@@ -62,6 +62,9 @@ class ParentRepositoryImpl(
     /**
      * Crea un perfil de hijo desde el tutor.
      * POST /tutors/children
+     *
+     * Returns [CreateChildResult] on success, or a failed result with
+     * the API error message on validation failure.
      */
     override suspend fun createChild(request: CreateChildRequest): CreateChildResult? {
         return try {
@@ -77,15 +80,37 @@ class ParentRepositoryImpl(
             val response = api.httpClient.post(ApiConstants.TUTORS_CHILDREN) {
                 setBody(dto)
             }
-            if (!response.status.isSuccess()) return null
+            if (!response.status.isSuccess()) {
+                // Log the API error for debugging
+                val errorBody = try {
+                    response.body<Map<String, String>>()
+                } catch (_: Exception) {
+                    null
+                }
+                val message = errorBody?.get("message")
+                    ?: errorBody?.get("error")
+                    ?: "Error del servidor: ${response.status.value}"
+                // Return a failed result with the error message
+                return CreateChildResult(
+                    id = "",
+                    verificationStatus = "",
+                    studentType = "",
+                    errorMessage = message,
+                )
+            }
             val studentDto = response.body<StudentResponseDto>()
             CreateChildResult(
                 id = studentDto.id,
                 verificationStatus = studentDto.verificationStatus,
                 studentType = studentDto.studentType,
             )
-        } catch (_: Exception) {
-            null
+        } catch (e: Exception) {
+            CreateChildResult(
+                id = "",
+                verificationStatus = "",
+                studentType = "",
+                errorMessage = "Error de conexión: ${e.message ?: "Intente de nuevo"}",
+            )
         }
     }
 
