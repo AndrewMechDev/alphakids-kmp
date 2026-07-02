@@ -28,6 +28,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.audio.AudioCategory
+import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.CoinGold
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -41,6 +43,8 @@ fun DashboardContent(
     onNavigateToParentDashboard: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val audioService = rememberAudioService()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -132,7 +136,10 @@ fun DashboardContent(
 
         // ── ¡A Jugar! card ──
         Card(
-            onClick = onNavigateToHub,
+            onClick = {
+                audioService.play(AudioCategory.JUGAR)
+                onNavigateToHub()
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
