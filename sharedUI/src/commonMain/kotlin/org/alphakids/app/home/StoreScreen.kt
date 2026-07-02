@@ -118,20 +118,11 @@ fun StoreScreen(
 
     val filteredItems = allItems.filter { it.category == selectedCategory }
 
-    Box(
+    Column(
         modifier = modifier
-            .fillMaxSize()
-            .circadianBackground(alpha = 0.3f),
+            .circadianBackground(alpha = 0.3f)
+            .fillMaxSize(),
     ) {
-        // Color overlay for readability
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
-        )
-        Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
         // ── Header: title + coins ──
         StoreHeader(coins = coins)
 
@@ -179,8 +170,7 @@ fun StoreScreen(
             },
             onDismiss = { pendingPurchase = null },
         )
-    }  // ← cierra Column (contenido)
-    }  // ← cierra Box (circadian wrapper)
+    }  // ← cierra Column
 }
 
 // ── Store Header ──

@@ -215,20 +215,11 @@ fun DictionaryScreen(
         }
     }
 
-    Box(
+    Row(
         modifier = modifier
-            .fillMaxSize()
-            .circadianBackground(alpha = 0.3f),
+            .circadianBackground(alpha = 0.3f)
+            .fillMaxSize(),
     ) {
-        // Color overlay for readability (behind content, over circadian)
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
-        )
-        Row(
-            modifier = Modifier.fillMaxSize(),
-        ) {
             // ── Alphabet sidebar ──
             AlphabetNavColumn(
                 activeLetter = activeLetter,
@@ -318,8 +309,7 @@ fun DictionaryScreen(
                 }
             }
         }
-    }  // ← cierra Row
-    }  // ← cierra Box (circadian wrapper)
+    }
 }
 
 // ── Alphabet Navigation Sidebar ──

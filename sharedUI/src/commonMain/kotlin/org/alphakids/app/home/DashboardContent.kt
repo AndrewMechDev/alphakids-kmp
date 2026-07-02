@@ -52,20 +52,11 @@ fun DashboardContent(
 ) {
     val audioService = rememberAudioService()
 
-    Box(
+    Column(
         modifier = modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .circadianBackground(alpha = 0.3f),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .wrapContentWidth(align = Alignment.CenterHorizontally)
+            .wrapContentWidth(align = Alignment.CenterHorizontally)
                 .widthIn(max = 600.dp)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
@@ -231,7 +222,6 @@ fun DashboardContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
     }  // ← cierra Column
-    }  // ← cierra Box (circadian wrapper)
 }

@@ -134,24 +134,15 @@ fun OCRResultScreen(
             )
         },
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
+                .circadianBackground(alpha = 0.3f)
                 .fillMaxSize()
-                .circadianBackground(alpha = 0.3f),
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // ── Celebration section ──
@@ -259,7 +250,6 @@ fun OCRResultScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
         }  // ← cierra Column
-        }  // ← cierra Box (circadian wrapper)
     }
 }
 

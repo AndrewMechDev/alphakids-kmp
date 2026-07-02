@@ -101,27 +101,18 @@ fun LearningAdventureHub(navController: NavController) {
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
+                .circadianBackground(alpha = 0.3f)
                 .fillMaxSize()
-                .circadianBackground(alpha = 0.3f),
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentWidth(align = Alignment.CenterHorizontally)
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
             // ── Alphi Mascot Header ──
             AlphiHeader()
 
@@ -162,7 +153,6 @@ fun LearningAdventureHub(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
         }  // ← cierra Column
-        }  // ← cierra Box (circadian wrapper)
     }
 }
 
