@@ -149,8 +149,6 @@ fun AdventureHomeScreen(navController: NavController) {
             when (selectedTab) {
                 0 -> DashboardContent(
                     state = state,
-                    onFeed = { viewModel.feedPet() },
-                    onPlay = { viewModel.playWithPet() },
                     onNavigateToHub = {
                         navController.navigate(Screen.LearningAdventureHub.route)
                     },
