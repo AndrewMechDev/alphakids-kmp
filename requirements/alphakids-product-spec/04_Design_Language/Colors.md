@@ -34,6 +34,16 @@
 ## Premium
 - **Premium Gold/Amber** `#FFB800` — placeholder, no hay pantalla SubscriptionCenter en el set actual; validar al recibir referencia
 
+## Modo Circadian (Nocturno)
+
+Todas las pantallas usan `MaterialTheme.colorScheme.*` para adaptarse automaticamente al modo claro/oscuro segun la hora del sistema:
+- **Dia (06:00-18:00):** Light Color Scheme
+- **Noche (18:00-06:00):** Dark Color Scheme
+
+Los colores oscuros estan definidos en `sharedUI/.../theme/Color.kt` (`DarkColorScheme`). El cambio es automatico via `CircadianTheme` en `App.kt`.
+
+> **Regla:** Ningun color hardcodeado (`Color(0xFF...)`) debe usarse como fondo o texto. Solo colores semanticos como `SuccessGreen`, `ErrorRed`, `CoinGold` se mantienen fijos.
+
 ## Mascotas
 - **Luna (zorro)**: naranja `#E8843A`, blanco `#FFFFFF`, pañuelo violeta `#6C5CE7`
 - **Tito (tortuga)**: verde `#7CB95C`, caparazón `#A9D18C`
