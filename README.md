@@ -82,7 +82,7 @@ Vista 2 — Welcome Selection (bienvenida)
             → OTP exitoso → SetupWizard → ... → AdventureHome 🏠
 
 AdventureHome 🏠 (4 tabs)
-  ├── Inicio 📊  — Bienvenida + accesos rápidos a Jugar, Tienda, Mascotas, Logros
+  ├── Inicio 📊  — Header (nombre + monedas) → Alphi bienvenida → ¡A Jugar! → Diccionario
   ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
   ├── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo por nivel
   └── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
