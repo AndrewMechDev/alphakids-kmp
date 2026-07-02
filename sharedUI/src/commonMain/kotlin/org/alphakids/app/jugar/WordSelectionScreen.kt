@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.data.remote.dto.WordDto
+import org.alphakids.app.game.domain.model.GameSessionState
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -164,6 +165,12 @@ fun WordSelectionScreen(
                             word = word,
                             isAssigned = flow == "ASSIGNED",
                             onClick = {
+                                // Save the selected word before navigating
+                                GameSessionState.setWord(
+                                    text = word.text,
+                                    id = word.id,
+                                    difficulty = word.difficultyLabel,
+                                )
                                 navController.navigate(
                                     Screen.WordScannerChallenge.createRoute(0)
                                 )

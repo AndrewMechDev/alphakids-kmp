@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.game.domain.model.GameSessionState
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -85,14 +86,15 @@ fun OCRResultScreen(
     // Report game session completion to the API
     val gameRepo: GameRepository = remember { koinInject() }
     val studentId = org.alphakids.app.parent.domain.model.SessionManager.currentChild?.id
+    val apiWordId = org.alphakids.app.game.domain.model.GameSessionState.currentWordId
     LaunchedEffect(Unit) {
         if (studentId != null && studentId.isNotBlank()) {
             gameRepo.completeSession(
                 GameSessionCompleteRequestDto(
                     studentId = studentId,
-                    wordId = null, // API word ID not available from WordBank
+                    wordId = apiWordId.ifBlank { null },
                     gameType = "OCR_SCAN",
-                    status = "COMPLETED", // Zod enum expects "COMPLETED" | "FAILED"
+                    status = "COMPLETED",
                     attempts = attempts,
                     coinsEarned = rewards.coins,
                     starsEarned = rewards.stars,
@@ -180,16 +182,27 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Action buttons ──
+            val isApiWord = GameSessionState.currentWordText.isNotBlank()
+
             org.alphakids.app.components.AlphaPrimaryButton(
                 text = "🎮 Seguir jugando",
                 onClick = {
-                    val nextWord = WordBank.getRandomWord()
-                    navController.navigate(
-                        Screen.WordScannerChallenge.createRoute(
-                            WordBank.words.indexOf(nextWord).coerceAtLeast(0),
-                        )
-                    ) {
-                        popUpTo(Screen.AdventureHome.route)
+                    if (isApiWord) {
+                        // API word → go back to word picker
+                        GameSessionState.clear()
+                        navController.navigate(Screen.WordSelection.route) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
+                    } else {
+                        // WordBank → random next word
+                        val nextWord = WordBank.getRandomWord()
+                        navController.navigate(
+                            Screen.WordScannerChallenge.createRoute(
+                                WordBank.words.indexOf(nextWord).coerceAtLeast(0),
+                            )
+                        ) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -200,6 +213,14 @@ fun OCRResultScreen(
             org.alphakids.app.components.AlphaSecondaryButton(
                 text = "🔄 Repetir",
                 onClick = {
+                    if (isApiWord) {
+                        // Re-set the same word and restart
+                        GameSessionState.setWord(
+                            text = GameSessionState.currentWordText,
+                            id = GameSessionState.currentWordId,
+                            difficulty = GameSessionState.currentDifficulty,
+                        )
+                    }
                     navController.navigate(
                         Screen.WordScannerChallenge.createRoute(
                             WordBank.words.indexOf(word).coerceAtLeast(0),

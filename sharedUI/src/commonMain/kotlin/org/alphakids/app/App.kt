@@ -293,8 +293,21 @@ fun App() {
                 popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
-                val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
-                val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                val gameWordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
+                val word = if (gameWordText.isNotBlank()) {
+                    // Dynamic word from API (WordSelectionScreen)
+                    org.alphakids.app.domain.model.ChallengeWord(
+                        word = gameWordText.uppercase(),
+                        hint = "Escanea las letras",
+                        imageName = gameWordText.first().uppercase().toString(),
+                        category = "Palabras",
+                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty,
+                    )
+                } else {
+                    // Hardcoded word from WordBank (direct navigation)
+                    val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
+                    WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                }
                 WordScannerChallenge(
                     navController = navController,
                     word = word,
