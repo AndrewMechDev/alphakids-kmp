@@ -107,7 +107,8 @@ fun AdventureHomeScreen(navController: NavController) {
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp,
+                tonalElevation = org.alphakids.app.theme.AlphaShadows.Soft,
+                // Not using shadowElevation explicitly to avoid version issues, tonalElevation will provide the surface tint/elevation in M3
             ) {
                 tabs.forEach { tab ->
                     val isSelected = selectedTab == tab.index

@@ -41,30 +41,37 @@ fun AlphaPrimaryButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val containerColor = if (isPressed) {
-        MaterialTheme.colorScheme.primary.darken(0.1f)
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
+    // Base background brush
+    val brush = org.alphakids.app.theme.AlphaGradients.angled(org.alphakids.app.theme.AlphaGradients.Adventure)
 
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.then(
+            if (enabled && !isLoading) {
+                Modifier.background(brush = brush, shape = RadiusFull)
+            } else {
+                Modifier
+            }
+        ),
         enabled = enabled && !isLoading,
         shape = RadiusFull,
         contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp),
         interactionSource = interactionSource,
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = org.alphakids.app.theme.AlphaShadows.Floating,
+            pressedElevation = org.alphakids.app.theme.AlphaShadows.Soft
+        ),
         colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = Color.Transparent, // Let the background modifier show through
+            contentColor = Color.White,
             disabledContainerColor = MaterialTheme.colorScheme.outline,
-            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+            disabledContentColor = Color.White.copy(alpha = 0.6f),
         ),
     ) {
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(20.dp),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = Color.White,
                 strokeWidth = 2.dp,
             )
         } else {

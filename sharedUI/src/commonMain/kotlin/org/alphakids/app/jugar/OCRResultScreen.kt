@@ -157,7 +157,8 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Action buttons ──
-            Button(
+            org.alphakids.app.components.AlphaPrimaryButton(
+                text = "🎮 Seguir jugando",
                 onClick = {
                     val nextWord = WordBank.getRandomWord()
                     navController.navigate(
@@ -168,25 +169,13 @@ fun OCRResultScreen(
                         popUpTo(Screen.AdventureHome.route)
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-            ) {
-                Text(
-                    text = "\uD83C\uDFAE Seguir jugando",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
+            org.alphakids.app.components.AlphaSecondaryButton(
+                text = "🔄 Repetir",
                 onClick = {
                     navController.navigate(
                         Screen.WordScannerChallenge.createRoute(
@@ -196,45 +185,20 @@ fun OCRResultScreen(
                         popUpTo(Screen.AdventureHome.route)
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                ),
-            ) {
-                Text(
-                    text = "\uD83D\uDD04 Repetir",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
+            org.alphakids.app.components.AlphaTextButton(
+                text = "🏠 Ir al inicio",
                 onClick = {
                     navController.navigate(Screen.AdventureHome.route) {
                         popUpTo(Screen.AdventureHome.route) { inclusive = true }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-            ) {
-                Text(
-                    text = "\uD83C\uDFE0 Ir al inicio",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
         }
