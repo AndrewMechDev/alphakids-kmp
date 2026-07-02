@@ -36,13 +36,17 @@ import androidx.compose.material3.Text
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -169,10 +173,9 @@ fun DictionaryScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
-    var selectedLetter by remember { mutableStateOf<Char?>(null) }
     var selectedWord by remember { mutableStateOf<DictionaryWord?>(null) }
 
-    val filteredWords by remember(searchQuery, selectedFilterIndex, selectedLetter) {
+    val filteredWords by remember(searchQuery, selectedFilterIndex) {
         derivedStateOf {
             val q = searchQuery.trim().lowercase()
             mockWords.filter { word ->
@@ -184,15 +187,32 @@ fun DictionaryScreen(
                     4 -> word.difficulty == "difícil"
                     else -> true
                 }
-                val matchesLetter = selectedLetter == null ||
-                    word.word.first().uppercaseChar() == selectedLetter
-                matchesSearch && matchesFilter && matchesLetter
+                matchesSearch && matchesFilter
             }
         }
     }
 
     val availableLetters = remember {
         mockWords.map { it.word.first().uppercaseChar() }.distinct().sorted()
+    }
+
+    val gridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val letterIndexMap = remember(filteredWords) {
+        val map = mutableMapOf<Char, Int>()
+        filteredWords.forEachIndexed { index, word ->
+            val firstChar = word.word.first().uppercaseChar()
+            if (firstChar !in map) map[firstChar] = index
+        }
+        map
+    }
+
+    val activeLetter by remember(filteredWords) {
+        derivedStateOf {
+            val idx = gridState.firstVisibleItemIndex
+            filteredWords.getOrNull(idx)?.word?.first()?.uppercaseChar()
+        }
     }
 
     Row(
@@ -202,10 +222,15 @@ fun DictionaryScreen(
     ) {
         // ── Alphabet sidebar ──
         AlphabetNavColumn(
-            selectedLetter = selectedLetter,
+            activeLetter = activeLetter,
             availableLetters = availableLetters,
             onLetterSelected = { letter ->
-                selectedLetter = if (letter == selectedLetter) null else letter
+                val index = letterIndexMap[letter]
+                if (index != null) {
+                    coroutineScope.launch {
+                        gridState.animateScrollToItem(index)
+                    }
+                }
             },
         )
 
@@ -260,6 +285,7 @@ fun DictionaryScreen(
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 160.dp),
+                    state = gridState,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
@@ -300,7 +326,7 @@ private val ALPHABET_COLUMN_WIDTH = 42.dp
 
 @Composable
 private fun AlphabetNavColumn(
-    selectedLetter: Char?,
+    activeLetter: Char?,
     availableLetters: List<Char>,
     onLetterSelected: (Char) -> Unit,
     modifier: Modifier = Modifier,
@@ -317,19 +343,46 @@ private fun AlphabetNavColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(4.dp))
-        ('A'..'Z').forEach { letter ->
+        val alphabet = ('A'..'Z').toList()
+        alphabet.forEach { letter ->
             val isAvailable = letter in availableLetters
-            val isActive = letter == selectedLetter
+            val isActive = letter == activeLetter
+            val distance = if (activeLetter != null) {
+                abs(alphabet.indexOf(letter) - alphabet.indexOf(activeLetter))
+            } else {
+                if (isActive) 0 else 3
+            }
 
-            // Animated scale for the active letter
-            val targetScale = if (isActive) 1.3f else 1f
+            // Animated scale based on distance
+            val targetScale = when {
+                distance == 0 -> 1.4f
+                distance == 1 -> 1.2f
+                distance == 2 -> 1.0f
+                else -> 0.85f
+            }
+            
             val scale by animateFloatAsState(
                 targetValue = targetScale,
                 animationSpec = spring(
-                    dampingRatio = 0.5f,
-                    stiffness = Spring.StiffnessLow,
+                    dampingRatio = 0.6f,
+                    stiffness = Spring.StiffnessMediumLow,
                 ),
-                label = "letterScale",
+                label = "scale_$letter",
+            )
+            
+            val targetOpacity = when {
+                distance == 0 -> 1f
+                distance == 1 -> 0.8f
+                distance == 2 -> 0.6f
+                else -> 0.4f
+            }
+            val opacity by animateFloatAsState(
+                targetValue = targetOpacity,
+                animationSpec = spring(
+                    dampingRatio = 0.6f,
+                    stiffness = Spring.StiffnessMediumLow,
+                ),
+                label = "opacity_$letter",
             )
 
             Box(
@@ -342,7 +395,11 @@ private fun AlphabetNavColumn(
             ) {
                 Box(
                     modifier = Modifier
-                        .graphicsLayer(scaleX = scale, scaleY = scale)
+                        .graphicsLayer(
+                            scaleX = scale, 
+                            scaleY = scale,
+                            alpha = if (isAvailable) opacity else 0.3f
+                        )
                         .then(
                             if (isAvailable) Modifier.clickable(
                                 onClick = { onLetterSelected(letter) }
@@ -365,8 +422,9 @@ private fun AlphabetNavColumn(
                         style = if (isActive) MaterialTheme.typography.titleSmall
                         else MaterialTheme.typography.labelMedium,
                         fontWeight = when {
-                            isActive -> FontWeight.Black
-                            isAvailable -> FontWeight.SemiBold
+                            distance == 0 -> FontWeight.Black
+                            distance == 1 -> FontWeight.SemiBold
+                            distance == 2 -> FontWeight.Medium
                             else -> FontWeight.Light
                         },
                         color = when {
