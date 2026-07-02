@@ -129,6 +129,7 @@ fun AdventureHomeScreen(navController: NavController) {
                                 overflow = TextOverflow.Ellipsis,
                             )
                         },
+                        alwaysShowLabel = false,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
                             selectedTextColor = MaterialTheme.colorScheme.primary,

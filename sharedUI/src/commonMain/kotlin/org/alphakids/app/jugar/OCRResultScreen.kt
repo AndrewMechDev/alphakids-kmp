@@ -325,56 +325,31 @@ private fun RewardsCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                RewardItem(
-                    emoji = "\uD83E\uDE99",
-                    label = "Monedas",
-                    value = "+$coins",
-                    color = CoinGold,
+                org.alphakids.app.components.RewardCard(
+                    icon = "\uD83E\uDE99",
+                    title = "+$coins",
+                    subtitle = "Monedas",
+                    modifier = Modifier.weight(1f),
                 )
-                RewardItem(
-                    emoji = "\u26A1",
-                    label = "XP",
-                    value = "+$xp",
-                    color = MaterialTheme.colorScheme.primary,
+                org.alphakids.app.components.RewardCard(
+                    icon = "\u26A1",
+                    title = "+$xp",
+                    subtitle = "XP",
+                    modifier = Modifier.weight(1f),
                 )
-                RewardItem(
-                    emoji = "\u2B50",
-                    label = "Estrellas",
-                    value = "+$stars",
-                    color = WarningYellow,
+                org.alphakids.app.components.RewardCard(
+                    icon = "\u2B50",
+                    title = "+$stars",
+                    subtitle = "Estrellas",
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
     }
 }
 
-@Composable
-private fun RewardItem(
-    emoji: String,
-    label: String,
-    value: String,
-    color: Color,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text = emoji, style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = color,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
 
 @Composable
 private fun StatsCard(

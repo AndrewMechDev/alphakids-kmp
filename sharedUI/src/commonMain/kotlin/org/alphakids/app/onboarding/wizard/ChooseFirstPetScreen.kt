@@ -43,6 +43,7 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
 import org.alphakids.app.theme.circadianBackground
 
 /**
@@ -100,10 +101,14 @@ fun ChooseFirstPetScreen(
         // Pet cards
         state.pets.forEach { pet ->
             val isSelected = pet.id == state.selectedPetId
-            PetCard(
-                pet = pet,
+            org.alphakids.app.components.PetCard(
+                imageRes = petImageResource(pet.id),
+                name = pet.name,
+                trait = pet.personality,
+                tags = listOf(pet.description),
                 isSelected = isSelected,
                 onClick = { choosePetViewModel.onPetSelected(pet.id) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -140,64 +145,6 @@ fun ChooseFirstPetScreen(
     }
 }
 
-@Composable
-private fun PetCard(
-    pet: Pet,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .then(
-                if (isSelected) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
-                else Modifier
-            )
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected)
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            else MaterialTheme.colorScheme.surface,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 2.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Pet image
-            Image(
-                painter = painterResource(petImageResource(pet.id)),
-                contentDescription = pet.name,
-                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(12.dp)),
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = pet.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = pet.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = pet.personality,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-        }
-    }
-}
 
 /**
  * Modal dialog for naming the selected pet.

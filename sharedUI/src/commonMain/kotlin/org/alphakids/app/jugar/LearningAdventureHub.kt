@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +57,7 @@ import org.alphakids.app.theme.TrophyGold
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
+import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
 import org.alphakids.app.theme.circadianBackground
 
 /**
@@ -101,6 +104,9 @@ fun LearningAdventureHub(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
                 .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
@@ -318,6 +324,7 @@ private fun ActivityCard(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                 )
+            }
             }
         }
     }

@@ -34,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,6 +51,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.alphi_corriendo
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
@@ -95,7 +97,7 @@ fun WelcomeScreen(
         label = "welcomeAlpha"
     )
 
-    LaunchedEffect(Unit) {
+    androidx.compose.runtime.LaunchedEffect(Unit) {
         isVisible = true
     }
 
@@ -105,7 +107,7 @@ fun WelcomeScreen(
             .fillMaxSize()
             .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
-            .androidx.compose.ui.graphics.graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha),
+            .graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(24.dp))
