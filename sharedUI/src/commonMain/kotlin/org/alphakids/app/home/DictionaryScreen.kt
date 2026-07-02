@@ -192,10 +192,14 @@ fun DictionaryScreen(
         map
     }
 
-    val activeLetter by remember(filteredWords) {
+    val activeLetter by remember(filteredWords, selectedWord) {
         derivedStateOf {
-            val idx = gridState.firstVisibleItemIndex
-            filteredWords.getOrNull(idx)?.word?.first()?.uppercaseChar()
+            if (selectedWord != null) {
+                selectedWord!!.word.first().uppercaseChar()
+            } else {
+                val idx = gridState.firstVisibleItemIndex
+                filteredWords.getOrNull(idx)?.word?.firstOrNull()?.uppercaseChar()
+            }
         }
     }
 
@@ -338,9 +342,9 @@ private fun AlphabetNavColumn(
 
             // Animated scale based on distance
             val targetScale = when {
-                distance == 0 -> 1.4f
-                distance == 1 -> 1.2f
-                distance == 2 -> 1.0f
+                distance == 0 -> 1.7f
+                distance == 1 -> 1.3f
+                distance == 2 -> 1.1f
                 else -> 0.85f
             }
             
@@ -381,7 +385,9 @@ private fun AlphabetNavColumn(
                         .graphicsLayer(
                             scaleX = scale, 
                             scaleY = scale,
-                            alpha = if (isAvailable) opacity else 0.3f
+                            alpha = if (isAvailable) opacity else 0.3f,
+                            shadowElevation = if (isActive) 12f else 0f,
+                            shape = RoundedCornerShape(8.dp)
                         )
                         .then(
                             if (isAvailable) Modifier.clickable(
