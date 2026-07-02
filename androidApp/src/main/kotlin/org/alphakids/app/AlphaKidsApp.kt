@@ -6,15 +6,27 @@ import org.koin.core.context.startKoin
 import org.alphakids.app.di.commonModule
 import org.alphakids.app.di.dataModule
 import org.alphakids.app.di.domainModule
+import org.alphakids.app.game.di.gameModule
 import org.alphakids.app.onboarding.di.onboardingModule
 import org.alphakids.app.parent.di.parentModule
+import org.alphakids.app.store.di.storeModule
+import org.alphakids.app.studentpet.di.studentPetModule
 
 class AlphaKidsApp : Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
             androidContext(this@AlphaKidsApp)
-            modules(commonModule, domainModule, dataModule, onboardingModule, parentModule)
+            modules(
+                commonModule,
+                domainModule,
+                dataModule,
+                onboardingModule,
+                parentModule,
+                gameModule,
+                studentPetModule,
+                storeModule,
+            )
         }
     }
 }
