@@ -297,7 +297,7 @@ fun App() {
             ) {
                 PlaceholderHomeScreen(navController = navController)
             }
-        }
-    }
-    }
-}
+        } // NavHost
+        } // Box
+    } // CircadianTheme
+} // App
