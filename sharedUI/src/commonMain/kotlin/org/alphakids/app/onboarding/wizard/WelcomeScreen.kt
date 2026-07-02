@@ -1,5 +1,7 @@
 package org.alphakids.app.onboarding.wizard
 
+import org.alphakids.app.theme.AlphaGradients
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,10 +51,12 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.alphi_corriendo
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import org.alphakids.app.theme.circadianBackground
 
 private fun petImageResource(petId: String?) = when (petId) {
     "inti-sol" -> Res.drawable.mascota_inti_sol
@@ -80,14 +85,41 @@ fun WelcomeScreen(
         "https://api.dicebear.com/10.x/${data.avatarStyle}/svg?seed=${data.avatarSeed}"
     } else null
 
+    var isVisible by remember { mutableStateOf(false) }
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0.8f,
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = org.alphakids.app.theme.AlphaMotion.Slow),
+        label = "welcomeScale"
+    )
+    val alpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = org.alphakids.app.theme.AlphaMotion.Slow),
+        label = "welcomeAlpha"
+    )
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     Column(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
+            .graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Secondary Alphi (corriendo)
+        Image(
+            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_corriendo),
+            contentDescription = "Alphi corriendo",
+            modifier = Modifier.size(60.dp),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Welcome message
         Text(
@@ -162,32 +194,38 @@ fun WelcomeScreen(
         Card(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-            ),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                // Coins
-                StatRow(
-                    emoji = "\uD83E\uDE99",
-                    label = "Monedas iniciales",
-                    value = "50",
-                )
-                // Level
-                StatRow(
-                    emoji = "\u26A1",
-                    label = "Nivel",
-                    value = "Nivel 1",
-                )
-                // Rank
-                StatRow(
-                    emoji = "\uD83C\uDF31",
-                    label = "Rango",
-                    value = "Semillita",
-                )
+            Box(modifier = Modifier.background(
+                brush = AlphaGradients.angled(AlphaGradients.Magic),
+                shape = RoundedCornerShape(16.dp),
+            )) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Coins
+                    StatRow(
+                        emoji = "🪙",
+                        label = "Monedas iniciales",
+                        value = "50",
+                        textColor = Color.White
+                    )
+                    // Level
+                    StatRow(
+                        emoji = "⚡",
+                        label = "Nivel",
+                        value = "Nivel 1",
+                        textColor = Color.White
+                    )
+                    // Rank
+                    StatRow(
+                        emoji = "🌱",
+                        label = "Rango",
+                        value = "Semillita",
+                        textColor = Color.White
+                    )
+                }
             }
         }
 
@@ -272,6 +310,7 @@ private fun StatRow(
     emoji: String,
     label: String,
     value: String,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -282,13 +321,13 @@ private fun StatRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = textColor,
             modifier = Modifier.weight(1f),
         )
         Text(
             text = value,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = textColor,
             fontWeight = FontWeight.Bold,
         )
     }

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.circadianBackground
 
 // ── Data Models ──
 
@@ -120,7 +121,7 @@ fun StoreScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         // ── Header: title + coins ──
         StoreHeader(coins = coins)
@@ -133,9 +134,10 @@ fun StoreScreen(
 
         // ── Product grid ──
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier
-                .fillMaxSize()
+                .circadianBackground(alpha = 0.3f)
+            .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

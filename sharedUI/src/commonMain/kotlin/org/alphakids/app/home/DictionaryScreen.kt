@@ -51,19 +51,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.domain.model.DictionaryWord
 import org.alphakids.app.theme.CoinGold
+import org.alphakids.app.theme.ErrorRed
+import org.alphakids.app.theme.PetDrakoCyan
+import org.alphakids.app.theme.PetLunaOrange
 import org.alphakids.app.theme.PrimaryBlue
+import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
+import org.alphakids.app.theme.circadianBackground
 
 // ── Category colour palette ──
 
 private val categoryColors = mapOf(
-    "Animales" to Color(0xFFE8843A),
-    "Colores" to Color(0xFF6C5CE7),
-    "Objetos" to Color(0xFF3B7DF6),
-    "Alimentos" to Color(0xFF34C759),
-    "Naturaleza" to Color(0xFF5BC8E8),
-    "Cuerpo" to Color(0xFFFF6B6B),
+    "Animales" to PetLunaOrange,
+    "Colores" to PrimaryIndigo,
+    "Objetos" to PrimaryBlue,
+    "Alimentos" to SuccessGreen,
+    "Naturaleza" to PetDrakoCyan,
+    "Cuerpo" to ErrorRed,
 )
 
 private fun categoryColor(category: String): Color =
@@ -72,7 +77,7 @@ private fun categoryColor(category: String): Color =
 private fun difficultyColor(difficulty: String): Color = when (difficulty) {
     "fácil" -> SuccessGreen
     "media" -> WarningYellow
-    "difícil" -> Color(0xFFFF6B6B)
+    "difícil" -> ErrorRed
     else -> Color.Gray
 }
 
@@ -190,7 +195,7 @@ fun DictionaryScreen(
     Row(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         // ── Alphabet sidebar ──
         AlphabetNavColumn(
@@ -202,7 +207,8 @@ fun DictionaryScreen(
         )
 
         // ── Main content ──
-        Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+        Column(modifier = Modifier.circadianBackground(alpha = 0.3f)
+            .weight(1f).fillMaxHeight()) {
             // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
             onBack?.let { back ->
                 Text(
@@ -263,9 +269,10 @@ fun DictionaryScreen(
                         items = filteredWords,
                         key = { it.word },
                     ) { word ->
-                        WordCard(
-                            word = word,
-                            isSelected = selectedWord?.word == word.word,
+                        org.alphakids.app.components.WordCard(
+                            word = word.word,
+                            translation = word.category,
+                            isCollected = word.learned,
                             onClick = {
                                 selectedWord = if (selectedWord?.word == word.word) null else word
                             },
@@ -405,104 +412,6 @@ private fun FilterChipsRow(
 
 // ── Word Card ──
 
-@Composable
-private fun WordCard(
-    word: DictionaryWord,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val accent = categoryColor(word.category)
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) accent.copy(alpha = 0.06f) else MaterialTheme.colorScheme.surface,
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 4.dp else 2.dp,
-        ),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Image placeholder
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(accent.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = word.word.first().uppercase(),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = accent,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Word name
-            Text(
-                text = word.word,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Category badge
-            Surface(
-                shape = RoundedCornerShape(6.dp),
-                color = accent.copy(alpha = 0.12f),
-            ) {
-                Text(
-                    text = word.category,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = accent,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Difficulty indicator + stars
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                DifficultyDot(difficulty = word.difficulty)
-                Spacer(modifier = Modifier.width(6.dp))
-                StarRating(stars = word.stars)
-            }
-
-            // Learned badge
-            if (word.learned) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "\u2705",
-                    style = MaterialTheme.typography.labelSmall,
-                )
-            }
-        }
-    }
-}
 
 // ── Word Detail Card ──
 

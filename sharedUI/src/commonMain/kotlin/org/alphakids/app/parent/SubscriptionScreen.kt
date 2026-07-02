@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.components.AlphaPrimaryButton
@@ -39,6 +38,9 @@ import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.PlanBenefit
 import org.alphakids.app.parent.domain.model.PlanType
+import org.alphakids.app.theme.StarGold
+import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.TrophyGoldDetail
 
 /**
  * Subscription screen showing current plan, benefits, upgrade button, and payment history.
@@ -88,7 +90,7 @@ fun SubscriptionScreen(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = if (isPremium)
-                            Color(0xFFFFF3CD)
+                            StarGold.copy(alpha = 0.15f)
                         else
                             MaterialTheme.colorScheme.surface,
                     ),
@@ -118,7 +120,7 @@ fun SubscriptionScreen(
                                     text = if (isPremium) "Premium activo"
                                     else "Plan gratuito",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = if (isPremium) Color(0xFF856404)
+                                    color = if (isPremium) TrophyGoldDetail
                                     else MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
@@ -252,7 +254,7 @@ private fun BenefitRow(benefit: PlanBenefit) {
         Text(
             text = if (benefit.included) "\u2713" else "\uD83D\uDD12",
             style = MaterialTheme.typography.titleMedium,
-            color = if (benefit.included) Color(0xFF34C759) else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (benefit.included) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -265,12 +267,7 @@ private fun BenefitRow(benefit: PlanBenefit) {
             modifier = Modifier.weight(1f),
         )
         if (benefit.isPremium && !benefit.included) {
-            Text(
-                text = "Premium",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold,
-            )
+            org.alphakids.app.components.PremiumBadge()
         }
     }
 }

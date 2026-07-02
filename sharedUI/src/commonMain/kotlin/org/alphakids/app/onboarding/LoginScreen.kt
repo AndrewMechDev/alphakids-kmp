@@ -47,6 +47,8 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
+import org.alphakids.app.theme.circadianBackground
+import androidx.compose.ui.graphics.Color
 
 /**
  * Login screen with email/password fields, demo credentials hint, and navigation.
@@ -76,10 +78,12 @@ fun LoginScreen(navController: NavController) {
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
     Column(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
             .padding(paddingValues)
             .verticalScroll(scrollState)

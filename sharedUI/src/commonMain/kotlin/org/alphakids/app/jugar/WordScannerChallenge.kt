@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -43,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,11 +52,15 @@ import androidx.navigation.NavController
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.audio.AudioCategory
+import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_buscando
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Result of an OCR scan attempt.
@@ -93,6 +97,13 @@ fun WordScannerChallenge(
     // Prevent re-triggering during scan
     var scanTriggered by remember { mutableStateOf(false) }
 
+    val audioService = rememberAudioService()
+
+    // Play instruction audio on screen launch
+    LaunchedEffect(Unit) {
+        audioService.play(AudioCategory.INSTRUCTION)
+    }
+
     // ── Callback for OCR text ──
     val onTextDetected: (String) -> Unit = {
         if (scanTriggered) {
@@ -116,10 +127,17 @@ fun WordScannerChallenge(
 
             result = OcrResult(success = isMatch, detectedText = fullWord)
             showResult = true
+
+            if (isMatch) {
+                audioService.play(AudioCategory.CHEER)
+            } else {
+                audioService.play(AudioCategory.ENCOURAGE)
+            }
         }
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -133,7 +151,8 @@ fun WordScannerChallenge(
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .circadianBackground(alpha = 0.3f)
+            .padding(start = 8.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
@@ -152,7 +171,7 @@ fun WordScannerChallenge(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -328,12 +347,7 @@ private fun WordHintSection(word: ChallengeWord) {
                     .size(72.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xFF4FA8F0),
-                                Color(0xFF8B7CF6),
-                            ),
-                        ),
+                        brush = AlphaGradients.angled(AlphaGradients.Nature),
                     ),
                 contentAlignment = Alignment.Center,
             ) {

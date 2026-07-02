@@ -29,11 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,12 +43,16 @@ import androidx.navigation.NavController
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.audio.AudioCategory
+import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * OCR Result Screen showing celebration, rewards, and stats.
@@ -67,8 +71,15 @@ fun OCRResultScreen(
     timeSpent: Long,
 ) {
     val rewards = calculateRewards(attempts)
+    val audioService = rememberAudioService()
+
+    // Play celebration sound on screen launch
+    LaunchedEffect(Unit) {
+        audioService.play(AudioCategory.CHEER)
+    }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -82,7 +93,8 @@ fun OCRResultScreen(
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .circadianBackground(alpha = 0.3f)
+            .padding(start = 8.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
@@ -101,7 +113,7 @@ fun OCRResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,7 +157,8 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Action buttons ──
-            Button(
+            org.alphakids.app.components.AlphaPrimaryButton(
+                text = "🎮 Seguir jugando",
                 onClick = {
                     val nextWord = WordBank.getRandomWord()
                     navController.navigate(
@@ -156,25 +169,13 @@ fun OCRResultScreen(
                         popUpTo(Screen.AdventureHome.route)
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-            ) {
-                Text(
-                    text = "\uD83C\uDFAE Seguir jugando",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
+            org.alphakids.app.components.AlphaSecondaryButton(
+                text = "🔄 Repetir",
                 onClick = {
                     navController.navigate(
                         Screen.WordScannerChallenge.createRoute(
@@ -184,45 +185,20 @@ fun OCRResultScreen(
                         popUpTo(Screen.AdventureHome.route)
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                ),
-            ) {
-                Text(
-                    text = "\uD83D\uDD04 Repetir",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
+            org.alphakids.app.components.AlphaTextButton(
+                text = "🏠 Ir al inicio",
                 onClick = {
                     navController.navigate(Screen.AdventureHome.route) {
                         popUpTo(Screen.AdventureHome.route) { inclusive = true }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-            ) {
-                Text(
-                    text = "\uD83C\uDFE0 Ir al inicio",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -257,65 +233,63 @@ private fun WordDisplay(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Word image placeholder
-            Box(
+        Box(modifier = Modifier.background(
+            brush = AlphaGradients.angled(AlphaGradients.Reward),
+            shape = RoundedCornerShape(20.dp),
+        )) {
+            Row(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xFF4FA8F0),
-                                Color(0xFF8B7CF6),
-                            ),
-                        ),
-                    ),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Word image placeholder
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = word.word.first().toString(),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = word.word,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        letterSpacing = 4.sp,
+                    )
+                    Text(
+                        text = word.hint,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.85f),
+                    )
+                }
+
+                // Difficulty badge
                 Text(
-                    text = word.word.first().toString(),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    text = when (word.difficulty) {
+                        "fácil" -> "🟢"
+                        "media" -> "🟡"
+                        "difícil" -> "🔴"
+                        else -> "⚪"
+                    },
+                    style = MaterialTheme.typography.titleLarge,
                 )
             }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = word.word,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    letterSpacing = 4.sp,
-                )
-                Text(
-                    text = word.hint,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            // Difficulty badge
-            Text(
-                text = when (word.difficulty) {
-                    "f\u00e1cil" -> "\uD83D\uDFE2"
-                    "media" -> "\uD83D\uDFE1"
-                    "dif\u00edcil" -> "\uD83D\uDD34"
-                    else -> "\u26AA"
-                },
-                style = MaterialTheme.typography.titleLarge,
-            )
         }
     }
 }
@@ -351,56 +325,31 @@ private fun RewardsCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                RewardItem(
-                    emoji = "\uD83E\uDE99",
-                    label = "Monedas",
-                    value = "+$coins",
-                    color = CoinGold,
+                org.alphakids.app.components.RewardCard(
+                    icon = "\uD83E\uDE99",
+                    title = "+$coins",
+                    subtitle = "Monedas",
+                    modifier = Modifier.weight(1f),
                 )
-                RewardItem(
-                    emoji = "\u26A1",
-                    label = "XP",
-                    value = "+$xp",
-                    color = MaterialTheme.colorScheme.primary,
+                org.alphakids.app.components.RewardCard(
+                    icon = "\u26A1",
+                    title = "+$xp",
+                    subtitle = "XP",
+                    modifier = Modifier.weight(1f),
                 )
-                RewardItem(
-                    emoji = "\u2B50",
-                    label = "Estrellas",
-                    value = "+$stars",
-                    color = WarningYellow,
+                org.alphakids.app.components.RewardCard(
+                    icon = "\u2B50",
+                    title = "+$stars",
+                    subtitle = "Estrellas",
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
     }
 }
 
-@Composable
-private fun RewardItem(
-    emoji: String,
-    label: String,
-    value: String,
-    color: Color,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text = emoji, style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = color,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
 
 @Composable
 private fun StatsCard(

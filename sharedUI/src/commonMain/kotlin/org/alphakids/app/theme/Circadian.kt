@@ -1,5 +1,15 @@
 package org.alphakids.app.theme
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.layout.ContentScale
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.bg_dia
+import alphakids_kmp.sharedui.generated.resources.bg_tarde
+import alphakids_kmp.sharedui.generated.resources.bg_noche
+
 /**
  * Returns the current hour of the day (0–23) in the system's local timezone.
  */
@@ -44,4 +54,19 @@ fun backgroundForTimePeriod(period: TimePeriod): String = when (period) {
     TimePeriod.AFTERNOON -> "bg_tarde"
     TimePeriod.EVENING -> "bg_noche"
     TimePeriod.NIGHT -> "bg_noche"
+}
+
+/**
+ * Modifier that applies the circadian background based on the current time of day.
+ */
+@Composable
+fun Modifier.circadianBackground(alpha: Float = 0.3f, contentScale: ContentScale = ContentScale.Crop): Modifier {
+    val period = currentTimePeriod()
+    val drawable = when (period) {
+        TimePeriod.MORNING -> Res.drawable.bg_dia
+        TimePeriod.AFTERNOON -> Res.drawable.bg_tarde
+        TimePeriod.EVENING -> Res.drawable.bg_noche
+        TimePeriod.NIGHT -> Res.drawable.bg_noche
+    }
+    return this.then(Modifier.paint(painterResource(drawable), contentScale = contentScale, alpha = alpha))
 }

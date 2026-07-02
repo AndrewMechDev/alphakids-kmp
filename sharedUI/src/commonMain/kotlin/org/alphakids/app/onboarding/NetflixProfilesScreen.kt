@@ -44,6 +44,11 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.PrimaryIndigo
+import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.AlphaGradients
+import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
+import alphakids_kmp.sharedui.generated.resources.alphi_padre
+import alphakids_kmp.sharedui.generated.resources.alphi_buscando
 
 /**
  * Netflix-style profile selector shown after login.
@@ -65,8 +70,9 @@ fun NetflixProfilesScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         Column(
             modifier = Modifier
@@ -116,11 +122,10 @@ fun NetflixProfilesScreen(navController: NavController) {
                         items = children,
                         key = { "child-${it.id}" },
                     ) { child ->
-                        ProfileCard(
-                            emoji = "👦",
+                        org.alphakids.app.components.AvatarCard(
+                            avatarResId = alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_anunciando,
                             name = child.name,
-                            subtitle = "Nivel ${child.level}",
-                            isAddButton = false,
+                            isSelected = false,
                             onClick = {
                                 SessionManager.setActiveChild(child)
                                 navController.navigate(Screen.AdventureHome.route) {
@@ -130,14 +135,13 @@ fun NetflixProfilesScreen(navController: NavController) {
                         )
                     }
 
+
                     // Parent profile
                     item(key = "parent-profile") {
-                        ProfileCard(
-                            emoji = "👤",
+                        org.alphakids.app.components.AvatarCard(
+                            avatarResId = alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_padre,
                             name = "Padre",
-                            subtitle = "Panel de control",
-                            isAddButton = false,
-                            bgColor = PrimaryIndigo,
+                            isSelected = false,
                             onClick = {
                                 navController.navigate(Screen.ParentDashboard.route) {
                                     popUpTo(Screen.NetflixProfiles.route) { inclusive = true }
@@ -148,11 +152,10 @@ fun NetflixProfilesScreen(navController: NavController) {
 
                     // Add profile button
                     item(key = "add-profile") {
-                        ProfileCard(
-                            emoji = "➕",
+                        org.alphakids.app.components.AvatarCard(
+                            avatarResId = alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_buscando,
                             name = "Agregar",
-                            subtitle = "Nuevo perfil",
-                            isAddButton = true,
+                            isSelected = false,
                             onClick = {
                                 navController.navigate(Screen.SetupWizard.route) {
                                     popUpTo(Screen.NetflixProfiles.route) { inclusive = false }
@@ -166,75 +169,3 @@ fun NetflixProfilesScreen(navController: NavController) {
     }
 }
 
-@Composable
-private fun ProfileCard(
-    emoji: String,
-    name: String,
-    subtitle: String,
-    isAddButton: Boolean = false,
-    bgColor: Color = PrimaryBlue,
-    onClick: () -> Unit,
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isAddButton)
-                MaterialTheme.colorScheme.surfaceVariant
-            else
-                MaterialTheme.colorScheme.surface,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isAddButton) 0.dp else 4.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Avatar circle
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(
-                        color = if (isAddButton)
-                            MaterialTheme.colorScheme.surfaceVariant
-                        else
-                            bgColor.copy(alpha = 0.85f),
-                        shape = CircleShape,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = emoji,
-                    style = MaterialTheme.typography.displaySmall,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Name
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Subtitle (level or role)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}

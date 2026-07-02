@@ -1,9 +1,11 @@
 package org.alphakids.app
 
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import org.alphakids.app.theme.AlphaMotion
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -62,50 +64,50 @@ fun App() {
         ) {
             composable(
                 Screen.Splash.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 SplashScreen(navController = navController)
             }
 
             composable(
                 Screen.WelcomeSelection.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 WelcomeSelectionScreen(navController = navController)
             }
 
             composable(
                 Screen.NetflixProfiles.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 NetflixProfilesScreen(navController = navController)
             }
 
             composable(
                 Screen.Login.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 LoginScreen(navController = navController)
             }
 
             composable(
                 Screen.Register.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 RegisterScreen(navController = navController)
             }
@@ -113,10 +115,10 @@ fun App() {
             composable(
                 route = Screen.Verification.route,
                 arguments = listOf(navArgument("email") { type = NavType.StringType }),
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
                 val email = backStackEntry.arguments?.getString("email") ?: ""
                 VerificationScreen(
@@ -127,10 +129,10 @@ fun App() {
 
             composable(
                 Screen.SetupWizard.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 SetupWizardScreen(
                     navController = navController,
@@ -140,10 +142,10 @@ fun App() {
 
             composable(
                 Screen.CreateChild.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 CreateChildProfileScreen(
                     navController = navController,
@@ -153,10 +155,10 @@ fun App() {
 
             composable(
                 Screen.ChooseAvatar.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 val chooseAvatarViewModel = remember {
                     ChooseAvatarViewModel(wizardViewModel)
@@ -170,10 +172,10 @@ fun App() {
 
             composable(
                 Screen.ChooseFirstPet.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 val petsRepository: MockPetsRepository = koinInject()
                 val choosePetViewModel = remember {
@@ -191,10 +193,10 @@ fun App() {
 
             composable(
                 Screen.Welcome.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 WelcomeScreen(
                     navController = navController,
@@ -204,20 +206,20 @@ fun App() {
 
             composable(
                 Screen.ChildProfileSelector.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 ChildProfileSelectorScreen(navController = navController)
             }
 
             composable(
                 Screen.AdventureHome.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 AdventureHomeScreen(navController = navController)
             }
@@ -225,10 +227,10 @@ fun App() {
             // ── Parent Dashboard Route ──
             composable(
                 Screen.ParentDashboard.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 ParentHomeScreen(navController = navController)
             }
@@ -237,10 +239,10 @@ fun App() {
 
             composable(
                 Screen.LearningAdventureHub.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 LearningAdventureHub(navController = navController)
             }
@@ -250,10 +252,10 @@ fun App() {
                 arguments = listOf(
                     navArgument("wordIndex") { type = NavType.IntType },
                 ),
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
                 val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
                 val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
@@ -270,10 +272,10 @@ fun App() {
                     navArgument("attempts") { type = NavType.IntType },
                     navArgument("time") { type = NavType.LongType },
                 ),
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
                 val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
                 val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
@@ -290,10 +292,10 @@ fun App() {
             // PlaceholderHome kept for backward compatibility
             composable(
                 Screen.PlaceholderHome.route,
-                enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 PlaceholderHomeScreen(navController = navController)
             }

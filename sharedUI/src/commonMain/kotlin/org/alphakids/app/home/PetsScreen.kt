@@ -54,6 +54,7 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import org.alphakids.app.theme.circadianBackground
 
 // ── Data Model ──
 
@@ -195,7 +196,7 @@ fun PetsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         // ── Sub-tab bar ──
         SubTabBar(
@@ -241,7 +242,8 @@ fun PetsScreen(
                 coins = coins,
                 onSpendCoins = onSpendCoins,
                 childLevel = childLevel,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.circadianBackground(alpha = 0.3f)
+            .fillMaxSize(),
             )
         }
     }

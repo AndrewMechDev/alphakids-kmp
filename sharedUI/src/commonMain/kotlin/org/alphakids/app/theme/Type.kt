@@ -21,61 +21,67 @@ private val DynaPuffFont = DynaPuffFamily
 private val DMSansFont = DMSansFamily
 
 val AlphaKidsTypography = Typography(
-    // ── Display (DynaPuff) ──
+    // ── Display (DynaPuff) — spec: 32–36sp ExtraBold ──
     displayLarge = TextStyle(
         fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.Bold,
-        fontSize = 48.sp,
-        lineHeight = 56.sp,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 36.sp,
+        lineHeight = 44.sp,
     ),
     displayMedium = TextStyle(
         fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.Bold,
-        fontSize = 40.sp,
-        lineHeight = 48.sp,
-    ),
-
-    // ── Headline (DynaPuff) ──
-    headlineLarge = TextStyle(
-        fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.ExtraBold,
         fontSize = 32.sp,
         lineHeight = 40.sp,
     ),
-    headlineMedium = TextStyle(
+    displaySmall = TextStyle(
         fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
         lineHeight = 36.sp,
     ),
+
+    // ── Headline (DynaPuff) — spec: H1=26–28sp Bold ──
+    headlineLarge = TextStyle(
+        fontFamily = DynaPuffFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = DynaPuffFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 26.sp,
+        lineHeight = 34.sp,
+    ),
     headlineSmall = TextStyle(
         fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 22.sp,
+        lineHeight = 30.sp,
     ),
 
-    // ── Title (DynaPuff) ──
+    // ── Title (DynaPuff) — spec: H2=20–22sp Bold, H3=16–18sp SemiBold ──
     titleLarge = TextStyle(
         fontFamily = DynaPuffFont,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
     ),
     titleMedium = TextStyle(
         fontFamily = DynaPuffFont,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
     ),
     titleSmall = TextStyle(
         fontFamily = DynaPuffFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 18.sp,
-        lineHeight = 24.sp,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
     ),
 
-    // ── Body (DM Sans) ──
+    // ── Body (DM Sans) — spec: 14–15sp Normal ──
     bodyLarge = TextStyle(
         fontFamily = DMSansFont,
         fontWeight = FontWeight.Normal,
@@ -95,18 +101,18 @@ val AlphaKidsTypography = Typography(
         lineHeight = 16.sp,
     ),
 
-    // ── Label (DynaPuff for large/medium, DM Sans for small) ──
+    // ── Label (DynaPuff large/medium, DM Sans small) — spec: Button=16sp Bold ──
     labelLarge = TextStyle(
         fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
     ),
     labelMedium = TextStyle(
         fontFamily = DynaPuffFont,
-        fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
     ),
     labelSmall = TextStyle(
         fontFamily = DMSansFont,

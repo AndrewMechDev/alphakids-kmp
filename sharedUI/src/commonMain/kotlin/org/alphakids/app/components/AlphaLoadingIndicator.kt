@@ -1,5 +1,10 @@
 package org.alphakids.app.components
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,23 +18,29 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
+import org.alphakids.app.theme.AlphaMotion
 
 /**
  * Full-screen loading indicator with optional message and Alphi image.
  * Use for blocking operations during onboarding.
+ *
+ * Alphi is shown by default with a subtle pulsing animation to keep the
+ * loading state feeling alive rather than static.
  */
 @Composable
 fun AlphaLoadingIndicator(
     modifier: Modifier = Modifier,
     message: String? = null,
-    showAlphi: Boolean = false,
+    showAlphi: Boolean = true,
     backgroundColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.85f),
 ) {
     Box(
@@ -43,10 +54,23 @@ fun AlphaLoadingIndicator(
             verticalArrangement = Arrangement.Center,
         ) {
             if (showAlphi) {
+                val infiniteTransition = rememberInfiniteTransition(label = "alphiPulse")
+                val scale by infiniteTransition.animateFloat(
+                    initialValue = 0.95f,
+                    targetValue = 1.05f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = AlphaMotion.Slow),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                    label = "alphiPulseScale",
+                )
+
                 Image(
                     painter = painterResource(Res.drawable.alphi_pensando),
                     contentDescription = "Alphi está pensando",
-                    modifier = Modifier.size(80.dp),
+                    modifier = Modifier
+                        .size(80.dp)
+                        .graphicsLayer(scaleX = scale, scaleY = scale),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }

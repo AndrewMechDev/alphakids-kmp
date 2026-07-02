@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,12 +45,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.CardWhite
+import org.alphakids.app.theme.CoinGold
+import org.alphakids.app.theme.CoinGoldBorder
+import org.alphakids.app.theme.DisabledGray
 import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.SlateGray
+import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.TrophyGold
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
+import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Hub screen between Home and the individual activities.
@@ -64,6 +74,7 @@ fun LearningAdventureHub(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -77,7 +88,8 @@ fun LearningAdventureHub(navController: NavController) {
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .circadianBackground(alpha = 0.3f)
+            .padding(start = 8.dp)
                             .clickable { navController.popBackStack() },
                     )
                 },
@@ -92,12 +104,15 @@ fun LearningAdventureHub(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
                 .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFFF0F4FF),
-                            Color(0xFFFAF8FF),
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.surface,
                         ),
                     ),
                 )
@@ -115,7 +130,7 @@ fun LearningAdventureHub(navController: NavController) {
                 description = "Forma palabras con letras f\u00edsicas y escan\u00e9alas",
                 rewardsBadge = "\uD83E\uDE99 +50 \u26A1 +20 \u2B50 +1",
                 difficultyBadge = "F\u00e1cil",
-                difficultyColor = Color(0xFF34C759),
+                difficultyColor = SuccessGreen,
                 buttonText = "Comenzar",
                 buttonColor = PrimaryBlue,
                 onButtonClick = {
@@ -130,9 +145,9 @@ fun LearningAdventureHub(navController: NavController) {
                 description = "Deletrea palabras con tu voz",
                 rewardsBadge = "\uD83E\uDE99 +30 \u26A1 +15 \u2B50 +1",
                 difficultyBadge = "Media",
-                difficultyColor = Color(0xFFF5A623),
+                difficultyColor = TrophyGold,
                 buttonText = "Pr\u00f3ximamente",
-                buttonColor = Color(0xFFC9CDD9),
+                buttonColor = DisabledGray,
                 enabled = false,
                 onButtonClick = {
                     scope.launch {
@@ -154,19 +169,14 @@ private fun AlphiHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(0xFF4FA8F0),
-                        Color(0xFF8B7CF6),
-                    ),
-                ),
+                brush = AlphaGradients.angled(AlphaGradients.Nature),
                 shape = RoundedCornerShape(20.dp),
             )
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            painter = painterResource(Res.drawable.alphi_estudiando),
+            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_trabajando),
             contentDescription = "Alphi",
             modifier = Modifier.size(64.dp),
         )
@@ -204,57 +214,61 @@ private fun ActivityCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Emoji icon
-            Box(
+        Box(modifier = Modifier.background(
+            brush = AlphaGradients.angled(AlphaGradients.Nature),
+            shape = RoundedCornerShape(20.dp),
+        )) {
+            Column(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(buttonColor.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // Emoji icon
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = emoji,
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Title
                 Text(
-                    text = emoji,
-                    style = MaterialTheme.typography.displaySmall,
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
                 )
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-            // Title
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-            )
+                // Description
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center,
+                )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Description
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = SlateGray,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
             // Rewards badge
             Row(
                 modifier = Modifier
                     .background(
-                        color = Color(0xFFFFC93C).copy(alpha = 0.12f),
+                        color = CoinGold.copy(alpha = 0.12f),
                         shape = RoundedCornerShape(8.dp),
                     )
                     .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -264,7 +278,7 @@ private fun ActivityCard(
                     text = rewardsBadge,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFB8860B),
+                    color = CoinGoldBorder,
                 )
             }
 
@@ -301,7 +315,7 @@ private fun ActivityCard(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = buttonColor,
                     contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFC9CDD9),
+                    disabledContainerColor = DisabledGray,
                     disabledContentColor = Color.White,
                 ),
             ) {
@@ -310,6 +324,7 @@ private fun ActivityCard(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                 )
+            }
             }
         }
     }
