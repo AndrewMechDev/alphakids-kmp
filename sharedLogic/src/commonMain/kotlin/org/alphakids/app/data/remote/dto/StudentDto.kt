@@ -1,24 +1,23 @@
 package org.alphakids.app.data.remote.dto
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 // ── Requests ──
+//
+// IMPORTANT: API Zod schemas expect camelCase field names.
+// REQUEST DTOs must NOT use @SerialName for snake_case.
+// RESPONSE DTOs (StudentResponseDto) still use @SerialName
+// because Prisma returns snake_case from the database.
 
 @Serializable
 data class CreateChildRequestDto(
-    @SerialName("first_name")
     val firstName: String,
-    @SerialName("last_name")
     val lastName: String,
-    @SerialName("birth_date")
     val birthDate: String? = null,
     val gender: String? = null,
-    @SerialName("avatar_url")
     val avatarUrl: String? = null,
-    @SerialName("institution_id")
     val institutionId: String? = null,
-    @SerialName("section_id")
     val sectionId: String? = null,
 )
 
