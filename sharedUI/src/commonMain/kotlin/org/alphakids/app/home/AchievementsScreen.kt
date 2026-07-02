@@ -159,11 +159,19 @@ private val historyLog = listOf(
 fun AchievementsScreen(modifier: Modifier = Modifier) {
     var selectedSubTab by remember { mutableIntStateOf(AchievementsSubTab.Rangos.index) }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground(alpha = 0.3f),
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
         // ── Sub-tab bar ──
         AchievementsSubTabBar(
             selectedIndex = selectedSubTab,
@@ -179,7 +187,8 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
                 AchievementsSubTab.Historial.index -> HistorialContent()
             }
         }
-    }
+    }  // ← cierra Column
+    }  // ← cierra Box (circadian wrapper)
 }
 
 // ── Sub-tab Bar ──

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.CoinGold
+import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
@@ -51,16 +52,26 @@ fun DashboardContent(
 ) {
     val audioService = rememberAudioService()
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .wrapContentWidth(align = Alignment.CenterHorizontally)
-            .widthIn(max = 600.dp)
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .circadianBackground(alpha = 0.3f),
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
         Spacer(modifier = Modifier.height(8.dp))
 
         // ── Header: name, coins, settings ──
@@ -221,5 +232,6 @@ fun DashboardContent(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-    }
+    }  // ← cierra Column
+    }  // ← cierra Box (circadian wrapper)
 }

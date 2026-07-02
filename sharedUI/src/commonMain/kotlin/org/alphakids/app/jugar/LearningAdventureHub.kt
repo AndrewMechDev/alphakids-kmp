@@ -101,25 +101,27 @@ fun LearningAdventureHub(navController: NavController) {
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentWidth(align = Alignment.CenterHorizontally)
-                .widthIn(max = 600.dp)
-                .fillMaxWidth()
-                .padding(innerPadding)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.background,
-                            MaterialTheme.colorScheme.surface,
-                        ),
-                    ),
-                )
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .circadianBackground(alpha = 0.3f),
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentWidth(align = Alignment.CenterHorizontally)
+                    .widthIn(max = 600.dp)
+                    .fillMaxWidth()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
             // ── Alphi Mascot Header ──
             AlphiHeader()
 
@@ -159,7 +161,8 @@ fun LearningAdventureHub(navController: NavController) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-        }
+        }  // ← cierra Column
+        }  // ← cierra Box (circadian wrapper)
     }
 }
 

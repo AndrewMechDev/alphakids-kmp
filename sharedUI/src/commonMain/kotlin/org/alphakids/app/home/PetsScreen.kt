@@ -193,11 +193,19 @@ fun PetsScreen(
     val unlockedPets = allPets.filter { childLevel >= it.unlockLevel }
     val lockedPets = allPets.filter { childLevel < it.unlockLevel }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground(alpha = 0.3f),
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
         // ── Sub-tab bar ──
         SubTabBar(
             selectedIndex = selectedSubTab,
@@ -242,11 +250,11 @@ fun PetsScreen(
                 coins = coins,
                 onSpendCoins = onSpendCoins,
                 childLevel = childLevel,
-                modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
             )
         }
-    }
+    }  // ← cierra Column
+    }  // ← cierra Box (circadian wrapper)
 }
 
 // ── Sub-Tab Bar ──

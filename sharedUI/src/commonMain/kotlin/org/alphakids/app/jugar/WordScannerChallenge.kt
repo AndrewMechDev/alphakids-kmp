@@ -168,15 +168,24 @@ fun WordScannerChallenge(
             )
         },
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .circadianBackground(alpha = 0.3f),
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
             // ── Reference image / hint section ──
             WordHintSection(word = word)
 
@@ -327,7 +336,8 @@ fun WordScannerChallenge(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
+        }  // ← cierra Column
+        }  // ← cierra Box (circadian wrapper)
     }
 }
 
