@@ -345,8 +345,7 @@ private fun AlphabetNavColumn(
                         .graphicsLayer(scaleX = scale, scaleY = scale)
                         .then(
                             if (isAvailable) Modifier.clickable(
-                                onClick = { onLetterSelected(letter) },
-                                indication = null, // custom ripple via background
+                                onClick = { onLetterSelected(letter) }
                             ) else Modifier
                         )
                         .background(
