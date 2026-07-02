@@ -1,6 +1,5 @@
 package org.alphakids.app.onboarding.wizard
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
@@ -42,9 +42,6 @@ import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
-import org.jetbrains.compose.resources.painterResource
-import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.ic_school
 
 /**
  * Step 4 of 6 — Optional institution assignment screen.
@@ -90,9 +87,11 @@ fun AssignInstitutionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Image(
-            painter = painterResource(Res.drawable.ic_school),
-            contentDescription = "Colegio",
+        // School icon — uses emoji for safety across all platforms
+        Text(
+            text = "\uD83C\uDFEB",
+            fontSize = 64.sp,
+            textAlign = TextAlign.Center,
             modifier = Modifier.size(80.dp),
         )
 

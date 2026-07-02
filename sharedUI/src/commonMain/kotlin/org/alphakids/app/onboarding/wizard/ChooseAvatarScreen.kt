@@ -177,7 +177,7 @@ fun ChooseAvatarScreen(
             text = "Guardar",
             onClick = {
                 chooseAvatarViewModel.onSaveAvatar()
-                wizardViewModel.updateStep(WizardStep.ChoosePet)
+                wizardViewModel.updateStep(WizardStep.AssignInstitution)
                 navController.navigate(Screen.AssignInstitution.route)
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
