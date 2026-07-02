@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -52,6 +53,8 @@ import androidx.navigation.NavController
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.audio.AudioCategory
+import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.jetbrains.compose.resources.painterResource
@@ -93,6 +96,13 @@ fun WordScannerChallenge(
     // Prevent re-triggering during scan
     var scanTriggered by remember { mutableStateOf(false) }
 
+    val audioService = rememberAudioService()
+
+    // Play instruction audio on screen launch
+    LaunchedEffect(Unit) {
+        audioService.play(AudioCategory.INSTRUCTION)
+    }
+
     // ── Callback for OCR text ──
     val onTextDetected: (String) -> Unit = {
         if (scanTriggered) {
@@ -116,6 +126,12 @@ fun WordScannerChallenge(
 
             result = OcrResult(success = isMatch, detectedText = fullWord)
             showResult = true
+
+            if (isMatch) {
+                audioService.play(AudioCategory.CHEER)
+            } else {
+                audioService.play(AudioCategory.ENCOURAGE)
+            }
         }
     }
 

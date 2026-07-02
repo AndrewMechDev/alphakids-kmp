@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,8 @@ import androidx.navigation.NavController
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.audio.AudioCategory
+import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
@@ -67,6 +70,12 @@ fun OCRResultScreen(
     timeSpent: Long,
 ) {
     val rewards = calculateRewards(attempts)
+    val audioService = rememberAudioService()
+
+    // Play celebration sound on screen launch
+    LaunchedEffect(Unit) {
+        audioService.play(AudioCategory.CHEER)
+    }
 
     Scaffold(
         topBar = {
