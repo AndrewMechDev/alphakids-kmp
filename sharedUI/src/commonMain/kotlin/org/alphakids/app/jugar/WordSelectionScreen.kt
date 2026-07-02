@@ -90,14 +90,17 @@ fun WordSelectionScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .circadianBackground(alpha = 0.3f)
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
-            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        // Header
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        ) {
+            // Header
         Text(
             text = "\uD83C\uDFAE Elige una palabra",
             style = MaterialTheme.typography.headlineSmall,
@@ -187,6 +190,7 @@ fun WordSelectionScreen(
             }
         }
     }
+}
 }
 
 @Composable

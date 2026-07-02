@@ -138,6 +138,7 @@ fun WordScannerChallenge(
     }
 
     Scaffold(
+        modifier = Modifier.circadianBackground(alpha = 0.3f),
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
@@ -152,8 +153,7 @@ fun WordScannerChallenge(
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .circadianBackground(alpha = 0.3f)
-            .padding(start = 8.dp)
+                            .padding(start = 8.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
@@ -170,7 +170,6 @@ fun WordScannerChallenge(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .circadianBackground(alpha = 0.3f)
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())

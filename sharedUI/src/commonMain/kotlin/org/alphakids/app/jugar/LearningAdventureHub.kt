@@ -74,6 +74,7 @@ fun LearningAdventureHub(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        modifier = Modifier.circadianBackground(alpha = 0.3f),
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
@@ -88,8 +89,7 @@ fun LearningAdventureHub(navController: NavController) {
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .circadianBackground(alpha = 0.3f)
-            .padding(start = 8.dp)
+                            .padding(start = 8.dp)
                             .clickable { navController.popBackStack() },
                     )
                 },
@@ -103,7 +103,6 @@ fun LearningAdventureHub(navController: NavController) {
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .circadianBackground(alpha = 0.3f)
                 .fillMaxSize()
                 .wrapContentWidth(align = Alignment.CenterHorizontally)
                 .widthIn(max = 600.dp)
