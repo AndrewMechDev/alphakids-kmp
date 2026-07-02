@@ -134,7 +134,7 @@ fun LearningAdventureHub(navController: NavController) {
                 buttonText = "Comenzar",
                 buttonColor = PrimaryBlue,
                 onButtonClick = {
-                    navController.navigate(Screen.WordScannerChallenge.createRoute(0))
+                    navController.navigate(Screen.WordSelection.route)
                 },
             )
 

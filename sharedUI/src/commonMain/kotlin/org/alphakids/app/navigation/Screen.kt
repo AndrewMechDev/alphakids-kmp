@@ -74,10 +74,13 @@ sealed class Screen(val route: String) {
     /** LearningAdventureHub — activity picker (Scan / Spell) */
     data object LearningAdventureHub : Screen("learning-adventure-hub")
 
-    /** Word Scanner Challenge with camera + OCR */
+    /** Word Scanner Challenge with camera + OCR (uses WordBank index) */
     data object WordScannerChallenge : Screen("word-scanner-challenge/{wordIndex}") {
         fun createRoute(wordIndex: Int): String = "word-scanner-challenge/$wordIndex"
     }
+
+    /** Word picker before starting a game — fetches from API */
+    data object WordSelection : Screen("word-selection")
 
     /** OCR result with rewards and stats */
     data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}") {
@@ -107,6 +110,7 @@ sealed class Screen(val route: String) {
             route == ChildProfileSelector.route -> ChildProfileSelector
             route == PlaceholderHome.route -> PlaceholderHome
             route == LearningAdventureHub.route -> LearningAdventureHub
+            route == WordSelection.route -> WordSelection
             route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
             route.startsWith("ocr-result/") -> OcrResult
             route == ParentDashboard.route -> ParentDashboard

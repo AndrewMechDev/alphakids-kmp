@@ -23,6 +23,7 @@ import org.alphakids.app.home.AdventureHomeScreen
 import org.alphakids.app.jugar.LearningAdventureHub
 import org.alphakids.app.jugar.OCRResultScreen
 import org.alphakids.app.jugar.WordScannerChallenge
+import org.alphakids.app.jugar.WordSelectionScreen
 import org.alphakids.app.onboarding.ChildProfileSelectorScreen
 import org.alphakids.app.onboarding.LoginScreen
 import org.alphakids.app.onboarding.PlaceholderHomeScreen
@@ -257,6 +258,17 @@ fun App() {
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 ParentHomeScreen(navController = navController)
+            }
+
+            // ── Word Selection Route ──
+            composable(
+                Screen.WordSelection.route,
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
+            ) {
+                WordSelectionScreen(navController = navController)
             }
 
             // ── Jugar / Activity Routes ──

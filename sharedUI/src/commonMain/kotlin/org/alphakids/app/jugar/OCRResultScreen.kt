@@ -40,8 +40,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
@@ -76,6 +79,23 @@ fun OCRResultScreen(
     // Play celebration sound on screen launch
     LaunchedEffect(Unit) {
         audioService.play(AudioCategory.CHEER)
+    }
+
+    // Report game session completion to the API
+    val gameRepo: GameRepository = remember { koinInject() }
+    val studentId = org.alphakids.app.parent.domain.model.SessionManager.currentChild?.id
+    LaunchedEffect(Unit) {
+        if (studentId != null && studentId.isNotBlank()) {
+            gameRepo.completeSession(
+                GameSessionCompleteRequestDto(
+                    studentId = studentId,
+                    wordId = null, // API word ID not available from WordBank
+                    gameType = "OCR_SCAN",
+                    isCorrect = true, // OCRResultScreen only shown on success
+                    attempts = attempts,
+                )
+            )
+        }
     }
 
     Scaffold(
