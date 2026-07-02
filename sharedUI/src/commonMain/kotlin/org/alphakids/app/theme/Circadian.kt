@@ -68,5 +68,10 @@ fun Modifier.circadianBackground(alpha: Float = 0.3f, contentScale: ContentScale
         TimePeriod.EVENING -> Res.drawable.bg_noche
         TimePeriod.NIGHT -> Res.drawable.bg_noche
     }
-    return this.then(Modifier.paint(painterResource(drawable), contentScale = contentScale, alpha = alpha))
+    return this.then(Modifier.paint(
+        painterResource(drawable), 
+        contentScale = contentScale, 
+        alpha = alpha,
+        sizeToIntrinsics = false
+    ))
 }
