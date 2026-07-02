@@ -47,6 +47,7 @@ import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGold
 import org.alphakids.app.theme.XpBarEnd
+import org.alphakids.app.theme.circadianBackground
 
 // ── Sub-tab definitions ──
 
@@ -161,7 +162,7 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
     ) {
         // ── Sub-tab bar ──
         AchievementsSubTabBar(
@@ -188,6 +189,7 @@ private fun AchievementsSubTabBar(
 ) {
     Row(
         modifier = Modifier
+            .circadianBackground(alpha = 0.3f)
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -441,96 +443,18 @@ private fun TrofeosContent() {
             items = trophies,
             key = { it.id },
         ) { trophy ->
-            TrophyCard(trophy = trophy)
-        }
-    }
-}
-
-@Composable
-private fun TrophyCard(trophy: Trophy) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (trophy.unlocked) MaterialTheme.colorScheme.surface
-            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (trophy.unlocked) 2.dp else 0.dp,
-        ),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Trophy icon
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (trophy.unlocked) TrophyGold.copy(alpha = 0.15f)
-                        else MaterialTheme.colorScheme.surfaceVariant,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = if (trophy.unlocked) trophy.emoji else "\uD83C\uDFC6",
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = trophy.name,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = if (trophy.unlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = trophy.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Progress bar
-            LinearProgressIndicator(
-                progress = { trophy.progress.coerceIn(0f, 1f) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = if (trophy.unlocked) SuccessGreen else TrophyGold,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Status text
-            Text(
-                text = if (trophy.unlocked) "\u2705 Desbloqueado"
-                else "${(trophy.progress * 100).toInt()}%",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Medium,
-                color = if (trophy.unlocked) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+            org.alphakids.app.components.AchievementCard(
+                title = trophy.name,
+                description = trophy.description,
+                iconEmoji = trophy.emoji,
+                isUnlocked = trophy.unlocked,
+                progress = trophy.progress,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
 }
+
 
 // ════════════════════════════════════════════
 //  ESTADÍSTICAS SUB-TAB

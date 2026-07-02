@@ -42,6 +42,7 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Child detail screen showing full profile, stats, weekly progress, pets, and achievements.
@@ -88,14 +89,15 @@ fun ChildDetailScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Back button + header
         item(key = "header") {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.circadianBackground(alpha = 0.3f)
+            .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 TextButton(onClick = { navController.popBackStack() }) {

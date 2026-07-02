@@ -267,12 +267,7 @@ private fun BenefitRow(benefit: PlanBenefit) {
             modifier = Modifier.weight(1f),
         )
         if (benefit.isPremium && !benefit.included) {
-            Text(
-                text = "Premium",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold,
-            )
+            org.alphakids.app.components.PremiumBadge()
         }
     }
 }

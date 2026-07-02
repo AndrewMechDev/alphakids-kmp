@@ -32,6 +32,7 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
+import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 /**
  * Wizard header — screen header with optional subtitle, step indicator, back
@@ -74,7 +75,7 @@ fun AlphaHeader(
 
             if (showAlphi) {
                 Image(
-                    painter = painterResource(Res.drawable.alphi_pensando),
+                    painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_anunciando),
                     contentDescription = "Alphi",
                     modifier = Modifier.size(40.dp),
                 )

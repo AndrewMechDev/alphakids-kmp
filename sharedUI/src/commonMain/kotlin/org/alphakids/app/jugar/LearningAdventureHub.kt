@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +57,8 @@ import org.alphakids.app.theme.TrophyGold
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
+import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Hub screen between Home and the individual activities.
@@ -70,6 +74,7 @@ fun LearningAdventureHub(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -83,7 +88,8 @@ fun LearningAdventureHub(navController: NavController) {
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .circadianBackground(alpha = 0.3f)
+            .padding(start = 8.dp)
                             .clickable { navController.popBackStack() },
                     )
                 },
@@ -98,6 +104,9 @@ fun LearningAdventureHub(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
                 .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
@@ -167,7 +176,7 @@ private fun AlphiHeader() {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            painter = painterResource(Res.drawable.alphi_estudiando),
+            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_trabajando),
             contentDescription = "Alphi",
             modifier = Modifier.size(64.dp),
         )
@@ -205,51 +214,55 @@ private fun ActivityCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Emoji icon
-            Box(
+        Box(modifier = Modifier.background(
+            brush = AlphaGradients.angled(AlphaGradients.Nature),
+            shape = RoundedCornerShape(20.dp),
+        )) {
+            Column(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(buttonColor.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // Emoji icon
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = emoji,
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Title
                 Text(
-                    text = emoji,
-                    style = MaterialTheme.typography.displaySmall,
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
                 )
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-            // Title
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-            )
+                // Description
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center,
+                )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Description
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = SlateGray,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
             // Rewards badge
             Row(
@@ -311,6 +324,7 @@ private fun ActivityCard(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                 )
+            }
             }
         }
     }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.alphakids.app.onboarding.data.mock.MockAuthRepository
+import org.alphakids.app.parent.data.mock.MockParentRepository
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,6 +19,7 @@ import kotlin.test.assertTrue
 class LoginViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
+    private val parentRepository = MockParentRepository()
 
     @BeforeTest
     fun setUp() {
@@ -31,7 +33,7 @@ class LoginViewModelTest {
 
     @Test
     fun `initial state is correct`() {
-        val viewModel = LoginViewModel(MockAuthRepository())
+        val viewModel = LoginViewModel(MockAuthRepository(), parentRepository)
         val state = viewModel.uiState.value
         assertEquals("", state.email)
         assertEquals("", state.password)
@@ -42,14 +44,14 @@ class LoginViewModelTest {
 
     @Test
     fun `onEmailChanged updates email`() {
-        val viewModel = LoginViewModel(MockAuthRepository())
+        val viewModel = LoginViewModel(MockAuthRepository(), parentRepository)
         viewModel.onEmailChanged("test@alphakids.com")
         assertEquals("test@alphakids.com", viewModel.uiState.value.email)
     }
 
     @Test
     fun `onPasswordChanged updates password`() {
-        val viewModel = LoginViewModel(MockAuthRepository())
+        val viewModel = LoginViewModel(MockAuthRepository(), parentRepository)
         viewModel.onPasswordChanged("123456")
         assertEquals("123456", viewModel.uiState.value.password)
     }
@@ -57,7 +59,7 @@ class LoginViewModelTest {
     @Test
     fun `login with valid credentials succeeds`() {
         val repo = MockAuthRepository.createWithDemoUser()
-        val viewModel = LoginViewModel(repo)
+        val viewModel = LoginViewModel(repo, parentRepository)
 
         viewModel.onEmailChanged("test@alphakids.com")
         viewModel.onPasswordChanged("123456")
@@ -71,7 +73,7 @@ class LoginViewModelTest {
 
     @Test
     fun `login with invalid email shows validation error`() {
-        val viewModel = LoginViewModel(MockAuthRepository())
+        val viewModel = LoginViewModel(MockAuthRepository(), parentRepository)
         viewModel.onEmailChanged("invalid")
         viewModel.onPasswordChanged("123456")
         viewModel.onLoginClick()
@@ -82,7 +84,7 @@ class LoginViewModelTest {
 
     @Test
     fun `login with empty password shows validation error`() {
-        val viewModel = LoginViewModel(MockAuthRepository())
+        val viewModel = LoginViewModel(MockAuthRepository(), parentRepository)
         viewModel.onEmailChanged("test@test.com")
         viewModel.onPasswordChanged("")
         viewModel.onLoginClick()
@@ -94,7 +96,7 @@ class LoginViewModelTest {
     @Test
     fun `login with wrong credentials shows error message`() {
         val repo = MockAuthRepository.createWithDemoUser()
-        val viewModel = LoginViewModel(repo)
+        val viewModel = LoginViewModel(repo, parentRepository)
 
         viewModel.onEmailChanged("test@alphakids.com")
         viewModel.onPasswordChanged("wrongpass")
@@ -109,7 +111,7 @@ class LoginViewModelTest {
     @Test
     fun `loading state is true during login`() {
         val repo = MockAuthRepository.createWithDemoUser()
-        val viewModel = LoginViewModel(repo)
+        val viewModel = LoginViewModel(repo, parentRepository)
 
         viewModel.onEmailChanged("test@alphakids.com")
         viewModel.onPasswordChanged("123456")
