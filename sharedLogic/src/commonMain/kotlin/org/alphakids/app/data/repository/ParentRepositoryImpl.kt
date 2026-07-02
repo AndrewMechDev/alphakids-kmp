@@ -8,9 +8,11 @@ import org.alphakids.app.data.remote.ApiConstants
 import org.alphakids.app.data.remote.dto.AchievementsResponseDto
 import org.alphakids.app.data.remote.dto.CreateChildRequestDto
 import org.alphakids.app.data.remote.dto.DictionaryResponseDto
+import org.alphakids.app.data.remote.dto.InstitutionLookupResponseDto
 import org.alphakids.app.data.remote.dto.InventoryItemDto
 import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
 import org.alphakids.app.data.remote.dto.StudentResponseDto
+import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
 import org.alphakids.app.parent.domain.model.ChildSummary
@@ -127,6 +129,28 @@ class ParentRepositoryImpl(
             response.body<List<InventoryItemDto>>()
         } catch (_: Exception) {
             emptyList()
+        }
+    }
+
+    /**
+     * Look up an institution by slug/code.
+     * GET /institutions/lookup?slug=<slug>
+     *
+     * Returns null when:
+     * - The API endpoint is not yet implemented (graceful degradation)
+     * - The institution is not found
+     * - Network errors occur
+     */
+    override suspend fun lookupInstitution(slug: String): Institution? {
+        return try {
+            val response = api.httpClient.get(ApiConstants.INSTITUTIONS_LOOKUP) {
+                parameter("slug", slug)
+            }
+            if (!response.status.isSuccess()) return null
+            val dto = response.body<InstitutionLookupResponseDto>()
+            Institution(id = dto.id, name = dto.name, slug = dto.slug)
+        } catch (_: Exception) {
+            null
         }
     }
 

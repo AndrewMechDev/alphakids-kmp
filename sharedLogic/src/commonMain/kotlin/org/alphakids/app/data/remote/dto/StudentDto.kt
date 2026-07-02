@@ -16,6 +16,10 @@ data class CreateChildRequestDto(
     val gender: String? = null,
     @SerialName("avatar_url")
     val avatarUrl: String? = null,
+    @SerialName("institution_id")
+    val institutionId: String? = null,
+    @SerialName("section_id")
+    val sectionId: String? = null,
 )
 
 // ── Responses ──
@@ -44,6 +48,12 @@ data class StudentResponseDto(
     val studentType: String = "FREEMIUM",
     @SerialName("registered_by")
     val registeredById: String,
+    @SerialName("institution_id")
+    val institutionId: String? = null,
+    val institution: InstitutionItemDto? = null,
+    @SerialName("section_id")
+    val sectionId: String? = null,
+    val section: SectionItemDto? = null,
     @SerialName("created_at")
     val createdAt: String,
     @SerialName("updated_at")
@@ -175,4 +185,22 @@ data class AccessoryCatalogDto(
     val compatibleSpecies: String = "*",
     @SerialName("is_active")
     val isActive: Boolean = true,
+)
+
+/**
+ * Lightweight institution reference included in student responses.
+ */
+@Serializable
+data class InstitutionItemDto(
+    val id: String,
+    val name: String,
+)
+
+/**
+ * Lightweight section reference included in student responses.
+ */
+@Serializable
+data class SectionItemDto(
+    val id: String,
+    val name: String,
 )

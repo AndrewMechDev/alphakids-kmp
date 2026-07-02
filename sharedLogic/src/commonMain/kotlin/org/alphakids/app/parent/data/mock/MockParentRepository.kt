@@ -1,5 +1,6 @@
 package org.alphakids.app.parent.data.mock
 
+import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
 import org.alphakids.app.parent.domain.model.ChildSummary
@@ -65,4 +66,21 @@ class MockParentRepository : ParentRepository {
     )
 
     override suspend fun submitContactForm(form: ContactForm): Boolean = true
+
+    override suspend fun lookupInstitution(slug: String): Institution? {
+        // Mock: simulate a known institution for testing the UI flow
+        return when (slug.lowercase()) {
+            "san-martin" -> Institution(
+                id = "mock-inst-001",
+                name = "Colegio San Martín",
+                slug = "san-martin",
+            )
+            "los-andes" -> Institution(
+                id = "mock-inst-002",
+                name = "Colegio Los Andes",
+                slug = "los-andes",
+            )
+            else -> null
+        }
+    }
 }

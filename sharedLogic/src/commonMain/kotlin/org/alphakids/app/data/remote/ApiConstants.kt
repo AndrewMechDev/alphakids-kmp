@@ -39,6 +39,15 @@ object ApiConstants {
     fun pets(studentId: String) = "pets/$studentId"
     fun feedPet(petId: String) = "pets/$petId/feed"
 
+    // ── Institutions ──
+    /**
+     * Look up an institution by slug or code.
+     * GET /institutions/lookup?slug=<slug>
+     *
+     * Available to any authenticated user. Returns [org.alphakids.app.data.remote.dto.InstitutionLookupResponseDto].
+     */
+    const val INSTITUTIONS_LOOKUP = "institutions/lookup"
+
     // ── Store ──
     fun storePetsCatalog(studentId: String) = "students/$studentId/store/catalogs/pets"
     fun storeAccessoriesCatalog(studentId: String) = "students/$studentId/store/catalogs/accessories"
