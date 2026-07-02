@@ -33,6 +33,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -43,7 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -285,6 +288,15 @@ fun DictionaryScreen(
 }
 
 // ── Alphabet Navigation Sidebar ──
+//
+// Optimised for child-friendly use:
+// - Active letter is visually prominent (larger, coloured pill, scale animation)
+// - Available letters are tappable with medium weight
+// - Unavailable letters are dimmed (light weight, outline colour)
+// - Each letter is centred in a fixed‑height cell so the column stays aligned
+
+private val ALPHABET_CELL_HEIGHT = 22.dp
+private val ALPHABET_COLUMN_WIDTH = 42.dp
 
 @Composable
 private fun AlphabetNavColumn(
@@ -295,47 +307,80 @@ private fun AlphabetNavColumn(
 ) {
     Column(
         modifier = modifier
-            .width(40.dp)
+            .width(ALPHABET_COLUMN_WIDTH)
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp),
+                shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         ('A'..'Z').forEach { letter ->
             val isAvailable = letter in availableLetters
-            val isSelected = letter == selectedLetter
+            val isActive = letter == selectedLetter
 
-            Text(
-                text = letter.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isSelected) FontWeight.Bold
-                else if (isAvailable) FontWeight.Medium
-                else FontWeight.Light,
-                color = when {
-                    isSelected -> MaterialTheme.colorScheme.primary
-                    isAvailable -> MaterialTheme.colorScheme.onSurface
-                    else -> MaterialTheme.colorScheme.outline
-                },
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .then(
-                        if (isAvailable) Modifier.clickable(onClick = { onLetterSelected(letter) })
-                        else Modifier
-                    )
-                    .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-                        else Color.Transparent,
-                        shape = CircleShape,
-                    )
-                    .padding(horizontal = 6.dp, vertical = 3.dp),
+            // Animated scale for the active letter
+            val targetScale = if (isActive) 1.3f else 1f
+            val scale by animateFloatAsState(
+                targetValue = targetScale,
+                animationSpec = spring(
+                    dampingRatio = 0.5f,
+                    stiffness = Spring.StiffnessLow,
+                ),
+                label = "letterScale",
             )
-            Spacer(modifier = Modifier.height(2.dp))
+
+            Box(
+                modifier = Modifier
+                    .size(
+                        width = ALPHABET_COLUMN_WIDTH,
+                        height = ALPHABET_CELL_HEIGHT,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer(scaleX = scale, scaleY = scale)
+                        .then(
+                            if (isAvailable) Modifier.clickable(
+                                onClick = { onLetterSelected(letter) },
+                                indication = null, // custom ripple via background
+                            ) else Modifier
+                        )
+                        .background(
+                            color = when {
+                                isActive -> MaterialTheme.colorScheme.primary
+                                isAvailable && !isActive ->
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                else -> Color.Transparent
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = letter.toString(),
+                        style = if (isActive) MaterialTheme.typography.titleSmall
+                        else MaterialTheme.typography.labelMedium,
+                        fontWeight = when {
+                            isActive -> FontWeight.Black
+                            isAvailable -> FontWeight.SemiBold
+                            else -> FontWeight.Light
+                        },
+                        color = when {
+                            isActive -> MaterialTheme.colorScheme.onPrimary
+                            isAvailable -> MaterialTheme.colorScheme.onSurface
+                            else -> MaterialTheme.colorScheme.outline
+                        },
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
