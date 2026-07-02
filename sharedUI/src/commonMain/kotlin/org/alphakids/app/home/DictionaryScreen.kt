@@ -51,19 +51,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.domain.model.DictionaryWord
 import org.alphakids.app.theme.CoinGold
+import org.alphakids.app.theme.ErrorRed
+import org.alphakids.app.theme.PetDrakoCyan
+import org.alphakids.app.theme.PetLunaOrange
 import org.alphakids.app.theme.PrimaryBlue
+import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 
 // ── Category colour palette ──
 
 private val categoryColors = mapOf(
-    "Animales" to Color(0xFFE8843A),
-    "Colores" to Color(0xFF6C5CE7),
-    "Objetos" to Color(0xFF3B7DF6),
-    "Alimentos" to Color(0xFF34C759),
-    "Naturaleza" to Color(0xFF5BC8E8),
-    "Cuerpo" to Color(0xFFFF6B6B),
+    "Animales" to PetLunaOrange,
+    "Colores" to PrimaryIndigo,
+    "Objetos" to PrimaryBlue,
+    "Alimentos" to SuccessGreen,
+    "Naturaleza" to PetDrakoCyan,
+    "Cuerpo" to ErrorRed,
 )
 
 private fun categoryColor(category: String): Color =
@@ -72,7 +76,7 @@ private fun categoryColor(category: String): Color =
 private fun difficultyColor(difficulty: String): Color = when (difficulty) {
     "fácil" -> SuccessGreen
     "media" -> WarningYellow
-    "difícil" -> Color(0xFFFF6B6B)
+    "difícil" -> ErrorRed
     else -> Color.Gray
 }
 

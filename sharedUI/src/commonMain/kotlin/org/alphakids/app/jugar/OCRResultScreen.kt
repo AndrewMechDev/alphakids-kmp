@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +45,7 @@ import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
@@ -281,12 +281,7 @@ private fun WordDisplay(word: ChallengeWord) {
                     .size(64.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary,
-                            ),
-                        ),
+                        brush = AlphaGradients.angled(AlphaGradients.Nature),
                     ),
                 contentAlignment = Alignment.Center,
             ) {

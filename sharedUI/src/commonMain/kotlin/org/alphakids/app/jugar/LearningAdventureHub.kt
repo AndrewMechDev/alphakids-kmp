@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.CardWhite
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.CoinGoldBorder
@@ -159,12 +160,7 @@ private fun AlphiHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.secondary,
-                    ),
-                ),
+                brush = AlphaGradients.angled(AlphaGradients.Nature),
                 shape = RoundedCornerShape(20.dp),
             )
             .padding(16.dp),
