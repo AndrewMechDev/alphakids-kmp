@@ -100,6 +100,9 @@ fun AdventureHomeScreen(navController: NavController) {
         )
     }
 
+    // Inline dictionary view state — toggled from Inicio tab's Diccionario quick card
+    var showDictionary by remember { mutableStateOf(false) }
+
     Scaffold(
         bottomBar = {
             NavigationBar(
@@ -137,34 +140,42 @@ fun AdventureHomeScreen(navController: NavController) {
             }
         },
     ) { innerPadding ->
-        when (selectedTab) {
-            0 -> DashboardContent(
-                state = state,
-                onFeed = { viewModel.feedPet() },
-                onPlay = { viewModel.playWithPet() },
-                onNavigateToHub = {
-                    navController.navigate(Screen.LearningAdventureHub.route)
-                },
-                onNavigateToParentDashboard = {
-                    navController.navigate(Screen.NetflixProfiles.route)
-                },
+        if (selectedTab == 0 && showDictionary) {
+            DictionaryScreen(
                 modifier = Modifier.padding(innerPadding),
+                onBack = { showDictionary = false },
             )
-            1 -> StoreScreen(
-                coins = state.coins,
-                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
-                childLevel = state.childLevel,
-                modifier = Modifier.padding(innerPadding),
-            )
-            2 -> PetsScreen(
-                coins = state.coins,
-                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
-                childLevel = state.childLevel,
-                modifier = Modifier.padding(innerPadding),
-            )
-            3 -> AchievementsScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
+        } else {
+            when (selectedTab) {
+                0 -> DashboardContent(
+                    state = state,
+                    onFeed = { viewModel.feedPet() },
+                    onPlay = { viewModel.playWithPet() },
+                    onNavigateToHub = {
+                        navController.navigate(Screen.LearningAdventureHub.route)
+                    },
+                    onNavigateToDictionary = { showDictionary = true },
+                    onNavigateToParentDashboard = {
+                        navController.navigate(Screen.NetflixProfiles.route)
+                    },
+                    modifier = Modifier.padding(innerPadding),
+                )
+                1 -> StoreScreen(
+                    coins = state.coins,
+                    onSpendCoins = { amount -> viewModel.spendCoins(amount) },
+                    childLevel = state.childLevel,
+                    modifier = Modifier.padding(innerPadding),
+                )
+                2 -> PetsScreen(
+                    coins = state.coins,
+                    onSpendCoins = { amount -> viewModel.spendCoins(amount) },
+                    childLevel = state.childLevel,
+                    modifier = Modifier.padding(innerPadding),
+                )
+                3 -> AchievementsScreen(
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
         }
     }
 }

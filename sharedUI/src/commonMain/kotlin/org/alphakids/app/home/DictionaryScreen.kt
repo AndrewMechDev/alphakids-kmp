@@ -151,9 +151,14 @@ private val mockWords = listOf(
  * - Filter chips: Todas, Aprendidas, Pendientes, Fáciles, Difíciles
  * - Word grid (2 columns) with word cards
  * - Inline detail card when a word is tapped
+ *
+ * @param onBack Optional callback for a back arrow. When null, no back arrow is shown.
  */
 @Composable
-fun DictionaryScreen(modifier: Modifier = Modifier) {
+fun DictionaryScreen(
+    modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null,
+) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
     var selectedLetter by remember { mutableStateOf<Char?>(null) }
@@ -198,6 +203,18 @@ fun DictionaryScreen(modifier: Modifier = Modifier) {
 
         // ── Main content ──
         Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
+            onBack?.let { back ->
+                Text(
+                    text = "\u2190 Volver",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .clickable(onClick = back)
+                        .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 4.dp),
+                )
+            }
             // Search bar
             SearchBar(
                 query = searchQuery,

@@ -1,5 +1,6 @@
 package org.alphakids.app.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.CoinGold
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 private data class QuickAccessItem(
     val emoji: String,
@@ -39,6 +43,7 @@ private data class QuickAccessItem(
 
 private val quickAccessItems = listOf(
     QuickAccessItem("\uD83C\uDFAE", "¡A Jugar!", "Escanea letras con la cámara", "jugar"),
+    QuickAccessItem("\uD83D\uDCD6", "Diccionario", "Descubre y aprende palabras", "diccionario"),
     QuickAccessItem("\uD83D\uDED2", "Tienda", "Compra mascotas y accesorios", "tienda"),
     QuickAccessItem("\uD83D\uDC3E", "Mascotas", "Cuida a tus mascotas", "mascotas"),
     QuickAccessItem("\uD83C\uDFC6", "Logros", "Ve tus trofeos y progreso", "logros"),
@@ -50,6 +55,7 @@ fun DashboardContent(
     onFeed: () -> Unit = {},
     onPlay: () -> Unit = {},
     onNavigateToHub: () -> Unit = {},
+    onNavigateToDictionary: () -> Unit = {},
     onNavigateToParentDashboard: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -64,21 +70,37 @@ fun DashboardContent(
         HeaderSection(state = state, onSettings = onNavigateToParentDashboard)
         WelcomePanel(message = state.alphiMessage)
 
-        // Quick Access Cards (2 columns, 2 rows)
+        // Quick Access Cards (3+2 layout: Jugar, Diccionario, Tienda | Mascotas, Logros)
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                QuickAccessCard(item = quickAccessItems[0], onClick = onNavigateToHub, useHalfWidth = true)
-                QuickAccessCard(item = quickAccessItems[1], onClick = { }, useHalfWidth = true)
+                quickAccessItems.take(3).forEach { item ->
+                    QuickAccessCard(
+                        item = item,
+                        onClick = {
+                            when (item.key) {
+                                "jugar" -> onNavigateToHub()
+                                "diccionario" -> onNavigateToDictionary()
+                                else -> {}
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                QuickAccessCard(item = quickAccessItems[2], onClick = { }, useHalfWidth = true)
-                QuickAccessCard(item = quickAccessItems[3], onClick = { }, useHalfWidth = true)
+                quickAccessItems.drop(3).forEach { item ->
+                    QuickAccessCard(
+                        item = item,
+                        onClick = { },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -153,30 +175,39 @@ private fun WelcomePanel(message: String) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            Image(
+                painter = painterResource(Res.drawable.alphi_anunciando),
+                contentDescription = "Alphi",
+                modifier = Modifier.size(56.dp),
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "\uD83C\uDF1F ¡Sigue así! Cada palabra cuenta",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "\uD83C\uDF1F ¡Sigue así! Cada palabra cuenta",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun QuickAccessCard(item: QuickAccessItem, onClick: () -> Unit, useHalfWidth: Boolean = false) {
+private fun QuickAccessCard(item: QuickAccessItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
