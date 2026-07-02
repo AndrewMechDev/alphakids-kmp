@@ -343,9 +343,10 @@ private fun WordHintSection(word: ChallengeWord) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Reference image — Cloudinary URL from teacher or gradient fallback
-            if (word.imageUrl != null && word.imageUrl.isNotBlank()) {
+            val refImageUrl = word.imageUrl
+            if (refImageUrl != null && refImageUrl.isNotBlank()) {
                 AsyncImage(
-                    model = word.imageUrl,
+                    model = refImageUrl,
                     contentDescription = word.word,
                     modifier = Modifier
                         .size(72.dp)

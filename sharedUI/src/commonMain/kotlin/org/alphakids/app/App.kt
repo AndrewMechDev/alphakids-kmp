@@ -303,11 +303,11 @@ fun App() {
                         word = safeText,
                         hint = "Escanea las letras",
                         imageName = safeText.first().toString(),
-                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
-                            .ifBlank { null },
                         category = "Palabras",
                         difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
                             .ifBlank { "fácil" },
+                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
+                            .ifBlank { null },
                     )
                 } else {
                     // Hardcoded word from WordBank (direct navigation)

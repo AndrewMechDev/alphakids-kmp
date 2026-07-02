@@ -14,9 +14,9 @@ data class ChallengeWord(
     val word: String,
     val hint: String,
     val imageName: String,
-    val imageUrl: String? = null,
     val category: String,
     val difficulty: String,
+    val imageUrl: String? = null,
 )
 
 /**
