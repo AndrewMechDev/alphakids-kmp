@@ -43,11 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.alphakids.app.theme.DeepNavy
-import org.alphakids.app.theme.DisabledGray
-import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.PrimaryIndigo
-import org.alphakids.app.theme.SlateGray
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGold
 import org.alphakids.app.theme.XpBarEnd
@@ -165,11 +161,7 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFF0F4FF), Color(0xFFFAF8FF)),
-                ),
-            ),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         // ── Sub-tab bar ──
         AchievementsSubTabBar(
@@ -253,7 +245,7 @@ private fun RangosContent() {
             text = "Todos los rangos",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = DeepNavy,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(vertical = 8.dp),
         )
 
@@ -283,7 +275,7 @@ private fun CurrentRankCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
         Column(
@@ -297,7 +289,7 @@ private fun CurrentRankCard(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(PrimaryIndigo.copy(alpha = 0.12f)),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -312,13 +304,13 @@ private fun CurrentRankCard(
                 text = currentRank.name,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = DeepNavy,
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             Text(
                 text = "Nivel $level",
                 style = MaterialTheme.typography.bodyMedium,
-                color = SlateGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -331,7 +323,7 @@ private fun CurrentRankCard(
                     .height(14.dp)
                     .clip(RoundedCornerShape(7.dp)),
                 color = XpBarEnd,
-                trackColor = DisabledGray.copy(alpha = 0.3f),
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -353,13 +345,9 @@ private fun RankCard(
     isCurrent: Boolean,
 ) {
     val bgColor = when {
-        isCurrent -> PrimaryBlue.copy(alpha = 0.08f)
-        isUnlocked -> Color.White
-        else -> Color.White.copy(alpha = 0.7f)
-    }
-    val borderColor = when {
-        isCurrent -> PrimaryBlue.copy(alpha = 0.3f)
-        else -> Color.Transparent
+        isCurrent -> MaterialTheme.colorScheme.primaryContainer
+        isUnlocked -> MaterialTheme.colorScheme.surface
+        else -> MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
     }
 
     Card(
@@ -368,7 +356,7 @@ private fun RankCard(
             .then(
                 if (isCurrent) Modifier.border(
                     width = 2.dp,
-                    color = PrimaryBlue.copy(alpha = 0.4f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                     shape = RoundedCornerShape(14.dp),
                 ) else Modifier
             ),
@@ -390,8 +378,8 @@ private fun RankCard(
                     .size(48.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isUnlocked) PrimaryIndigo.copy(alpha = 0.1f)
-                        else DisabledGray.copy(alpha = 0.2f),
+                        if (isUnlocked) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceVariant,
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -408,12 +396,12 @@ private fun RankCard(
                     text = rank.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isUnlocked) DeepNavy else DisabledGray,
+                    color = if (isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
                 Text(
                     text = rank.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isUnlocked) SlateGray else DisabledGray.copy(alpha = 0.7f),
+                    color = if (isUnlocked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
             }
 
@@ -423,7 +411,7 @@ private fun RankCard(
                     text = "Actual",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryBlue,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 isUnlocked -> Text(
                     text = "\u2705",
@@ -464,7 +452,7 @@ private fun TrophyCard(trophy: Trophy) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (trophy.unlocked) Color.White
+            containerColor = if (trophy.unlocked) MaterialTheme.colorScheme.surface
             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         ),
         elevation = CardDefaults.cardElevation(
@@ -484,7 +472,7 @@ private fun TrophyCard(trophy: Trophy) {
                     .clip(CircleShape)
                     .background(
                         if (trophy.unlocked) TrophyGold.copy(alpha = 0.15f)
-                        else DisabledGray.copy(alpha = 0.15f),
+                        else MaterialTheme.colorScheme.surfaceVariant,
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -500,7 +488,7 @@ private fun TrophyCard(trophy: Trophy) {
                 text = trophy.name,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = if (trophy.unlocked) DeepNavy else DisabledGray,
+                color = if (trophy.unlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -511,7 +499,7 @@ private fun TrophyCard(trophy: Trophy) {
             Text(
                 text = trophy.description,
                 style = MaterialTheme.typography.bodySmall,
-                color = SlateGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -527,7 +515,7 @@ private fun TrophyCard(trophy: Trophy) {
                     .height(6.dp)
                     .clip(RoundedCornerShape(3.dp)),
                 color = if (trophy.unlocked) SuccessGreen else TrophyGold,
-                trackColor = DisabledGray.copy(alpha = 0.3f),
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -538,7 +526,7 @@ private fun TrophyCard(trophy: Trophy) {
                 else "${(trophy.progress * 100).toInt()}%",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Medium,
-                color = if (trophy.unlocked) SuccessGreen else SlateGray,
+                color = if (trophy.unlocked) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -573,7 +561,7 @@ private fun StatCard(stat: StatItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
@@ -595,7 +583,7 @@ private fun StatCard(stat: StatItem) {
                 text = stat.value,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = DeepNavy,
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -604,7 +592,7 @@ private fun StatCard(stat: StatItem) {
             Text(
                 text = stat.label,
                 style = MaterialTheme.typography.bodySmall,
-                color = SlateGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
         }
@@ -629,7 +617,7 @@ private fun HistorialContent() {
                 text = "Actividad reciente",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = DeepNavy,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
         }
@@ -661,14 +649,14 @@ private fun HistoryTimelineItem(entry: HistoryEntry) {
                 modifier = Modifier
                     .size(12.dp)
                     .clip(CircleShape)
-                    .background(PrimaryBlue),
+                    .background(MaterialTheme.colorScheme.primary),
             )
             // Connector line
             Box(
                 modifier = Modifier
                     .width(2.dp)
                     .height(40.dp)
-                    .background(PrimaryBlue.copy(alpha = 0.2f)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
             )
         }
 
@@ -678,7 +666,7 @@ private fun HistoryTimelineItem(entry: HistoryEntry) {
         Card(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         ) {
             Row(
@@ -699,12 +687,12 @@ private fun HistoryTimelineItem(entry: HistoryEntry) {
                         text = entry.description,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
-                        color = DeepNavy,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
                         text = entry.date,
                         style = MaterialTheme.typography.labelSmall,
-                        color = SlateGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

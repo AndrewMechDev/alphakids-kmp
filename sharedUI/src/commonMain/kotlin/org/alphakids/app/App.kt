@@ -4,6 +4,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,20 +40,25 @@ import org.alphakids.app.onboarding.wizard.WizardViewModel
 import org.alphakids.app.parent.ParentHomeScreen
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
-import org.alphakids.app.theme.AlphaKidsTheme
+import org.alphakids.app.theme.CircadianTheme
 
 @Composable
 @Preview
 fun App() {
-    AlphaKidsTheme {
+    CircadianTheme {
         val navController = rememberNavController()
 
         // Shared wizard ViewModel — survives navigation across wizard screens
         val wizardViewModel = remember { WizardViewModel() }
 
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Splash.route,
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding(),
+        ) {
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Splash.route,
         ) {
             composable(
                 Screen.Splash.route,
@@ -289,6 +297,7 @@ fun App() {
             ) {
                 PlaceholderHomeScreen(navController = navController)
             }
-        }
-    }
-}
+        } // NavHost
+        } // Box
+    } // CircadianTheme
+} // App

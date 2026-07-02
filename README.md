@@ -81,21 +81,19 @@ Vista 2 — Welcome Selection (bienvenida)
             ← 30s cooldown para reenviar código
             → OTP exitoso → SetupWizard → ... → AdventureHome 🏠
 
-AdventureHome 🏠 (5 tabs)
-  ├── Inicio 📊  — Dashboard con progreso, mascota activa, actividades
-  │   ← Back: dialogo "¿Salir de AlphaKids?"
-  ├── Diccionario 📖 — Cofre de palabras (A-Z, búsqueda, 43 palabras)
+AdventureHome 🏠 (4 tabs)
+  ├── Inicio 📊  — Header (nombre + monedas) → Alphi bienvenida → ¡A Jugar! → Diccionario
   ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
-  ├── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
-  └── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo
+  ├── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo por nivel
+  └── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
         └── ⚙️ Settings → Netflix de Perfiles 🎬
+               └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
 
-Parent Dashboard (4 tabs)
+Parent Dashboard (3 tabs)
   ├── Dashboard  — Resumen de todos los hijos
   ├── Hijos     — Detalle por hijo
-  ├── Suscripción — Plan y beneficios
-  └── Soporte   — FAQ y contacto
-       └── "Cerrar sesión" → Welcome Selection
+  └── Suscripción — Plan y beneficios
+       └── ⚙️ Gear menu → Soporte + Cerrar sesión
 
 ### Mejoras implementadas
 
@@ -105,7 +103,7 @@ Parent Dashboard (4 tabs)
 | 🔙 **Back buttons** | Botón "Volver" en Login, Register, AdventureHome, y wizard | ✅ Implementado |
 | ✉️ **Auto-OTP** | Verificar código automático al completar 6 dígitos | ✅ Implementado |
 | 🔐 **Biométrico** | Login con huella/rostro en vez de contraseña | 💡 Futuro |
-| 🌓 **Circadian Theme** | Tema oscuro automático de noche | 💡 Futuro |
+| 🌓 **Circadian Theme** | Tema oscuro automático de noche | ✅ Implementado |
 | 😴 **Sistema inactividad** | Alphi reacciona al idle del dispositivo | 💡 Futuro |
 
 ### Sistema de inactividad (futuro)
@@ -132,7 +130,7 @@ Abrir iosApp/ en Xcode y compilar
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
 - ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 5 pasos)
-- ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Logros, Mascotas)
+- ✅ **Phase 2** — AdventureHome (4 tabs: Inicio, Tienda, Mascotas, Logros)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
 - ✅ **Welcome Selection** — Pantalla de bienvenida con 2 cards (tutor / registro)
@@ -143,8 +141,9 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Empty states** — Componente reutilizable con Alphi para estados vacíos
 - ✅ **Settings → Netflix** — Gear del Home ahora va al selector de perfiles
 - ✅ **Fuentes instaladas** — DynaPuff + DM Sans conectadas vía expect/actual
+- ✅ **Circadian Theme** — Tema claro/oscuro automático según hora del sistema
+- ✅ **Keyboard handling** — `adjustResize` + teclado no tapa inputs
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
-- 💡 **Circadian Theme** — Tema oscuro automático (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final

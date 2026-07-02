@@ -24,11 +24,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,6 +74,7 @@ fun WelcomeScreen(
     val wizardState by wizardViewModel.state.collectAsState()
     val data = wizardState.data
     val scrollState = rememberScrollState()
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     val dicebearUrl = if (data.avatarSeed.isNotBlank()) {
         "https://api.dicebear.com/10.x/${data.avatarStyle}/svg?seed=${data.avatarSeed}"
@@ -80,14 +84,7 @@ fun WelcomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF4FA8F0),
-                        Color(0xFFC9B8F5),
-                    ),
-                ),
-            ),
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(48.dp))
@@ -96,7 +93,7 @@ fun WelcomeScreen(
         Text(
             text = "¡${data.childName}, tu aventura comienza ahora!",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -147,13 +144,13 @@ fun WelcomeScreen(
                     Text(
                         text = data.petName,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = "Tu compañero fiel",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                     )
                 }
             }
@@ -208,7 +205,7 @@ fun WelcomeScreen(
         Text(
             text = "¡Todo listo para empezar!",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -218,34 +215,55 @@ fun WelcomeScreen(
         // "Ir al inicio" button
         AlphaPrimaryButton(
             text = "Ir al inicio",
-            onClick = {
-                // Save child to session
-                val wizardState = wizardViewModel.state.value
-                val data = wizardState.data
-                val newChild = ChildSummary(
-                    id = (1000..9999).random().toString(),
-                    name = data.childName,
-                    avatarSeed = data.avatarSeed,
-                    level = 1,
-                    rank = "Semillita 🌱",
-                    lastActivity = "Recién creado",
-                    wordsLearned = 0,
-                    stars = 0,
-                )
-                SessionManager.setActiveChild(newChild)
-                // Add to parent repository so it appears in dashboard
-                val repo = koinInject<ParentRepository>()
-                if (repo is MockParentRepository) {
-                    repo.addChild(newChild)
-                }
-                navController.navigate(Screen.AdventureHome.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-            },
+            onClick = { showConfirmDialog = true },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
 
         Spacer(modifier = Modifier.height(48.dp))
+    }
+
+    // Confirmation dialog before creating the child profile
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("¿Confirmar perfil?") },
+            text = {
+                Text("Se creará el perfil de ${data.childName} con la mascota elegida")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    // Save child to session
+                    val dialogState = wizardViewModel.state.value
+                    val dialogData = dialogState.data
+                    val newChild = ChildSummary(
+                        id = (1000..9999).random().toString(),
+                        name = dialogData.childName,
+                        avatarSeed = dialogData.avatarSeed,
+                        level = 1,
+                        rank = "Semillita 🌱",
+                        lastActivity = "Recién creado",
+                        wordsLearned = 0,
+                        stars = 0,
+                    )
+                    SessionManager.setActiveChild(newChild)
+                    val repo = koinInject<ParentRepository>()
+                    if (repo is MockParentRepository) {
+                        repo.addChild(newChild)
+                    }
+                    navController.navigate(Screen.AdventureHome.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+        )
     }
 }
 

@@ -151,9 +151,14 @@ private val mockWords = listOf(
  * - Filter chips: Todas, Aprendidas, Pendientes, Fáciles, Difíciles
  * - Word grid (2 columns) with word cards
  * - Inline detail card when a word is tapped
+ *
+ * @param onBack Optional callback for a back arrow. When null, no back arrow is shown.
  */
 @Composable
-fun DictionaryScreen(modifier: Modifier = Modifier) {
+fun DictionaryScreen(
+    modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null,
+) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
     var selectedLetter by remember { mutableStateOf<Char?>(null) }
@@ -185,11 +190,7 @@ fun DictionaryScreen(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFF0F4FF), Color(0xFFFAF8FF)),
-                ),
-            ),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         // ── Alphabet sidebar ──
         AlphabetNavColumn(
@@ -202,6 +203,18 @@ fun DictionaryScreen(modifier: Modifier = Modifier) {
 
         // ── Main content ──
         Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
+            onBack?.let { back ->
+                Text(
+                    text = "\u2190 Volver",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .clickable(onClick = back)
+                        .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 4.dp),
+                )
+            }
             // Search bar
             SearchBar(
                 query = searchQuery,
@@ -279,7 +292,7 @@ private fun AlphabetNavColumn(
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .background(
-                color = Color.White.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
                 shape = RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp),
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -348,8 +361,8 @@ private fun SearchBar(
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
         ),
         textStyle = MaterialTheme.typography.bodyMedium,
         modifier = modifier,
@@ -407,7 +420,7 @@ private fun WordCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) accent.copy(alpha = 0.06f) else Color.White,
+            containerColor = if (isSelected) accent.copy(alpha = 0.06f) else MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isSelected) 4.dp else 2.dp,
@@ -504,7 +517,7 @@ private fun WordDetailCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
