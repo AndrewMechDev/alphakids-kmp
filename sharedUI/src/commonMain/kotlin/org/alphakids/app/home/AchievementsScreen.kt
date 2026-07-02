@@ -429,7 +429,7 @@ private fun RankCard(
 @Composable
 private fun TrofeosContent() {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
@@ -539,7 +539,7 @@ private fun TrophyCard(trophy: Trophy) {
 @Composable
 private fun EstadisticasContent() {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),

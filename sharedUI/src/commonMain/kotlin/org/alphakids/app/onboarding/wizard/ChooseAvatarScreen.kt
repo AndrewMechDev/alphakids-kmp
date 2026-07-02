@@ -149,7 +149,7 @@ fun ChooseAvatarScreen(
         val currentCategory = state.categories.getOrNull(state.selectedCategory)
         if (currentCategory != null) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Adaptive(minSize = 100.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(320.dp),

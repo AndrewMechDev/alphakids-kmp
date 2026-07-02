@@ -133,7 +133,7 @@ fun StoreScreen(
 
         // ── Product grid ──
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
