@@ -188,13 +188,11 @@ fun OCRResultScreen(
                 text = "🎮 Seguir jugando",
                 onClick = {
                     if (isApiWord) {
-                        // API word → go back to word picker
                         GameSessionState.clear()
                         navController.navigate(Screen.WordSelection.route) {
                             popUpTo(Screen.AdventureHome.route)
                         }
                     } else {
-                        // WordBank → random next word
                         val nextWord = WordBank.getRandomWord()
                         navController.navigate(
                             Screen.WordScannerChallenge.createRoute(
@@ -213,20 +211,25 @@ fun OCRResultScreen(
             org.alphakids.app.components.AlphaSecondaryButton(
                 text = "🔄 Repetir",
                 onClick = {
+                    // Re-set state before navigating so App.kt composable
+                    // reads the correct word regardless of route params
                     if (isApiWord) {
-                        // Re-set the same word and restart
                         GameSessionState.setWord(
                             text = GameSessionState.currentWordText,
                             id = GameSessionState.currentWordId,
                             difficulty = GameSessionState.currentDifficulty,
                         )
-                    }
-                    navController.navigate(
-                        Screen.WordScannerChallenge.createRoute(
-                            WordBank.words.indexOf(word).coerceAtLeast(0),
-                        )
-                    ) {
-                        popUpTo(Screen.AdventureHome.route)
+                        navController.navigate(Screen.WordSelection.route) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
+                    } else {
+                        navController.navigate(
+                            Screen.WordScannerChallenge.createRoute(
+                                WordBank.words.indexOf(word).coerceAtLeast(0),
+                            )
+                        ) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
