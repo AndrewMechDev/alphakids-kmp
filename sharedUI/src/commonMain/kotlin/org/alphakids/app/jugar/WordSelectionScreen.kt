@@ -64,6 +64,11 @@ fun WordSelectionScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var flow by remember { mutableStateOf("") }
 
+    // Clear any stale game state from previous sessions
+    LaunchedEffect(Unit) {
+        GameSessionState.clear()
+    }
+
     LaunchedEffect(childId) {
         try {
             val id = childId
