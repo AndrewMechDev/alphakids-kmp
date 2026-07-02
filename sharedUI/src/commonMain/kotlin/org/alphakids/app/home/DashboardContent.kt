@@ -1,12 +1,9 @@
 package org.alphakids.app.home
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,14 +44,6 @@ private val quickAccessItems = listOf(
     QuickAccessItem("\uD83C\uDFC6", "Logros", "Ve tus trofeos y progreso", "logros"),
 )
 
-/**
- * Simplified dashboard for Tab Inicio.
- *
- * Sections:
- * 1. Header — avatar, name, level, coins, settings
- * 2. Welcome Panel — Alphi message
- * 3. Quick Access Cards — 2×2 grid to main features
- */
 @Composable
 fun DashboardContent(
     state: UiState,
@@ -71,72 +57,62 @@ fun DashboardContent(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .background(MaterialTheme.colorScheme.background),
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        // ── 1. Header ──
+        Spacer(modifier = Modifier.height(8.dp))
         HeaderSection(state = state, onSettings = onNavigateToParentDashboard)
-
-        // ── 2. Welcome Panel ──
         WelcomePanel(message = state.alphiMessage)
 
-        // ── 3. Quick Access Cards ──
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 150.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 16.dp),
-        ) {
-            items(quickAccessItems) { item ->
-                QuickAccessCard(
-                    item = item,
-                    onClick = {
-                        when (item.key) {
-                            "jugar" -> onNavigateToHub()
-                        }
-                        // Other tabs handled by bottom nav
-                    },
-                )
+        // Quick Access Cards (2 columns, 2 rows)
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                QuickAccessCard(item = quickAccessItems[0], onClick = onNavigateToHub, useHalfWidth = true)
+                QuickAccessCard(item = quickAccessItems[1], onClick = { }, useHalfWidth = true)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                QuickAccessCard(item = quickAccessItems[2], onClick = { }, useHalfWidth = true)
+                QuickAccessCard(item = quickAccessItems[3], onClick = { }, useHalfWidth = true)
             }
         }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
-// ── Components ──
-
 @Composable
-private fun HeaderSection(
-    state: UiState,
-    onSettings: () -> Unit,
-) {
+private fun HeaderSection(state: UiState, onSettings: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Avatar
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .padding(2.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = state.childName.take(1).uppercase(),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape)
+                    .padding(2.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = state.childName.take(1).uppercase(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
-
         Spacer(modifier = Modifier.width(12.dp))
-
-        // Name + Level
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = state.childName,
@@ -152,25 +128,15 @@ private fun HeaderSection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-
-        // Coins
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "\uD83E\uDE99",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "${state.coins}",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = CoinGold,
-            )
-        }
-
+        Text(text = "\uD83E\uDE99", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = "${state.coins}",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            color = CoinGold,
+        )
         Spacer(modifier = Modifier.width(8.dp))
-
-        // Settings gear
         Text(
             text = "\u2699\uFE0F",
             style = MaterialTheme.typography.titleLarge,
@@ -182,72 +148,53 @@ private fun HeaderSection(
 @Composable
 private fun WelcomePanel(message: String) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "\uD83C\uDF1F ¡Sigue así! Cada palabra cuenta",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                )
-            }
+            Text(
+                text = message,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "\uD83C\uDF1F ¡Sigue así! Cada palabra cuenta",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+            )
         }
     }
 }
 
 @Composable
-private fun QuickAccessCard(
-    item: QuickAccessItem,
-    onClick: () -> Unit,
-) {
+private fun QuickAccessCard(item: QuickAccessItem, onClick: () -> Unit, useHalfWidth: Boolean = false) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = item.emoji,
-                style = MaterialTheme.typography.displaySmall,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = item.emoji, style = MaterialTheme.typography.displaySmall)
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = item.label,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = item.desc,
                 style = MaterialTheme.typography.bodySmall,
