@@ -1,10 +1,14 @@
 package org.alphakids.app.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -16,16 +20,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.theme.CoinGold
+import org.alphakids.app.theme.SuccessGreen
+
+/**
+ * Password strength levels shown by [AlphaTextField] via a strength bar
+ * when [AlphaTextField.isPassword] is true and a strength value is supplied.
+ */
+enum class PasswordStrength {
+    WEAK,
+    MEDIUM,
+    STRONG,
+}
 
 /**
  * Styled text field for AlphaKids onboarding forms.
  *
- * Supports error state, password toggle, and custom keyboard type.
+ * Supports error state, leading icon, password toggle with strength indicator,
+ * and custom keyboard type.
  */
 @Composable
 fun AlphaTextField(
@@ -38,6 +56,8 @@ fun AlphaTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     isPassword: Boolean = false,
+    leadingIcon: ImageVector? = null,
+    passwordStrength: PasswordStrength? = null,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -50,6 +70,9 @@ fun AlphaTextField(
             value = value,
             onValueChange = onValueChange,
             label = { Text(label) },
+            leadingIcon = leadingIcon?.let { icon ->
+                { Icon(imageVector = icon, contentDescription = null) }
+            },
             trailingIcon = if (isPassword) {
                 {
                     TextButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -74,6 +97,7 @@ fun AlphaTextField(
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 errorBorderColor = MaterialTheme.colorScheme.error,
                 cursorColor = MaterialTheme.colorScheme.primary,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
             ),
             modifier = Modifier.fillMaxWidth(),
         )
@@ -86,5 +110,43 @@ fun AlphaTextField(
                 modifier = Modifier.height(16.dp).padding(start = 4.dp),
             )
         }
+
+        if (isPassword && passwordStrength != null) {
+            PasswordStrengthBar(strength = passwordStrength)
+        }
+    }
+}
+
+@Composable
+private fun PasswordStrengthBar(strength: PasswordStrength) {
+    val (fraction, color, label) = when (strength) {
+        PasswordStrength.WEAK -> Triple(0.33f, MaterialTheme.colorScheme.error, "Débil")
+        PasswordStrength.MEDIUM -> Triple(0.66f, CoinGold, "Media")
+        PasswordStrength.STRONG -> Triple(1f, SuccessGreen, "Fuerte")
+    }
+
+    Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp, start = 4.dp, end = 4.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(2.dp),
+                ),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fraction)
+                    .height(4.dp)
+                    .background(color = color, shape = RoundedCornerShape(2.dp)),
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }

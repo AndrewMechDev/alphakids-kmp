@@ -1,22 +1,34 @@
 package org.alphakids.app.components
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.theme.RadiusFull
 
 /**
- * Primary button — filled, large, rounded.
+ * Primary button — filled, pill-shaped.
  * Use for main CTAs like "Continuar", "Crear mi cuenta".
+ *
+ * Darkens its container by ~10% while pressed to give tactile feedback.
  */
 @Composable
 fun AlphaPrimaryButton(
@@ -26,14 +38,24 @@ fun AlphaPrimaryButton(
     enabled: Boolean = true,
     isLoading: Boolean = false,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val containerColor = if (isPressed) {
+        MaterialTheme.colorScheme.primary.darken(0.1f)
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
     Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled && !isLoading,
-        shape = MaterialTheme.shapes.large,
+        shape = RadiusFull,
         contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp),
+        interactionSource = interactionSource,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = containerColor,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             disabledContainerColor = MaterialTheme.colorScheme.outline,
             disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
@@ -106,3 +128,40 @@ fun AlphaTextButton(
         )
     }
 }
+
+/**
+ * Circular icon button with a translucent white background and a Deep Navy icon.
+ * Use for compact actions like notifications or settings inside headers.
+ */
+@Composable
+fun AlphaIconButton(
+    icon: ImageVector,
+    onClick: () -> Unit,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier.size(40.dp),
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(24.dp),
+        )
+    }
+}
+
+/**
+ * Darkens a color by the given fraction (0f..1f), used for pressed-state feedback.
+ */
+private fun Color.darken(fraction: Float): Color = Color(
+    red = (red * (1f - fraction)).coerceIn(0f, 1f),
+    green = (green * (1f - fraction)).coerceIn(0f, 1f),
+    blue = (blue * (1f - fraction)).coerceIn(0f, 1f),
+    alpha = alpha,
+)

@@ -21,15 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.PrimaryBlue
-import org.alphakids.app.theme.PrimaryIndigo
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
@@ -142,9 +140,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             .fillMaxWidth()
                             .height(48.dp)
                             .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(PrimaryBlue, PrimaryIndigo),
-                                ),
+                                brush = AlphaGradients.angled(AlphaGradients.Nature),
                                 shape = RoundedCornerShape(14.dp),
                             ),
                         contentAlignment = Alignment.Center,
