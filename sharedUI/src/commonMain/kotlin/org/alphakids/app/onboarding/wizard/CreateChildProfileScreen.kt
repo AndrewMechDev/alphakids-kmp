@@ -54,7 +54,7 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.alphi_padre
+import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 /**
  * Step 2 of 5 — Create child profile screen.
@@ -99,8 +99,8 @@ fun CreateChildProfileScreen(
 
         // Alphi explaining profile creation
         Image(
-            painter = painterResource(Res.drawable.alphi_padre),
-            contentDescription = "Alphi Padre",
+            painter = painterResource(Res.drawable.alphi_anunciando),
+            contentDescription = "Alphi Profesor",
             modifier = Modifier.size(100.dp),
         )
 
