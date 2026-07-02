@@ -81,18 +81,19 @@ Vista 2 — Welcome Selection (bienvenida)
             ← 30s cooldown para reenviar código
             → OTP exitoso → SetupWizard → ... → AdventureHome 🏠
 
-AdventureHome 🏠 (5 tabs)
-  ├── Inicio 📊  — Dashboard con progreso, mascota activa, actividades
-  │   ← Back: dialogo "¿Salir de AlphaKids?"
-  ├── Diccionario 📖 — Cofre de palabras (A-Z, búsqueda, 43 palabras)
+AdventureHome 🏠 (4 tabs)
+  ├── Inicio 📊  — Bienvenida + accesos rápidos a Jugar, Tienda, Mascotas, Logros
   ├── Tienda 🛒  — Mascotas, Alimentos, Accesorios (compra con monedas)
-  ├── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
-  └── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo
+  ├── Mascotas 🐾 — Perfiles, estados, interacciones, desbloqueo por nivel
+  └── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
         └── ⚙️ Settings → Netflix de Perfiles 🎬
+               └── 🎮 Jugar → Escanear letras → 📷 Cámara + OCR → Resultado 🎉
 
-Parent Dashboard (2 tabs)
+Parent Dashboard (3 tabs)
   ├── Dashboard  — Resumen de todos los hijos
-  └── Hijos     — Detalle por hijo
+  ├── Hijos     — Detalle por hijo
+  └── Suscripción — Plan y beneficios
+       └── ⚙️ Gear menu → Soporte + Cerrar sesión
 
 ### Mejoras implementadas
 
@@ -129,7 +130,7 @@ Abrir iosApp/ en Xcode y compilar
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
 - ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 5 pasos)
-- ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Logros, Mascotas)
+- ✅ **Phase 2** — AdventureHome (4 tabs: Inicio, Tienda, Mascotas, Logros)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
 - ✅ **Welcome Selection** — Pantalla de bienvenida con 2 cards (tutor / registro)
