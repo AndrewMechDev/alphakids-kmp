@@ -45,6 +45,7 @@ import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.game.domain.repository.GameRepository
+import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
