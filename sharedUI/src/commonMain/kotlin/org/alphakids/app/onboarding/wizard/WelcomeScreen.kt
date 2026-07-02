@@ -1,5 +1,7 @@
 package org.alphakids.app.onboarding.wizard
 
+import org.alphakids.app.theme.AlphaGradients
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -164,32 +166,38 @@ fun WelcomeScreen(
         Card(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-            ),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                // Coins
-                StatRow(
-                    emoji = "\uD83E\uDE99",
-                    label = "Monedas iniciales",
-                    value = "50",
-                )
-                // Level
-                StatRow(
-                    emoji = "\u26A1",
-                    label = "Nivel",
-                    value = "Nivel 1",
-                )
-                // Rank
-                StatRow(
-                    emoji = "\uD83C\uDF31",
-                    label = "Rango",
-                    value = "Semillita",
-                )
+            Box(modifier = Modifier.background(
+                brush = AlphaGradients.angled(AlphaGradients.Magic),
+                shape = RoundedCornerShape(16.dp),
+            )) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Coins
+                    StatRow(
+                        emoji = "🪙",
+                        label = "Monedas iniciales",
+                        value = "50",
+                        textColor = Color.White
+                    )
+                    // Level
+                    StatRow(
+                        emoji = "⚡",
+                        label = "Nivel",
+                        value = "Nivel 1",
+                        textColor = Color.White
+                    )
+                    // Rank
+                    StatRow(
+                        emoji = "🌱",
+                        label = "Rango",
+                        value = "Semillita",
+                        textColor = Color.White
+                    )
+                }
             }
         }
 
@@ -274,6 +282,7 @@ private fun StatRow(
     emoji: String,
     label: String,
     value: String,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -284,13 +293,13 @@ private fun StatRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = textColor,
             modifier = Modifier.weight(1f),
         )
         Text(
             text = value,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = textColor,
             fontWeight = FontWeight.Bold,
         )
     }

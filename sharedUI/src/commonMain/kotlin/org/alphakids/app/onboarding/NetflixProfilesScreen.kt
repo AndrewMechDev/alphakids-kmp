@@ -45,6 +45,7 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.PrimaryBlue
 import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.AlphaGradients
 
 /**
  * Netflix-style profile selector shown after login.
@@ -181,62 +182,66 @@ private fun ProfileCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isAddButton)
-                MaterialTheme.colorScheme.surfaceVariant
-            else
-                MaterialTheme.colorScheme.surface,
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isAddButton) 0.dp else 4.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Avatar circle
-            Box(
+        Box(modifier = Modifier.background(
+            brush = if (isAddButton) {
+                androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.surfaceVariant)
+            } else {
+                AlphaGradients.angled(AlphaGradients.Magic.map { it.copy(alpha = 0.6f) })
+            },
+            shape = RoundedCornerShape(16.dp),
+        )) {
+            Column(
                 modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(
-                        color = if (isAddButton)
-                            MaterialTheme.colorScheme.surfaceVariant
-                        else
-                            bgColor.copy(alpha = 0.85f),
-                        shape = CircleShape,
-                    ),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // Avatar circle
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(CircleShape)
+                        .background(
+                            color = if (isAddButton)
+                                MaterialTheme.colorScheme.surfaceVariant
+                            else
+                                bgColor.copy(alpha = 0.85f),
+                            shape = CircleShape,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = emoji,
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Name
                 Text(
-                    text = emoji,
-                    style = MaterialTheme.typography.displaySmall,
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isAddButton) MaterialTheme.colorScheme.onSurface else Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Subtitle (level or role)
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isAddButton) MaterialTheme.colorScheme.onSurfaceVariant else Color.White.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center,
                 )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Name
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Subtitle (level or role)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }

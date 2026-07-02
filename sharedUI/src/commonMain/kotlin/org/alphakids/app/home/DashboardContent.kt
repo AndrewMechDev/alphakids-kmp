@@ -1,5 +1,7 @@
 package org.alphakids.app.home
 
+import org.alphakids.app.theme.AlphaGradients
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -105,31 +107,36 @@ fun DashboardContent(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(Res.drawable.alphi_anunciando),
-                    contentDescription = "Alphi",
-                    modifier = Modifier.size(56.dp),
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "¡Bienvenido de vuelta!",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+            Box(modifier = Modifier.background(
+                brush = AlphaGradients.angled(AlphaGradients.Adventure.map { it.copy(alpha = 0.8f) }),
+                shape = RoundedCornerShape(20.dp),
+            )) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.alphi_anunciando),
+                        contentDescription = "Alphi",
+                        modifier = Modifier.size(56.dp),
                     )
-                    Text(
-                        text = "¿Listo para aprender?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "¡Bienvenido de vuelta!",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = "¿Listo para aprender?",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+                    }
                 }
             }
         }
@@ -142,30 +149,35 @@ fun DashboardContent(
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "\uD83C\uDFAE",
-                    style = MaterialTheme.typography.displaySmall,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.background(
+                brush = AlphaGradients.angled(AlphaGradients.Nature),
+                shape = RoundedCornerShape(20.dp),
+            )) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        text = "¡A Jugar!",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        text = "🎮",
+                        style = MaterialTheme.typography.displaySmall,
                     )
-                    Text(
-                        text = "Escanea letras con la cámara",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "¡A Jugar!",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = "Escanea letras con la cámara",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+                    }
                 }
             }
         }
@@ -175,30 +187,35 @@ fun DashboardContent(
             onClick = onNavigateToDictionary,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "\uD83D\uDCD6",
-                    style = MaterialTheme.typography.displaySmall,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.background(
+                brush = AlphaGradients.angled(AlphaGradients.Magic),
+                shape = RoundedCornerShape(20.dp),
+            )) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        text = "Diccionario",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        text = "📖",
+                        style = MaterialTheme.typography.displaySmall,
                     )
-                    Text(
-                        text = "Descubre y aprende palabras nuevas",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Diccionario",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = "Descubre y aprende palabras nuevas",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+                    }
                 }
             }
         }

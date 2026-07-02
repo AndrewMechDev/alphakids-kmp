@@ -269,60 +269,63 @@ private fun WordDisplay(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Word image placeholder
-            Box(
+        Box(modifier = Modifier.background(
+            brush = AlphaGradients.angled(AlphaGradients.Reward),
+            shape = RoundedCornerShape(20.dp),
+        )) {
+            Row(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        brush = AlphaGradients.angled(AlphaGradients.Nature),
-                    ),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Word image placeholder
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = word.word.first().toString(),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = word.word,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        letterSpacing = 4.sp,
+                    )
+                    Text(
+                        text = word.hint,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.85f),
+                    )
+                }
+
+                // Difficulty badge
                 Text(
-                    text = word.word.first().toString(),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    text = when (word.difficulty) {
+                        "fácil" -> "🟢"
+                        "media" -> "🟡"
+                        "difícil" -> "🔴"
+                        else -> "⚪"
+                    },
+                    style = MaterialTheme.typography.titleLarge,
                 )
             }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = word.word,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    letterSpacing = 4.sp,
-                )
-                Text(
-                    text = word.hint,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            // Difficulty badge
-            Text(
-                text = when (word.difficulty) {
-                    "f\u00e1cil" -> "\uD83D\uDFE2"
-                    "media" -> "\uD83D\uDFE1"
-                    "dif\u00edcil" -> "\uD83D\uDD34"
-                    else -> "\u26AA"
-                },
-                style = MaterialTheme.typography.titleLarge,
-            )
         }
     }
 }

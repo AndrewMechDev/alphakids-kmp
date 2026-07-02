@@ -208,51 +208,55 @@ private fun ActivityCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Emoji icon
-            Box(
+        Box(modifier = Modifier.background(
+            brush = AlphaGradients.angled(AlphaGradients.Nature),
+            shape = RoundedCornerShape(20.dp),
+        )) {
+            Column(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(buttonColor.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // Emoji icon
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = emoji,
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Title
                 Text(
-                    text = emoji,
-                    style = MaterialTheme.typography.displaySmall,
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
                 )
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-            // Title
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-            )
+                // Description
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center,
+                )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Description
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = SlateGray,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
             // Rewards badge
             Row(
