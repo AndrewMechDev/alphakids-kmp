@@ -1,7 +1,10 @@
 package org.alphakids.app.onboarding.domain.model
 
 /**
- * Shared state for the 5-step onboarding wizard.
+ * Shared state for the 6-step onboarding wizard.
+ *
+ * [institutionId] and [institutionName] are set when the parent optionally
+ * assigns this child to a school during [WizardStep.AssignInstitution].
  */
 data class WizardData(
     val childName: String = "",
@@ -10,6 +13,9 @@ data class WizardData(
     val avatarStyle: String = "adventurer-neutral",
     val selectedPetId: String? = null,
     val petName: String = "",
+    val institutionId: String? = null,
+    val institutionName: String? = null,
+    val institutionSlug: String = "",
 ) {
     val isComplete: Boolean
         get() = childName.isNotBlank()
@@ -26,6 +32,7 @@ enum class WizardStep {
     SetupIntro,
     CreateChild,
     ChooseAvatar,
+    AssignInstitution,
     ChoosePet,
     Welcome;
 
