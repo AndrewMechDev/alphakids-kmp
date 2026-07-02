@@ -274,8 +274,8 @@ private fun WordDisplay(word: ChallengeWord) {
                     .background(
                         brush = Brush.horizontalGradient(
                             colors = listOf(
-                                Color(0xFF4FA8F0),
-                                Color(0xFF8B7CF6),
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary,
                             ),
                         ),
                     ),
