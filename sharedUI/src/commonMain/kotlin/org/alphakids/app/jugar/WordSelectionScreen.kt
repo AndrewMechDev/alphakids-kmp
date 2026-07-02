@@ -56,7 +56,7 @@ fun WordSelectionScreen(
     navController: NavController,
 ) {
     val gameRepo: GameRepository = remember { koinInject() }
-    val childId = SessionManager.currentChild?.id ?: ""
+    val childId = remember { SessionManager.currentChild?.id }
 
     var words by remember { mutableStateOf<List<WordDto>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -64,18 +64,24 @@ fun WordSelectionScreen(
     var flow by remember { mutableStateOf("") }
 
     LaunchedEffect(childId) {
-        if (childId.isNotBlank()) {
-            val result = gameRepo.getPlayableWords(childId)
-            if (result != null) {
-                words = result.words
-                flow = result.flow
+        try {
+            val id = childId
+            if (id != null && id.isNotBlank()) {
+                val result = gameRepo.getPlayableWords(id)
+                if (result != null) {
+                    words = result.words
+                    flow = result.flow
+                } else {
+                    error = "No se pudieron cargar las palabras. ¿Tienes conexión a internet?"
+                }
             } else {
-                error = "No se pudieron cargar las palabras"
+                error = "No hay un niño activo. Selecciona un perfil primero."
             }
-        } else {
-            error = "No hay un niño activo"
+        } catch (e: Exception) {
+            error = "Error inesperado: ${e.message ?: "Intenta de nuevo"}"
+        } finally {
+            isLoading = false
         }
-        isLoading = false
     }
 
     Column(
