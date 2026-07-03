@@ -144,7 +144,8 @@ fun WordScannerChallenge(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
                 ),
             )
         },
@@ -216,12 +217,12 @@ fun WordScannerChallenge(
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         text = "Escaneando...",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                     )
                 }
             }
@@ -305,7 +306,7 @@ private fun WordHintSection(word: ChallengeWord) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.15f),
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -350,13 +351,13 @@ private fun WordHintSection(word: ChallengeWord) {
                     text = word.hint,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${word.word.length} letras",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -386,7 +387,7 @@ private fun LetterSlotsRow(
                         color = if (letter.isNotEmpty())
                             MaterialTheme.colorScheme.primaryContainer
                         else
-                            Color.White.copy(alpha = 0.15f),
+                            MaterialTheme.colorScheme.surface,
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -401,7 +402,7 @@ private fun LetterSlotsRow(
                     Text(
                         text = "_",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -419,7 +420,7 @@ private fun AlphiHint() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Color.White.copy(alpha = 0.12f),
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(14.dp),
             )
             .padding(14.dp),
@@ -434,7 +435,7 @@ private fun AlphiHint() {
         Text(
             text = "Busca las letras y ordénalas",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.9f),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
         )
     }
