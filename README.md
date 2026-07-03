@@ -107,15 +107,17 @@ AdventureHome 🏠 (3 tabs + Diccionario overlay)
         │
         ├── Mascotas 🐾 — Perfiles + desbloqueo por nivel
         │
-        ├── Diccionario overlay (scroll-sync A–Z)
-        │  ┌────────────────────────────────────┐
-        │  │  A│ 🔍 Buscar palabra...           │
-        │  │  B│ ┌─────────┐ ┌─────────┐      │
-        │  │  C│ │ Casa    │ │  Perro  │      │
-        │  │  D│ └─────────┘ └─────────┘      │
-        │  │  E│ [Fácil] [Media] [Difícil]    │
-        │  │  ..│ Grid responsive + detalle     │
-        │  └────────────────────────────────────┘
+        ├── Diccionario overlay (scroll-sync A–Z + imágenes + audio)
+        │  ┌──────────────────────────────────────────┐
+        │  │  A│ 🔍 Buscar palabra...                 │
+        │  │  B│ ┌──────────┐ ┌──────────┐           │
+        │  │  C│ │ 🖼️ Casa │ │ 🖼️ Perro │ 🔊       │
+        │  │  D│ └──────────┘ └──────────┘           │
+        │  │  E│ [Fácil] [Media] [Difícil]            │
+        │  │  ..│ Grid responsive + imagen + audio    │
+        │  │     Detalle: imagen grande + 🔊 play    │
+        │  │     Palabras: jugables + aprendidas API  │
+        │  └──────────────────────────────────────────┘
         │
         └── 🎮 Jugar → LearningAdventureHub
            ┌────────────────────────────────────┐
@@ -194,6 +196,10 @@ Parent Dashboard (3 tabs) 🧑‍👩‍👧‍👦
 | 🎮 | **Hub de Juegos** | Alphi grande sin card, cards con gradientes, diseño minimalista | F5 |
 | 📖 | **Selector de Palabras** | LazyVerticalGrid con gradientes, imágenes de referencia, responsive | F5 |
 | 📷 | **Escáner de Letras** | UI simplificada, sin MetricsRow, AlphiHint renovado, colores circadian | F6 |
+| 🖼️ | **Imágenes en Diccionario** | Muestra imagen asignada por el profesor vía API en cada palabra | F7 |
+| 🔊 | **Audio en Diccionario** | Botón de reproducción en cada palabra con audioUrl de la API (36-40dp) | F7 |
+| 📖 | **Diccionario API** | Merge de palabras jugables + palabras aprendidas del endpoint dictionary | F7 |
+| 🎉 | **Imagen en Resultado** | OCRResultScreen muestra la imagen real de la palabra completada | F7 |
 
 ## Comandos
 
@@ -237,6 +243,10 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **GameSessionState** — Singleton para pasar palabra API → juego → resultado
 - ✅ **POST /game-sessions/complete** — Reporta resultados al API con coins y stars
 - ✅ **Scroll-sync alphabet** — Navegador A–Z sincronizado con scroll progresivo (Apple Wheel style)
+- ✅ **Imágenes en Diccionario** — Muestra imagen asignada vía API (AsyncImage) en grid y detalle
+- ✅ **Audio en Diccionario** — Botón 🔊 con playUrl() para reproducir audio de cada palabra
+- ✅ **Diccionario combinado API** — Merge de playable-words + dictionary endpoint, palabras aprendidas desde el servidor
+- ✅ **Imagen en OCRResult** — Pantalla de resultado muestra la imagen real de la palabra escaneada
 - ✅ **Koin modules registrados** — gameModule, storeModule, studentPetModule en AlphaKidsApp
 - ✅ **Background circadian** — Todas las pantallas con imagen de fondo día/tarde/noche
 - ✅ **Tokens circadian sin hardcode** — Todos los `Color.White` reemplazados por theme tokens
