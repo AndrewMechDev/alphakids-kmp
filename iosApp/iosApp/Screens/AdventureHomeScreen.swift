@@ -436,26 +436,8 @@ struct AdventureHomeScreen: View {
     ///       Contains its own sub-tabs: Mascotas, Alimentos, Accesorios.
     /// TODO: Replace SF Symbol "cart.fill" with custom brand icon.
     private var tiendaTab: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            Text("🛒 Tienda")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-
-            Text("Compra items para tus mascotas")
-                .font(.body)
-                .foregroundColor(.white.opacity(0.6))
-
-            // TODO: Add coin balance header
-            // TODO: Add category tabs (Mascotas, Alimentos, Accesorios)
-            // TODO: Add product grid with StoreItem cards
-            // TODO: Add purchase confirmation dialog
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        StoreScreen()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     /// Tab 3: Mascotas (Pets)
@@ -468,27 +450,8 @@ struct AdventureHomeScreen: View {
     ///       Will embed StoreScreen as a sub-tab once implemented.
     /// TODO: Replace SF Symbol "pawprint.fill" with custom brand icon.
     private var mascotasTab: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            Text("🐾 Mascotas")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-
-            Text("Cuida y alimenta a tus mascotas")
-                .font(.body)
-                .foregroundColor(.white.opacity(0.6))
-
-            // TODO: Add active pet card with large image
-            // TODO: Add hunger/happiness/energy stat bars
-            // TODO: Add feed/play/interact action buttons
-            // TODO: Add sub-tab bar (Mis Mascotas / Tienda)
-            // TODO: Add locked pet cards with level requirements
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        PetsScreen()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     /// Tab 4: Logros (Achievements)
@@ -500,27 +463,8 @@ struct AdventureHomeScreen: View {
     ///       Estadísticas, Historial.
     /// TODO: Replace SF Symbol "trophy.fill" with custom brand icon.
     private var logrosTab: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            Text("🏆 Logros")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-
-            Text("Tus rangos, trofeos y estadísticas")
-                .font(.body)
-                .foregroundColor(.white.opacity(0.6))
-
-            // TODO: Add sub-tab bar (Rangos, Trofeos, Estadísticas, Historial)
-            // TODO: Add current rank card with XP progress bar
-            // TODO: Add trophy grid with unlock progress
-            // TODO: Add stat cards (words learned, OCR completed, time played, etc.)
-            // TODO: Add history timeline
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        AchievementsScreen()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

@@ -61,6 +61,16 @@ struct NetflixProfilesScreen: View {
                         .foregroundColor(.white)
                     }
                     Spacer()
+                    Button {
+                        path.append(AppRoute.parentDashboard)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.fill")
+                            Text("Padre")
+                        }
+                        .font(.body.weight(.medium))
+                        .foregroundColor(.white)
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 16)

@@ -104,25 +104,56 @@ extension GameRepositoryAsync {
         }
     }
 
-    // MARK: - Placeholders (not used by DashboardContent)
+    // MARK: - completeSession()
 
-    // completeSession(request:) — POST /game-sessions/complete
-    //   Purpose: Submits a completed game session (OCR scan or speech spell)
-    //   and returns updated progress + summary. Needed for the game screens
-    //   (LearningAdventureHub and related), NOT for the dashboard.
-    //
-    //   Kotlin signature:
-    //     suspend fun completeSession(request: GameSessionCompleteRequestDto): GameSessionResultDto?
-    //
-    //   static func completeSession(
-    //       studentId: String,
-    //       wordId: String?,
-    //       gameType: String,
-    //       status: String,
-    //       attempts: Int,
-    //       coinsEarned: Int,
-    //       starsEarned: Int
-    //   ) async throws -> SharedLogic.GameSessionResultDto { ... }
+    /// Swift async wrapper for `GameRepository.completeSession(request:)`.
+    /// Returns `nil` when the Kotlin call yields a nil result (no error).
+    static func completeSession(
+        studentId: String,
+        wordId: String?,
+        gameType: String,
+        status: String,
+        attempts: Int32,
+        coinsEarned: Int32,
+        starsEarned: Int32
+    ) async throws -> SharedLogic.GameSessionResultDto? {
+        let request = SharedLogic.GameSessionCompleteRequestDto(
+            studentId: studentId,
+            wordId: wordId,
+            gameType: gameType,
+            status: status,
+            attempts: Int32(attempts),
+            coinsEarned: Int32(coinsEarned),
+            starsEarned: Int32(starsEarned),
+            metrics: [:]
+        )
+
+        return try await withCheckedThrowingContinuation { continuation in
+            repository.completeSession(request: request) { result, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: result)
+                }
+            }
+        }
+    }
+
+    // MARK: - getAchievements()
+
+    /// Swift async wrapper for `GameRepository.getAchievements(studentId:)`.
+    /// Returns `nil` when the Kotlin call yields a nil result (no error).
+    static func getAchievements(studentId: String) async throws -> SharedLogic.AchievementsResponseDto? {
+        return try await withCheckedThrowingContinuation { continuation in
+            repository.getAchievements(studentId: studentId) { result, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: result)
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Namespace

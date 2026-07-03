@@ -9,7 +9,9 @@ import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.di.parentModule
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.store.di.storeModule
+import org.alphakids.app.store.domain.repository.StoreRepository
 import org.alphakids.app.studentpet.di.studentPetModule
+import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 
 /**
  * Singleton holding the initialized Koin instance for iOS Swift access.
@@ -57,3 +59,5 @@ fun doInitKoin() {
 fun getAuthRepository(): AuthRepository = AppKoin.koin.get()
 fun getGameRepository(): GameRepository = AppKoin.koin.get()
 fun getParentRepository(): ParentRepository = AppKoin.koin.get()
+fun getStoreRepository(): StoreRepository = AppKoin.koin.get()
+fun getStudentPetRepository(): StudentPetRepository = AppKoin.koin.get()

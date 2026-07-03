@@ -11,6 +11,13 @@ enum AppRoute: Hashable {
     case netflixProfiles
     case adventureHome
     case learningAdventureHub
+    case wizard
+    case wordSelection
+    case wordScannerChallenge
+    case ocrResult(attempts: Int32, time: Int32, wordText: String)
+    case parentDashboard
+    case parentChildDetail(String)
+    case parentSupport
 }
 
 // MARK: - Navigation Root
@@ -34,48 +41,23 @@ struct ContentView: View {
                     case .adventureHome:
                         AdventureHomeScreen(path: $path)
                     case .learningAdventureHub:
-                        LearningAdventureHubPlaceholderView()
+                        LearningAdventureHubScreen(path: $path)
+                    case .wizard:
+                        WizardContainerView(path: $path)
+                    case .wordSelection:
+                        WordSelectionScreen(path: $path)
+                    case .wordScannerChallenge:
+                        WordScannerChallengeScreen(path: $path)
+                    case .ocrResult(let attempts, let time, let wordText):
+                        OCRResultScreenView(path: $path, attempts: attempts, time: time, wordText: wordText)
+                    case .parentDashboard:
+                        ParentDashboardScreen(path: $path)
+                    case .parentChildDetail(let childId):
+                        ChildDetailScreen(path: $path, childId: childId)
+                    case .parentSupport:
+                        SupportScreen(path: $path)
                     }
                 }
-        }
-    }
-}
-
-// MARK: - LearningAdventureHub Placeholder
-
-/// Placeholder screen for the LearningAdventureHub route.
-/// This will be replaced with the real implementation when built.
-struct LearningAdventureHubPlaceholderView: View {
-
-    private let gradientStart = Color(red: 0.31, green: 0.66, blue: 0.94) // #4FA8F0
-    private let gradientEnd   = Color(red: 0.79, green: 0.73, blue: 0.96) // #C9B8F5
-
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [gradientStart, gradientEnd]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            VStack(spacing: 16) {
-                Spacer()
-
-                Text("🎮")
-                    .font(.system(size: 64))
-
-                Text("LearningAdventureHub")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                Text("Próximamente")
-                    .font(.title3)
-                    .foregroundColor(.white.opacity(0.6))
-
-                Spacer()
-            }
         }
     }
 }
