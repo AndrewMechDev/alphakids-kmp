@@ -2,6 +2,8 @@ package org.alphakids.app.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -45,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import androidx.compose.ui.Alignment
@@ -176,7 +178,7 @@ fun DictionaryScreen(
         }
     }
 
-    val availableLetters = remember {
+    val availableLetters = remember(fetchedWords) {
         fetchedWords.map { it.word.first().uppercaseChar() }.distinct().sorted()
     }
 
@@ -197,8 +199,13 @@ fun DictionaryScreen(
             if (selectedWord != null) {
                 selectedWord!!.word.first().uppercaseChar()
             } else {
-                val idx = gridState.firstVisibleItemIndex
-                filteredWords.getOrNull(idx)?.word?.firstOrNull()?.uppercaseChar()
+                val layoutInfo = gridState.layoutInfo
+                val viewportCenter = layoutInfo.viewportSize.height / 2
+                val centerItem = layoutInfo.visibleItemsInfo.minByOrNull { itemInfo ->
+                    abs((itemInfo.offset.y + itemInfo.size.height / 2) - viewportCenter)
+                }
+                val centerIndex = centerItem?.index ?: gridState.firstVisibleItemIndex
+                filteredWords.getOrNull(centerIndex)?.word?.firstOrNull()?.uppercaseChar()
             }
         }
     }
@@ -302,14 +309,10 @@ fun DictionaryScreen(
 
 // ── Alphabet Navigation Sidebar ──
 //
-// Optimised for child-friendly use:
-// - Active letter is visually prominent (larger, coloured pill, scale animation)
-// - Available letters are tappable with medium weight
-// - Unavailable letters are dimmed (light weight, outline colour)
-// - Each letter is centred in a fixed‑height cell so the column stays aligned
+// Apple Wheel Picker–inspired: fixed layout, continuous interpolation,
+// progressive scale/opacity/weight, drag + tap gesture support.
 
-private val ALPHABET_CELL_HEIGHT = 22.dp
-private val ALPHABET_COLUMN_WIDTH = 42.dp
+private val ALPHABET_COLUMN_WIDTH = 36.dp
 
 @Composable
 private fun AlphabetNavColumn(
@@ -318,117 +321,107 @@ private fun AlphabetNavColumn(
     onLetterSelected: (Char) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val alphabet = remember { ('A'..'Z').toList() }
+    val activeIndex = remember(activeLetter) {
+        activeLetter?.let { alphabet.indexOf(it) } ?: -1
+    }
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val outlineColor = MaterialTheme.colorScheme.outline
+
     Column(
         modifier = modifier
             .width(ALPHABET_COLUMN_WIDTH)
             .fillMaxHeight()
-            .verticalScroll(rememberScrollState())
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
-            ),
+            .padding(vertical = 4.dp)
+            .pointerInput(availableLetters) {
+                detectTapGestures { offset ->
+                    val cellHeight = size.height.toFloat() / alphabet.size
+                    val index = (offset.y / cellHeight)
+                        .toInt()
+                        .coerceIn(0, alphabet.lastIndex)
+                    val letter = alphabet[index]
+                    if (letter in availableLetters) onLetterSelected(letter)
+                }
+            }
+            .pointerInput(availableLetters) {
+                detectVerticalDragGestures { change, _ ->
+                    val cellHeight = size.height.toFloat() / alphabet.size
+                    val index = (change.position.y / cellHeight)
+                        .toInt()
+                        .coerceIn(0, alphabet.lastIndex)
+                    val letter = alphabet[index]
+                    if (letter in availableLetters) onLetterSelected(letter)
+                    change.consume()
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(4.dp))
-        val alphabet = ('A'..'Z').toList()
-        alphabet.forEach { letter ->
+        alphabet.forEachIndexed { index, letter ->
             val isAvailable = letter in availableLetters
-            val isActive = letter == activeLetter
-            val distance = if (activeLetter != null) {
-                abs(alphabet.indexOf(letter) - alphabet.indexOf(activeLetter))
-            } else {
-                if (isActive) 0 else 3
-            }
+            val rawDistance = if (activeIndex >= 0) abs(index - activeIndex).toFloat() else 4f
 
-            // Animated scale based on distance
-            val targetScale = when {
-                distance == 0 -> 1.7f
-                distance == 1 -> 1.3f
-                distance == 2 -> 1.1f
-                else -> 0.85f
-            }
-            
+            val targetScale = smoothLerp(1.55f, 0.8f, rawDistance / 3.5f)
             val scale by animateFloatAsState(
                 targetValue = targetScale,
                 animationSpec = spring(
-                    dampingRatio = 0.6f,
-                    stiffness = Spring.StiffnessMediumLow,
+                    dampingRatio = 0.7f,
+                    stiffness = Spring.StiffnessLow,
                 ),
                 label = "scale_$letter",
             )
-            
-            val targetOpacity = when {
-                distance == 0 -> 1f
-                distance == 1 -> 0.8f
-                distance == 2 -> 0.6f
-                else -> 0.4f
-            }
+
+            val targetOpacity = if (isAvailable) {
+                smoothLerp(1f, 0.3f, rawDistance / 3.5f)
+            } else 0.2f
             val opacity by animateFloatAsState(
                 targetValue = targetOpacity,
                 animationSpec = spring(
-                    dampingRatio = 0.6f,
-                    stiffness = Spring.StiffnessMediumLow,
+                    dampingRatio = 0.7f,
+                    stiffness = Spring.StiffnessLow,
                 ),
                 label = "opacity_$letter",
             )
 
+            val fontWeight = when {
+                rawDistance < 0.5f -> FontWeight.ExtraBold
+                rawDistance < 1.5f -> FontWeight.Bold
+                rawDistance < 2.5f -> FontWeight.Medium
+                else -> FontWeight.Normal
+            }
+
+            val textColor = when {
+                rawDistance < 0.5f -> primaryColor
+                isAvailable -> onSurfaceColor
+                else -> outlineColor
+            }
+
             Box(
                 modifier = Modifier
-                    .size(
-                        width = ALPHABET_COLUMN_WIDTH,
-                        height = ALPHABET_CELL_HEIGHT,
-                    ),
+                    .weight(1f)
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier
-                        .graphicsLayer(
-                            scaleX = scale, 
-                            scaleY = scale,
-                            alpha = if (isAvailable) opacity else 0.3f,
-                            shadowElevation = if (isActive) 12f else 0f,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .then(
-                            if (isAvailable) Modifier.clickable(
-                                onClick = { onLetterSelected(letter) }
-                            ) else Modifier
-                        )
-                        .background(
-                            color = when {
-                                isActive -> MaterialTheme.colorScheme.primary
-                                isAvailable && !isActive ->
-                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                                else -> Color.Transparent
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                        )
-                        .padding(horizontal = 4.dp, vertical = 2.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = letter.toString(),
-                        style = if (isActive) MaterialTheme.typography.titleSmall
-                        else MaterialTheme.typography.labelMedium,
-                        fontWeight = when {
-                            distance == 0 -> FontWeight.Black
-                            distance == 1 -> FontWeight.SemiBold
-                            distance == 2 -> FontWeight.Medium
-                            else -> FontWeight.Light
-                        },
-                        color = when {
-                            isActive -> MaterialTheme.colorScheme.onPrimary
-                            isAvailable -> MaterialTheme.colorScheme.onSurface
-                            else -> MaterialTheme.colorScheme.outline
-                        },
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                Text(
+                    text = letter.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = fontWeight,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = opacity
+                    },
+                )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
     }
 }
+
+private fun smoothLerp(start: Float, stop: Float, fraction: Float): Float =
+    start + (stop - start) * fraction.coerceIn(0f, 1f)
 
 // ── Search Bar ──
 
