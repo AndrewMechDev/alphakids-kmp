@@ -39,6 +39,16 @@ extension AuthRepositoryAsync {
 
     /// Swift async wrapper for `AuthRepository.login(request:)`.
     ///
+    /// Relies on Ktor's built-in `HttpTimeout` plugin (30s request, 10s connect)
+    /// for timeout enforcement — same as Android. No additional client-side
+    /// timeout is added because `withThrowingTaskGroup` cannot abort a hanging
+    /// `withCheckedThrowingContinuation` (the continuation does not respond to
+    /// cooperative cancellation, so the task group blocks forever).
+    ///
+    /// If the call hangs on a physical device, the root cause is almost certainly
+    /// a TLS rejection by ATS — see `Info.plist` for `NSAppTransportSecurity`
+    /// diagnostics.
+    ///
     /// - Parameters:
     ///   - email: User's email address.
     ///   - password: User's password.
@@ -190,9 +200,37 @@ extension AuthRepositoryAsync {
         }
     }
 
+    // MARK: - isLoggedIn()
+
+    /// Swift async wrapper for `AuthRepository.isLoggedIn()`.
+    ///
+    /// Used by SplashScreen to decide whether to skip login when the user
+    /// already has a valid token in `TokenStorage`.
+    ///
+    /// - Returns: `true` if `TokenStorage.accessToken` is non-null.
+    /// - Throws: An `NSError` if the Kotlin/Native call fails.
+    static func isLoggedIn() async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            repository.isLoggedIn { result, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let result = result {
+                    continuation.resume(returning: (result as? NSNumber)?.boolValue ?? false)
+                } else {
+                    continuation.resume(
+                        throwing: NSError(
+                            domain: "AuthRepository",
+                            code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "isLoggedIn() returned nil result and nil error"]
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     // MARK: - Placeholders (implement when needed)
 
-    //    static func isLoggedIn() async throws -> Bool { ... }
     //    static func logout() async throws { ... }
 }
 

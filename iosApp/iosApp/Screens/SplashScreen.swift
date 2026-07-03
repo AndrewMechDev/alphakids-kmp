@@ -1,4 +1,5 @@
 import SwiftUI
+import SharedLogic
 
 /// AlphaKids Splash Screen — 100% native SwiftUI, no sharedUI dependencies.
 ///
@@ -11,6 +12,7 @@ struct SplashScreen: View {
     @Binding var path: NavigationPath
 
     @State private var contentVisible = false
+    @State private var destination: AppRoute?
 
     // MARK: - Brand Colors
 
@@ -62,13 +64,22 @@ struct SplashScreen: View {
                 contentVisible = true
             }
 
-            // Auto-navigate to Login after 2 seconds.
-            // The Compose version uses 2.5s with a session check;
-            // iOS starts with a fixed timer — session check can be added
-            // once AuthRepository is wired via Koin.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                path.append(AppRoute.login)
+            // After 2.5s (matching Android's `delay(2500L)`), check auth state
+            // and decide whether to skip to profiles or show login.
+            Task {
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+
+                let isLoggedIn = (try? await AuthRepositoryAsync.isLoggedIn()) ?? false
+                if isLoggedIn {
+                    destination = .netflixProfiles
+                } else {
+                    destination = .login
+                }
             }
+        }
+        .onChange(of: destination) { _, newValue in
+            guard let route = newValue else { return }
+            path.append(route)
         }
     }
 
