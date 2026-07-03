@@ -114,7 +114,7 @@ fun DashboardContent(
             text = "¡Bienvenido de vuelta, ${state.childName.split(" ").first()}!",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         // Alphi mascot — directly on background, bigger

@@ -124,7 +124,7 @@ fun WordSelectionScreen(
                     text = "Elige una palabra",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
             }
 
@@ -141,7 +141,7 @@ fun WordSelectionScreen(
                     Text(
                         text = "Palabras asignadas por tu profesor",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -154,7 +154,7 @@ fun WordSelectionScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(color = Color.White)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 error != null -> {
@@ -165,7 +165,7 @@ fun WordSelectionScreen(
                         Text(
                             text = error!!,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -178,7 +178,7 @@ fun WordSelectionScreen(
                         Text(
                             text = "No hay palabras disponibles por ahora",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                             textAlign = TextAlign.Center,
                         )
                     }
