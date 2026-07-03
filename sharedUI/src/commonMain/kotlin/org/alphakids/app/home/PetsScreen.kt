@@ -385,17 +385,21 @@ private fun MisMascotasContent(
         if (lockedPets.isNotEmpty()) {
             SectionHeader(text = "Bloqueadas")
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            // Grid layout for locked pets (centered)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                lockedPets.forEach { pet ->
-                    LockedPetCard(
-                        pet = pet,
-                        childLevel = childLevel,
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    lockedPets.forEach { pet ->
+                        LockedPetCard(
+                            pet = pet,
+                            childLevel = childLevel,
+                        )
+                    }
                 }
             }
         }
@@ -741,60 +745,60 @@ private fun LockedPetCard(
     childLevel: Int,
 ) {
     Card(
-        modifier = Modifier.width(140.dp),
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.width(150.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Greyed-out image
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .alpha(0.35f),
+                    .size(64.dp)
+                    .alpha(0.5f),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
                     painter = painterResource(petImageResource(pet.id)),
                     contentDescription = pet.name,
-                    modifier = Modifier.size(56.dp),
+                    modifier = Modifier.size(64.dp),
                 )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Greyed name
             Text(
                 text = pet.name,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Lock indicator + level requirement
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                    .padding(horizontal = 10.dp, vertical = 5.dp),
             ) {
                 Text(
                     text = "\uD83D\uDD12 Nivel ${pet.unlockLevel}",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

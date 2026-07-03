@@ -82,14 +82,14 @@ Vista 2 — Welcome Selection (bienvenida)
             └─────────────────────────────────┘
              → AdventureHome 🏠
 
-AdventureHome 🏠 (3 tabs + Diccionario overlay)
-  ┌──────────────────────────────────────────────┐
-  │  Header: Avatar circular + nombre + nivel    │
-  │  ┌──────┬────────┬────────┐                  │
-  │  │ 📊  │ 🛒    │ 🐾    │                  │
-  │  │Inicio│ Tienda│Mascotas│                  │
-  │  └──────┴────────┴────────┘                  │
-  └──────────────────────────────────────────────┘
+AdventureHome 🏠 (5 tabs + Diccionario overlay)
+  ┌──────────────────────────────────────────────────────┐
+  │  Header: Avatar circular + nombre + nivel            │
+  │  ┌──────┬────────┬────────┬────────┬────────┐       │
+  │  │ 📊  │ 🛒    │ 🐾    │ 🏆    │       │       │
+  │  │Inicio│ Tienda│Mascotas│ Logros │       │       │
+  │  └──────┴────────┴────────┴────────┴────────┘       │
+  └──────────────────────────────────────────────────────┘
         │
         ├── Inicio 📊
         │  ┌────────────────────────────────────┐
@@ -101,11 +101,20 @@ AdventureHome 🏠 (3 tabs + Diccionario overlay)
         │  │  └─────────┘ └─────────┘          │
         │  │  Cards de actividad (mismo tamaño) │
         │  │  Progreso: palabras, racha, nivel  │
+        │  │  Monedas: GameProgressManager      │
         │  └────────────────────────────────────┘
         │
         ├── Tienda 🛒 — Mascotas, alimentos, accesorios
+        │   Inventario: GameProgressManager.inventory
         │
         ├── Mascotas 🐾 — Perfiles + desbloqueo por nivel
+        │
+        ├── Logros 🏆 — 4 sub-tabs:
+        │   ├── Rangos: nivel actual + XP + todos los rangos
+        │   ├── Trofeos: grid de logros con progreso dinámico
+        │   ├── Estadísticas: palabras, partidas, tiempo, monedas
+        │   └── Historial: timeline de actividad reciente en vivo
+        │   Datos: API GET /students/:id/achievements + fallback local
         │
         ├── Diccionario overlay (scroll-sync A–Z + imágenes + audio)
         │  ┌──────────────────────────────────────────┐
@@ -141,16 +150,18 @@ AdventureHome 🏠 (3 tabs + Diccionario overlay)
            │   Uso de LazyVerticalGrid + imágenes
            │
            ▼
-           WordScannerChallenge 📷
-           ├── TopAppBar + header circadian
-           ├── Imagen referencia (Cloudinary)
-           ├── Letter slots (diseño simplificado)
-           ├── Cámara + OCR (ML Kit)
-           ├── AlphiHint estilo Apple
-           └── Éxito → OCRResult 🎉
-                 ├── POST /game-sessions/complete
-                 ├── "Seguir jugando" → WordSelection
-                 └── "Repetir" → misma palabra
+            WordScannerChallenge 📷
+            ├── TopAppBar + header circadian
+            ├── Imagen referencia (Cloudinary)
+            ├── Letter slots (diseño simplificado)
+            ├── Cámara + OCR (ML Kit)
+            ├── AlphiHint estilo Apple
+            └── Éxito → OCRResult 🎉
+                  ├── POST /game-sessions/complete (API best-effort)
+                  ├── GameProgressManager.addCoins() + completeWord()
+                  ├── AchievementAnalytics.trackSessionCompleted()
+                  ├── "Seguir jugando" → WordSelection
+                  └── "Repetir" → misma palabra
 
 Parent Dashboard (3 tabs) 🧑‍👩‍👧‍👦
   ┌──────────────────────────────────────────────┐
@@ -200,6 +211,9 @@ Parent Dashboard (3 tabs) 🧑‍👩‍👧‍👦
 | 🔊 | **Audio en Diccionario** | Botón de reproducción en cada palabra con audioUrl de la API (36-40dp) | F7 |
 | 📖 | **Diccionario API** | Merge de palabras jugables + palabras aprendidas del endpoint dictionary | F7 |
 | 🎉 | **Imagen en Resultado** | OCRResultScreen muestra la imagen real de la palabra completada | F7 |
+| 🏆 | **Logros API + Analytics** | AchievementsScreen con 4 sub-tabs (Rangos/Trofeos/Estad\u00EDsticas/Historial), datos desde GET /students/:id/achievements con fallback offline, analytics en vivo v\u00EDa AchievementAnalytics | F8 |
+| \uD83E\uDE99 | **GameProgressManager** | Estado de monedas, inventario y progreso persistente en toda la sesi\u00F3n. OCRResultScreen actualiza coins + words + stars. HomeViewModel y StoreScreen consumen del mismo manager. | F8 |
+| \uD83D\uDED2 | **Inventario persistente** | Las compras en la Tienda sobreviven al cambiar de pesta\u00F1a gracias a GameProgressManager.inventory | F8 |
 
 ## Comandos
 
@@ -250,8 +264,13 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Koin modules registrados** — gameModule, storeModule, studentPetModule en AlphaKidsApp
 - ✅ **Background circadian** — Todas las pantallas con imagen de fondo día/tarde/noche
 - ✅ **Tokens circadian sin hardcode** — Todos los `Color.White` reemplazados por theme tokens
+- ✅ **Logros API + Analytics** — AchievementsScreen con ViewModel, 4 sub-tabs, datos API con fallback offline
+- ✅ **GameProgressManager** — Monedas, inventario y progreso compartido entre OCR, Store, Dashboard y Logros
+- ✅ **Session-persistent inventory** — Compras en Tienda persisten al cambiar de pestaña
+- ✅ **AchievementAnalytics** — Eventos de juego trackeados in-memory para historial en vivo
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
+- ⏳ **iOS (SwiftUI)** — Próxima fase
 - ⏳ **iOS (SwiftUI)** — Próxima fase

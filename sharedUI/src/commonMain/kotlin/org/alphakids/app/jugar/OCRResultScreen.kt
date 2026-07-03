@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import org.alphakids.app.analytics.AchievementAnalytics
 import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
@@ -50,6 +51,7 @@ import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.SuccessGreen
@@ -88,19 +90,49 @@ fun OCRResultScreen(
     val gameRepo: GameRepository = remember { koinInject() }
     val studentId = org.alphakids.app.parent.domain.model.SessionManager.currentChild?.id
     val apiWordId = org.alphakids.app.game.domain.model.GameSessionState.currentWordId
+    val wordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
     LaunchedEffect(Unit) {
-        if (studentId != null && studentId.isNotBlank()) {
-            gameRepo.completeSession(
-                GameSessionCompleteRequestDto(
-                    studentId = studentId,
-                    wordId = apiWordId.ifBlank { null },
-                    gameType = "OCR_SCAN",
-                    status = "COMPLETED",
-                    attempts = attempts,
-                    coinsEarned = rewards.coins,
-                    starsEarned = rewards.stars,
-                )
+        // 1. Always update local session state (works offline)
+        GameProgressManager.addCoins(rewards.coins)
+        GameProgressManager.completeWord(rewards.stars)
+
+        // 2. Track analytics for achievements / history
+        AchievementAnalytics.trackSessionCompleted(
+            gameType = "OCR_SCAN",
+            wordId = apiWordId.ifBlank { "wordbank" },
+            status = "COMPLETED",
+            attempts = attempts,
+        )
+        AchievementAnalytics.trackWordCompleted(
+            wordId = apiWordId.ifBlank { "wordbank" },
+            wordText = wordText.ifBlank { word.word },
+            attempts = attempts,
+            coins = rewards.coins,
+        )
+        if (rewards.stars > 0) {
+            AchievementAnalytics.trackStarsEarned(
+                amount = rewards.stars,
+                source = wordText.ifBlank { word.word },
             )
+        }
+
+        // 3. Try API sync (best-effort, non-blocking)
+        if (studentId != null && studentId.isNotBlank()) {
+            try {
+                gameRepo.completeSession(
+                    GameSessionCompleteRequestDto(
+                        studentId = studentId,
+                        wordId = apiWordId.ifBlank { null },
+                        gameType = "OCR_SCAN",
+                        status = "COMPLETED",
+                        attempts = attempts,
+                        coinsEarned = rewards.coins,
+                        starsEarned = rewards.stars,
+                    )
+                )
+            } catch (_: Exception) {
+                // API sync is best-effort — local state is already updated
+            }
         }
     }
 
@@ -322,32 +354,15 @@ private fun WordDisplay(word: ChallengeWord) {
                     }
                 }
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(20.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = word.word,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        letterSpacing = 4.sp,
-                    )
-                    Text(
-                        text = word.hint,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.85f),
-                    )
-                }
-
-                // Difficulty badge
                 Text(
-                    text = when (word.difficulty) {
-                        "fácil" -> "🟢"
-                        "media" -> "🟡"
-                        "difícil" -> "🔴"
-                        else -> "⚪"
-                    },
-                    style = MaterialTheme.typography.titleLarge,
+                    text = word.word,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    letterSpacing = 6.sp,
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,10 +30,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.TimePeriod
+import org.alphakids.app.theme.currentTimePeriod
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.isNightTime
 
 /**
- * Bottom navigation tab definition using emoji icons (no Material Icons dependency).
+ * Bottom navigation tab definition using emoji icons (SVG not supported on Android Compose).
  */
 private data class BottomNavTab(
     val label: String,
@@ -61,6 +65,11 @@ fun AdventureHomeScreen(navController: NavController) {
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
+
+    // Refresh coins from GameProgressManager when switching tabs
+    LaunchedEffect(selectedTab) {
+        viewModel.refreshCoins()
+    }
 
     // Back handler → show exit confirmation
     BackHandler {
@@ -109,10 +118,10 @@ fun AdventureHomeScreen(navController: NavController) {
         modifier = Modifier.circadianBackground(),
         containerColor = Color.Transparent,
         bottomBar = {
+            val isNight = isNightTime()
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = org.alphakids.app.theme.AlphaShadows.Soft,
-                // Not using shadowElevation explicitly to avoid version issues, tonalElevation will provide the surface tint/elevation in M3
+                containerColor = if (isNight) Color(0xFF1A1A2E) else Color(0xFFF8F9FF),
+                tonalElevation = 0.dp,
             ) {
                 tabs.forEach { tab ->
                     val isSelected = selectedTab == tab.index
@@ -135,11 +144,11 @@ fun AdventureHomeScreen(navController: NavController) {
                         },
                         alwaysShowLabel = false,
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedIconColor = if (isNight) Color(0xFF7C9DFF) else MaterialTheme.colorScheme.primary,
+                            selectedTextColor = if (isNight) Color(0xFF7C9DFF) else MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = if (isNight) Color(0xFF6B6B8D) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = if (isNight) Color(0xFF6B6B8D) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            indicatorColor = if (isNight) Color(0xFF2A2A4A) else MaterialTheme.colorScheme.primaryContainer,
                         ),
                     )
                 }

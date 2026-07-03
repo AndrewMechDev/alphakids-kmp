@@ -32,12 +32,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
+
+/** Base URL for DiceBear avatar generation. */
+private const val DICEBEAR_BASE = "https://api.dicebear.com/9.x/adventurer/svg?seed="
 
 private val avatarColors = listOf(
     Color(0xFF6C63FF),
@@ -57,6 +61,7 @@ fun DashboardContent(
 ) {
     val audioService = rememberAudioService()
     val avatarColor = avatarColors[state.childName.hashCode().mod(avatarColors.size).let { if (it < 0) it + avatarColors.size else it }]
+    val avatarSeed = state.childName.lowercase().replace(" ", "")
 
     Column(
         modifier = modifier
@@ -69,7 +74,7 @@ fun DashboardContent(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Header: avatar + name + coins
         Row(
@@ -78,19 +83,20 @@ fun DashboardContent(
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(52.dp)
                     .clip(CircleShape)
                     .background(avatarColor),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = state.childName.take(1).uppercase(),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                AsyncImage(
+                    model = "$DICEBEAR_BASE$avatarSeed",
+                    contentDescription = state.childName,
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape),
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = state.childName,
@@ -108,6 +114,8 @@ fun DashboardContent(
             }
             org.alphakids.app.components.CoinCounter(amount = state.coins)
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Welcome title — directly on background, no card
         Text(

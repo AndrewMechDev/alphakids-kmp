@@ -41,7 +41,11 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
+import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
+
+/** Base URL for DiceBear avatar generation. */
+private const val DICEBEAR_BASE = "https://api.dicebear.com/9.x/adventurer/svg?seed="
 
 private val avatarColors = listOf(
     Color(0xFF6C63FF),
@@ -135,6 +139,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                             initial = child.name.firstOrNull()?.uppercase() ?: "?",
                             name = child.name,
                             color = avatarColors[colorIndex],
+                            avatarSeed = child.avatarSeed,
                             onClick = {
                                 SessionManager.setActiveChild(child)
                                 navController.navigate(Screen.AdventureHome.route) {
@@ -173,6 +178,7 @@ private fun ProfileItem(
     modifier: Modifier = Modifier,
     emoji: String? = null,
     isAddCard: Boolean = false,
+    avatarSeed: String? = null,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -188,12 +194,22 @@ private fun ProfileItem(
                 .background(color),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = emoji ?: initial,
-                fontSize = if (isAddCard) 32.sp else 36.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isAddCard) Color.White.copy(alpha = 0.8f) else Color.White,
-            )
+            if (avatarSeed != null && !isAddCard) {
+                AsyncImage(
+                    model = "$DICEBEAR_BASE$avatarSeed",
+                    contentDescription = name,
+                    modifier = Modifier
+                        .size(88.dp)
+                        .clip(CircleShape),
+                )
+            } else {
+                Text(
+                    text = emoji ?: initial,
+                    fontSize = if (isAddCard) 32.sp else 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isAddCard) Color.White.copy(alpha = 0.8f) else Color.White,
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(10.dp))

@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
+import org.alphakids.app.data.remote.dto.AchievementsResponseDto
 import org.alphakids.app.data.remote.dto.DictionaryResponseDto
 import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.data.remote.dto.GameSessionResultDto
@@ -33,6 +34,16 @@ class GameRepositoryImpl(
             val response = api.httpClient.get(ApiConstants.studentDictionary(studentId))
             if (!response.status.isSuccess()) return null
             response.body<DictionaryResponseDto>()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    override suspend fun getAchievements(studentId: String): AchievementsResponseDto? {
+        return try {
+            val response = api.httpClient.get(ApiConstants.studentAchievements(studentId))
+            if (!response.status.isSuccess()) return null
+            response.body<AchievementsResponseDto>()
         } catch (_: Exception) {
             null
         }
