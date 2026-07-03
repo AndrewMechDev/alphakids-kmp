@@ -1,5 +1,63 @@
 # AlphaKids iOS — Setup Guide
 
+## Git Branch & Workflow
+
+### Tu rama: `feature/ios-ui`
+
+Ya está creada y pusheada en GitHub. Trabajá directamente en ella.
+
+### Sin Pull Requests
+
+Trabajás sin PRs — commit y push directo a `feature/ios-ui`. No hace falta abrir PRs ni esperar reviews para mergear.
+
+### Git Flow adaptado
+
+El proyecto sigue Git Flow con commits convencionales:
+
+```
+main        → releases
+develop     → integración
+feature/*   → features (como la tuya)
+```
+
+### Conventional Commits (OBLIGATORIO)
+
+Cada commit debe seguir este formato:
+
+```
+tipo(alcance): descripción en español o inglés
+
+Ejemplos:
+feat(login): implementar login screen con email y contraseña
+fix(scanner): corregir orientación de cámara en iPad
+refactor(koin): simplificar resolución de dependencias
+docs(api): actualizar endpoints del diccionario
+```
+
+Tipos permitidos: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+
+### Workflow diario
+
+```bash
+# 1. Siempre empezar con lo último
+git checkout feature/ios-ui
+git pull origin feature/ios-ui
+
+# 2. Trabajar en cambios pequeños y específicos
+
+# 3. Commitar con mensaje convencional
+git add -A
+git commit -m "feat(home): implementar dashboard con avatar y monedas"
+
+# 4. Pushear seguido
+git push
+
+# 5. Si necesitas traer cambios de develop (sharedLogic updates):
+git fetch origin develop
+git merge origin develop
+# Resolver conflictos si los hay, luego commit y push
+```
+
 ## Prerequisites
 
 - macOS with Xcode 15+ (iOS 16+ target)
