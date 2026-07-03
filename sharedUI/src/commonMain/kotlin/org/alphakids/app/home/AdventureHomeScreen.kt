@@ -22,7 +22,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,21 +36,28 @@ import org.alphakids.app.theme.TimePeriod
 import org.alphakids.app.theme.currentTimePeriod
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.isNightTime
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_home
+import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
+import alphakids_kmp.sharedui.generated.resources.ic_pets
+import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
 /**
- * Bottom navigation tab definition using emoji icons (no Material Icons dependency).
+ * Bottom navigation tab definition using SVG icons.
  */
 private data class BottomNavTab(
     val label: String,
-    val emoji: String,
+    val iconRes: DrawableResource,
     val index: Int,
 )
 
 private val tabs = listOf(
-    BottomNavTab(label = "Inicio", emoji = "\uD83C\uDFE0", index = 0),
-    BottomNavTab(label = "Tienda", emoji = "\uD83D\uDED2", index = 1),
-    BottomNavTab(label = "Mascotas", emoji = "\uD83D\uDC3E", index = 2),
-    BottomNavTab(label = "Logros", emoji = "\uD83C\uDFC6", index = 3),
+    BottomNavTab(label = "Inicio", iconRes = Res.drawable.ic_home, index = 0),
+    BottomNavTab(label = "Tienda", iconRes = Res.drawable.ic_shopping_cart, index = 1),
+    BottomNavTab(label = "Mascotas", iconRes = Res.drawable.ic_pets, index = 2),
+    BottomNavTab(label = "Logros", iconRes = Res.drawable.ic_trophy, index = 3),
 )
 
 /**
@@ -119,13 +129,20 @@ fun AdventureHomeScreen(navController: NavController) {
             ) {
                 tabs.forEach { tab ->
                     val isSelected = selectedTab == tab.index
+                    val tintColor = if (isSelected) {
+                        if (isNight) Color(0xFF7C9DFF) else MaterialTheme.colorScheme.primary
+                    } else {
+                        if (isNight) Color(0xFF6B6B8D) else MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = { selectedTab = tab.index },
                         icon = {
-                            Text(
-                                text = tab.emoji,
-                                style = MaterialTheme.typography.titleMedium,
+                            Image(
+                                painter = painterResource(tab.iconRes),
+                                contentDescription = tab.label,
+                                colorFilter = ColorFilter.tint(tintColor),
+                                modifier = Modifier.size(24.dp),
                             )
                         },
                         label = {
