@@ -142,8 +142,7 @@ fun StoreScreen(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier
-                .circadianBackground()
-            .fillMaxSize()
+                .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -523,12 +522,8 @@ private fun ProductCard(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                             ),
-                            modifier = Modifier
-                                .height(32.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.primary),
+                            modifier = Modifier.height(32.dp),
                         ) {
                             Text(
                                 text = "Comprar",
