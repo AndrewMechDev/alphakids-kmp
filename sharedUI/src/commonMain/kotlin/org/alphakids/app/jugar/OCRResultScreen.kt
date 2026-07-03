@@ -322,32 +322,15 @@ private fun WordDisplay(word: ChallengeWord) {
                     }
                 }
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(20.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = word.word,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        letterSpacing = 4.sp,
-                    )
-                    Text(
-                        text = word.hint,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.85f),
-                    )
-                }
-
-                // Difficulty badge
                 Text(
-                    text = when (word.difficulty) {
-                        "fácil" -> "🟢"
-                        "media" -> "🟡"
-                        "difícil" -> "🔴"
-                        else -> "⚪"
-                    },
-                    style = MaterialTheme.typography.titleLarge,
+                    text = word.word,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    letterSpacing = 6.sp,
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

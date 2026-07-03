@@ -544,14 +544,16 @@ private fun DictionaryWordCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Word image — show API image if available, fallback to letter
+            // Word image — left side
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(56.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(accent.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
@@ -561,7 +563,7 @@ private fun DictionaryWordCard(
                         model = word.imageUrl,
                         contentDescription = word.word,
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(56.dp)
                             .clip(RoundedCornerShape(12.dp)),
                     )
                 } else {
@@ -574,43 +576,46 @@ private fun DictionaryWordCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
-            // Word text
-            Text(
-                text = word.word,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            // Middle: word text + category
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = word.word,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
 
-            // Category + learned badge
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                if (word.learned) {
-                    Text(text = "✅", style = MaterialTheme.typography.labelSmall)
-                }
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = accent.copy(alpha = 0.1f),
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Text(
-                        text = word.category,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = accent,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                    )
+                    if (word.learned) {
+                        Text(text = "✅", style = MaterialTheme.typography.labelSmall)
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = accent.copy(alpha = 0.1f),
+                    ) {
+                        Text(
+                            text = word.category,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = accent,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
                 }
             }
 
-            // Audio playback button — visible when audioUrl is available
+            // Right: audio button
             if (word.audioUrl.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Box(
                     modifier = Modifier
                         .size(36.dp)

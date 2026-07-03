@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -115,6 +116,8 @@ fun StoreScreen(
     var selectedCategory by remember { mutableStateOf(StoreCategory.Mascotas) }
     // Non-null when the purchase confirmation dialog is open
     var pendingPurchase by remember { mutableStateOf<StoreItem?>(null) }
+    // Toggle for inventory overlay
+    var showInventory by remember { mutableStateOf(false) }
 
     val filteredItems = allItems.filter { it.category == selectedCategory }
 
@@ -123,8 +126,11 @@ fun StoreScreen(
             .circadianBackground()
             .fillMaxSize(),
     ) {
-        // ── Header: title + coins ──
-        StoreHeader(coins = coins)
+        // ── Header: title + coins + inventory button ──
+        StoreHeader(
+            coins = coins,
+            onInventoryClick = { showInventory = true },
+        )
 
         // ── Category tabs ──
         CategoryTabs(
@@ -170,13 +176,151 @@ fun StoreScreen(
             },
             onDismiss = { pendingPurchase = null },
         )
-    }  // ← cierra Column
+    }
+
+    // ── Inventory overlay ──
+    if (showInventory) {
+        InventoryOverlay(
+            purchasedIds = purchasedIds,
+            allItems = allItems,
+            onClose = { showInventory = false },
+        )
+    }
+}
+
+// ── Inventory Overlay ──
+
+@Composable
+private fun InventoryOverlay(
+    purchasedIds: Set<String>,
+    allItems: List<StoreItem>,
+    onClose: () -> Unit,
+) {
+    val purchasedItems = allItems.filter { it.id in purchasedIds }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "\uD83C\uDF92 Inventario",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = "\u2716",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(onClick = onClose)
+                        .padding(8.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (purchasedItems.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "\uD83C\uDF81",
+                            style = MaterialTheme.typography.displayLarge,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Aún no has comprado nada",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "¡Visita la Tienda y gasta tus monedas!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        )
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 140.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp),
+                ) {
+                    items(
+                        items = purchasedItems,
+                        key = { it.id },
+                    ) { item ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(56.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = item.emoji,
+                                        style = MaterialTheme.typography.displaySmall,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = item.name,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Text(
+                                    text = item.category.displayName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // ── Store Header ──
 
 @Composable
-private fun StoreHeader(coins: Int) {
+private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,6 +334,22 @@ private fun StoreHeader(coins: Int) {
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
         )
+
+        // Inventory button
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+                .clickable(onClick = onInventoryClick)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+        ) {
+            Text(
+                text = "\uD83C\uDF92",
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
 
         // Coin badge
         Row(
@@ -363,8 +523,12 @@ private fun ProductCard(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary,
+                                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                             ),
-                            modifier = Modifier.height(32.dp),
+                            modifier = Modifier
+                                .height(32.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.primary),
                         ) {
                             Text(
                                 text = "Comprar",
