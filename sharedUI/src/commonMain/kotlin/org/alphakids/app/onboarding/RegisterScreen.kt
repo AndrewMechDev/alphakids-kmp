@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -70,7 +70,7 @@ fun RegisterScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .circadianBackground()
-            .statusBarsPadding()
+            .safeDrawingPadding()
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),
