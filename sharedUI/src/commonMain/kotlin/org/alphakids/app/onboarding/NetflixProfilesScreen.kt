@@ -7,19 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,27 +34,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
-import org.alphakids.app.theme.PrimaryBlue
-import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.circadianBackground
-import org.alphakids.app.theme.AlphaGradients
-import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
-import alphakids_kmp.sharedui.generated.resources.alphi_padre
-import alphakids_kmp.sharedui.generated.resources.alphi_buscando
 
-/**
- * Netflix-style profile selector shown after login.
- *
- * Displays all registered children as circular avatars with name + level,
- * plus a "Padre" option and an "Agregar perfil" button.
- * Responsive: adapts columns to screen width.
- */
+private val avatarColors = listOf(
+    Color(0xFF6C63FF),
+    Color(0xFFFF6584),
+    Color(0xFF43B88C),
+    Color(0xFFFFAA33),
+    Color(0xFF3DBBF5),
+    Color(0xFFE84393),
+)
+
 @Composable
 fun NetflixProfilesScreen(navController: NavController) {
     val parentRepository: ParentRepository = koinInject()
@@ -70,9 +65,9 @@ fun NetflixProfilesScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .safeDrawingPadding()
+            .fillMaxSize(),
     ) {
         Column(
             modifier = Modifier
@@ -80,14 +75,13 @@ fun NetflixProfilesScreen(navController: NavController) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
-            // Title
             Text(
                 text = "¿Quién va a usar AlphaKids?",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 textAlign = TextAlign.Center,
             )
 
@@ -96,36 +90,51 @@ fun NetflixProfilesScreen(navController: NavController) {
             Text(
                 text = "Selecciona tu perfil para continuar",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             if (isLoading) {
                 Text(
                     text = "Cargando perfiles...",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.7f),
                 )
             } else {
-                // Profile grid — responsive: 2 cols on phones, more on tablets
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 140.dp),
+                    columns = GridCells.Adaptive(minSize = 130.dp),
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp),
                 ) {
-                    // Children profiles
+                    // 1. Parent profile first
+                    item(key = "parent-profile") {
+                        ProfileItem(
+                            initial = "P",
+                            name = "Padre",
+                            color = Color(0xFF7C4DFF),
+                            emoji = "👤",
+                            onClick = {
+                                navController.navigate(Screen.ParentDashboard.route) {
+                                    popUpTo(Screen.NetflixProfiles.route) { inclusive = true }
+                                }
+                            },
+                        )
+                    }
+
+                    // 2. Children profiles
                     items(
                         items = children,
                         key = { "child-${it.id}" },
                     ) { child ->
-                        org.alphakids.app.components.AvatarCard(
-                            avatarResId = alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_anunciando,
+                        val colorIndex = children.indexOf(child) % avatarColors.size
+                        ProfileItem(
+                            initial = child.name.firstOrNull()?.uppercase() ?: "?",
                             name = child.name,
-                            isSelected = false,
+                            color = avatarColors[colorIndex],
                             onClick = {
                                 SessionManager.setActiveChild(child)
                                 navController.navigate(Screen.AdventureHome.route) {
@@ -135,27 +144,13 @@ fun NetflixProfilesScreen(navController: NavController) {
                         )
                     }
 
-
-                    // Parent profile
-                    item(key = "parent-profile") {
-                        org.alphakids.app.components.AvatarCard(
-                            avatarResId = alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_padre,
-                            name = "Padre",
-                            isSelected = false,
-                            onClick = {
-                                navController.navigate(Screen.ParentDashboard.route) {
-                                    popUpTo(Screen.NetflixProfiles.route) { inclusive = true }
-                                }
-                            },
-                        )
-                    }
-
-                    // Add profile button
+                    // 3. Add profile card last
                     item(key = "add-profile") {
-                        org.alphakids.app.components.AvatarCard(
-                            avatarResId = alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_buscando,
+                        ProfileItem(
+                            initial = "+",
                             name = "Agregar",
-                            isSelected = false,
+                            color = Color.White.copy(alpha = 0.3f),
+                            isAddCard = true,
                             onClick = {
                                 navController.navigate(Screen.SetupWizard.route) {
                                     popUpTo(Screen.NetflixProfiles.route) { inclusive = false }
@@ -169,3 +164,48 @@ fun NetflixProfilesScreen(navController: NavController) {
     }
 }
 
+@Composable
+private fun ProfileItem(
+    initial: String,
+    name: String,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    emoji: String? = null,
+    isAddCard: Boolean = false,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+                .background(color),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = emoji ?: initial,
+                fontSize = if (isAddCard) 32.sp else 36.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isAddCard) Color.White.copy(alpha = 0.8f) else Color.White,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = name,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}

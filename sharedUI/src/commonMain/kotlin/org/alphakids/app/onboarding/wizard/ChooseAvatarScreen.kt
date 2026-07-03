@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -78,9 +79,9 @@ fun ChooseAvatarScreen(
 
     Column(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
+            .safeDrawingPadding()
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -88,7 +89,7 @@ fun ChooseAvatarScreen(
             title = "Elige un avatar",
             subtitle = "Selecciona el personaje de tu hijo",
             currentStep = 3,
-            totalSteps = 5,
+            totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
             onBack = { navController.popBackStack() },
         )
@@ -177,8 +178,8 @@ fun ChooseAvatarScreen(
             text = "Guardar",
             onClick = {
                 chooseAvatarViewModel.onSaveAvatar()
-                wizardViewModel.updateStep(WizardStep.ChoosePet)
-                navController.navigate(Screen.ChooseFirstPet.route)
+                wizardViewModel.updateStep(WizardStep.AssignInstitution)
+                navController.navigate(Screen.AssignInstitution.route)
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             enabled = state.selectedAvatarId != null,

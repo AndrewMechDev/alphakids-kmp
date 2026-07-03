@@ -195,8 +195,8 @@ fun PetsScreen(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .fillMaxSize(),
     ) {
         // ── Sub-tab bar ──
         SubTabBar(
@@ -242,11 +242,10 @@ fun PetsScreen(
                 coins = coins,
                 onSpendCoins = onSpendCoins,
                 childLevel = childLevel,
-                modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
             )
         }
-    }
+    }  // ← cierra Column
 }
 
 // ── Sub-Tab Bar ──

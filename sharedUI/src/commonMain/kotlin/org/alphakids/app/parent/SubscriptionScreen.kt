@@ -34,13 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.components.AlphaPrimaryButton
-import org.alphakids.app.components.AlphaTextButton
+
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.PlanBenefit
 import org.alphakids.app.parent.domain.model.PlanType
 import org.alphakids.app.theme.StarGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGoldDetail
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Subscription screen showing current plan, benefits, upgrade button, and payment history.
@@ -60,7 +61,11 @@ fun SubscriptionScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .circadianBackground()
+            .fillMaxSize(),
+    ) {
         if (state.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             return@Box
@@ -218,15 +223,6 @@ fun SubscriptionScreen(
                         )
                     }
                 }
-            }
-
-            // Terms link
-            item(key = "terms") {
-                AlphaTextButton(
-                    text = "Términos y condiciones",
-                    onClick = { /* future */ },
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
 
             // Bottom spacer

@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,13 +44,7 @@ import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.ChildSummary
-import org.alphakids.app.theme.circadianBackground
 
-/**
- * Parent dashboard — insight center tab.
- *
- * Displays a welcome card, children list with avatars, and recent activity timeline.
- */
 @Composable
 fun ParentInsightCenter(
     navController: NavController,
@@ -57,42 +55,10 @@ fun ParentInsightCenter(
     val state by viewModel.uiState.collectAsState()
 
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Title
-        item(key = "title") {
-            Text(
-                text = "Panel de Padres",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-        }
-
-        // Welcome card
-        item(key = "welcome") {
-            Card(
-                modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                ),
-            ) {
-                Text(
-                    text = "\uD83D\uDC4B ¡Bienvenido! Aquí puedes ver el progreso de tus hijos y administrar tu cuenta.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(16.dp),
-                )
-            }
-        }
-
-        // Loading state
         if (state.isLoading) {
             item(key = "loading") {
                 Box(
@@ -104,9 +70,9 @@ fun ParentInsightCenter(
                     CircularProgressIndicator()
                 }
             }
+            return@LazyColumn
         }
 
-        // Error state
         if (state.error != null) {
             item(key = "error") {
                 Text(
@@ -116,17 +82,47 @@ fun ParentInsightCenter(
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
             }
+            return@LazyColumn
+        }
+
+        // KPI grid
+        item(key = "kpi-grid") {
+            val agg = state.aggregated
+            val kpis = listOf(
+                KpiItem("👶", "Hijos", "${agg.totalChildren}"),
+                KpiItem("📖", "Palabras", "${agg.totalWords}"),
+                KpiItem("⏱️", "Tiempo", "${agg.totalTime} min"),
+                KpiItem("🪙", "Monedas", "${agg.totalCoins}"),
+                KpiItem("⭐", "Estrellas", "${agg.totalStars}"),
+                KpiItem("📷", "OCR", "${agg.totalOcr}"),
+                KpiItem("✍️", "Deletreo", "${agg.totalSpelling}"),
+                KpiItem("📊", "Nivel prom.", "${agg.avgLevel}"),
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                userScrollEnabled = false,
+            ) {
+                items(kpis) { kpi ->
+                    KpiCard(kpi)
+                }
+            }
         }
 
         // Children section
         if (state.children.isNotEmpty()) {
             item(key = "children-title") {
                 Text(
-                    text = "\uD83D\uDC76 Tus hijos",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "👶 Tus hijos",
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp),
                 )
             }
 
@@ -141,7 +137,7 @@ fun ParentInsightCenter(
             }
         }
 
-        // Add child button (visible regardless of children count)
+        // Add child
         item(key = "add-child") {
             Card(
                 modifier = Modifier
@@ -160,10 +156,7 @@ fun ParentInsightCenter(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "\u2795",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+                    Text(text = "➕", style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Agregar hijo",
@@ -175,15 +168,15 @@ fun ParentInsightCenter(
             }
         }
 
-        // Recent activity section
+        // Activity timeline
         if (state.recentActivity.isNotEmpty()) {
             item(key = "activity-title") {
                 Text(
-                    text = "\uD83D\uDCC5 Actividad reciente",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "📅 Actividad reciente",
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp),
                 )
             }
 
@@ -194,12 +187,49 @@ fun ParentInsightCenter(
                 ActivityTimelineItem(activity = activity)
             }
         }
+
+        item(key = "bottom") {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
 
-/**
- * Child summary card with DiceBear avatar, name, level, last activity, and stars.
- */
+private data class KpiItem(val emoji: String, val label: String, val value: String)
+
+@Composable
+private fun KpiCard(item: KpiItem) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(text = item.emoji, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = item.value,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = item.label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
 @Composable
 private fun ChildCard(
     child: ChildSummary,
@@ -219,11 +249,10 @@ private fun ChildCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // DiceBear avatar
             val avatarUrl = "https://api.dicebear.com/10.x/adventurer-neutral/svg?seed=${child.avatarSeed}"
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center,
@@ -232,7 +261,7 @@ private fun ChildCard(
                     model = avatarUrl,
                     contentDescription = "Avatar de ${child.name}",
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(44.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Fit,
                 )
@@ -254,21 +283,10 @@ private fun ChildCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(
-                    text = "Última actividad: ${child.lastActivity}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
 
-            // Stars
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "\u2B50",
-                    style = MaterialTheme.typography.titleLarge,
-                )
+                Text(text = "⭐", style = MaterialTheme.typography.titleMedium)
                 Text(
                     text = "${child.stars}",
                     style = MaterialTheme.typography.labelLarge,
@@ -280,9 +298,6 @@ private fun ChildCard(
     }
 }
 
-/**
- * Timeline item for a single child activity entry.
- */
 @Composable
 private fun ActivityTimelineItem(
     activity: org.alphakids.app.parent.domain.model.ChildActivity,
@@ -299,7 +314,6 @@ private fun ActivityTimelineItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.Top,
         ) {
-            // Timeline dot
             Box(
                 modifier = Modifier
                     .padding(top = 4.dp)

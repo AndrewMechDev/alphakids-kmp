@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,6 +45,7 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.repository.ParentRepository
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Child profile selector screen.
@@ -74,8 +76,10 @@ fun ChildProfileSelectorScreen(navController: NavController) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier = Modifier
+            .circadianBackground()
+            .safeDrawingPadding()
+            .fillMaxSize(),
     ) {
         // Header
         Spacer(modifier = Modifier.height(48.dp))
@@ -84,7 +88,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
             text = "\uD83D\uDC4B ¿Quién está listo para aprender hoy?",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = androidx.compose.ui.graphics.Color.White,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -94,7 +98,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
         Text(
             text = "Cada niño tiene su propio viaje, sus logros y su historia",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )

@@ -1,9 +1,14 @@
 package org.alphakids.app.parent.data.mock
 
+import org.alphakids.app.domain.model.Grade
+import org.alphakids.app.domain.model.Institution
+import org.alphakids.app.domain.model.Section
 import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.ContactForm
+import org.alphakids.app.parent.domain.model.CreateChildRequest
+import org.alphakids.app.parent.domain.model.CreateChildResult
 import org.alphakids.app.parent.domain.model.FAQItem
 import org.alphakids.app.parent.domain.model.PlanBenefit
 import org.alphakids.app.parent.domain.model.PlanType
@@ -65,4 +70,71 @@ class MockParentRepository : ParentRepository {
     )
 
     override suspend fun submitContactForm(form: ContactForm): Boolean = true
+
+    override suspend fun getPublicInstitutions(): List<Institution> = listOf(
+        Institution(
+            id = "mock-inst-001",
+            name = "Colegio San Martín",
+            grades = listOf(
+                Grade(
+                    id = "mock-grade-001",
+                    name = "Primero",
+                    sections = listOf(
+                        Section("mock-sec-001", "A"),
+                        Section("mock-sec-002", "B"),
+                    ),
+                ),
+                Grade(
+                    id = "mock-grade-002",
+                    name = "Segundo",
+                    sections = listOf(
+                        Section("mock-sec-003", "A"),
+                        Section("mock-sec-004", "B"),
+                    ),
+                ),
+            ),
+        ),
+        Institution(
+            id = "mock-inst-002",
+            name = "Colegio Los Andes",
+            grades = listOf(
+                Grade(
+                    id = "mock-grade-003",
+                    name = "Único",
+                    sections = listOf(
+                        Section("mock-sec-005", "A"),
+                    ),
+                ),
+            ),
+        ),
+        Institution(
+            id = "mock-inst-003",
+            name = "I.E.P. Santa María",
+            grades = emptyList(),
+        ),
+    )
+
+    override suspend fun createChild(request: CreateChildRequest): CreateChildResult? {
+        val fullName = "${request.firstName} ${request.lastName}"
+        val verificationStatus = if (request.institutionId != null) "PENDING" else "VERIFIED"
+        val studentType = if (request.institutionId != null) "INSTITUTIONAL" else "FREEMIUM"
+        val mockId = "mock-student-${(1000..9999).random()}"
+
+        children.add(0, ChildSummary(
+            id = mockId,
+            name = fullName,
+            avatarSeed = request.avatarUrl ?: mockId,
+            level = 1,
+            rank = "Semillita 🌱",
+            lastActivity = "Recién creado",
+            wordsLearned = 0,
+            stars = 0,
+        ))
+
+        return CreateChildResult(
+            id = mockId,
+            verificationStatus = verificationStatus,
+            studentType = studentType,
+        )
+    }
 }

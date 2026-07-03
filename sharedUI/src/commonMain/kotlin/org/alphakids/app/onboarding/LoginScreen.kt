@@ -3,33 +3,33 @@ package org.alphakids.app.onboarding
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,14 +48,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
 import org.alphakids.app.theme.circadianBackground
-import androidx.compose.ui.graphics.Color
 
-/**
- * Login screen with email/password fields, demo credentials hint, and navigation.
- *
- * On successful login navigates to [Screen.NetflixProfiles] (profile selector).
- * On "Crear cuenta" navigates to [Screen.Register].
- */
 @Composable
 fun LoginScreen(navController: NavController) {
     val viewModel = remember {
@@ -68,7 +61,6 @@ fun LoginScreen(navController: NavController) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // On login success: navigate to Netflix-style profile selector
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
             navController.navigate(Screen.NetflixProfiles.route) {
@@ -77,139 +69,151 @@ fun LoginScreen(navController: NavController) {
         }
     }
 
-    Scaffold(
-        containerColor = Color.Transparent,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-    ) { paddingValues ->
-    Column(
+    Box(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
-            .fillMaxSize()
-            .padding(paddingValues)
-            .verticalScroll(scrollState)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .circadianBackground()
+            .safeDrawingPadding()
+            .fillMaxSize(),
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
 
-        // Back button to WelcomeSelection
-        Text(
-            text = "\u2B05\uFE0F Volver",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Medium,
+        Column(
             modifier = Modifier
-                .align(Alignment.Start)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) {
-                    navController.popBackStack()
-                },
-        )
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Alphi image
-        Image(
-            painter = painterResource(Res.drawable.alphi_padre),
-            contentDescription = "Alphi Padre",
-            modifier = Modifier.size(120.dp),
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Welcome text
-        Text(
-            text = "¡Bienvenido a AlphaKids!",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Email field
-        AlphaTextField(
-            label = "Correo electrónico",
-            value = state.email,
-            onValueChange = viewModel::onEmailChanged,
-            enabled = !state.isLoading,
-            keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Next,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Password field
-        AlphaTextField(
-            label = "Contraseña",
-            value = state.password,
-            onValueChange = viewModel::onPasswordChanged,
-            enabled = !state.isLoading,
-            isPassword = true,
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done,
-        )
-
-        // Error message
-        if (state.error != null) {
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = state.error!!,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.fillMaxWidth(),
+                text = "⬅️ Volver",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) {
+                        navController.popBackStack()
+                    },
             )
-        }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Login button
-        AlphaPrimaryButton(
-            text = "Iniciar sesión",
-            onClick = viewModel::onLoginClick,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = state.email.isNotBlank() && state.password.isNotBlank(),
-            isLoading = state.isLoading,
-        )
+            Image(
+                painter = painterResource(Res.drawable.alphi_padre),
+                contentDescription = "Alphi Padre",
+                modifier = Modifier.size(120.dp),
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // Create account link
-        AlphaTextButton(
-            text = "Crear cuenta",
-            onClick = {
-                navController.navigate(Screen.Register.route) {
-                    popUpTo(Screen.Login.route) { inclusive = false }
+            Text(
+                text = "¡Bienvenido a AlphaKids!",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    AlphaTextField(
+                        label = "Correo electrónico",
+                        value = state.email,
+                        onValueChange = viewModel::onEmailChanged,
+                        enabled = !state.isLoading,
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next,
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    AlphaTextField(
+                        label = "Contraseña",
+                        value = state.password,
+                        onValueChange = viewModel::onPasswordChanged,
+                        enabled = !state.isLoading,
+                        isPassword = true,
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done,
+                    )
+
+                    if (state.error != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = state.error!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    AlphaPrimaryButton(
+                        text = "Iniciar sesión",
+                        onClick = viewModel::onLoginClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = state.email.isNotBlank() && state.password.isNotBlank(),
+                        isLoading = state.isLoading,
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    AlphaTextButton(
+                        text = "Crear cuenta",
+                        onClick = {
+                            navController.navigate(Screen.Register.route) {
+                                popUpTo(Screen.Login.route) { inclusive = false }
+                            }
+                        },
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    AlphaTextButton(
+                        text = "¿Olvidaste tu contraseña?",
+                        onClick = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Función próximamente")
+                            }
+                        },
+                    )
                 }
-            },
-        )
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Forgot password link
-        AlphaTextButton(
-            text = "¿Olvidaste tu contraseña?",
-            onClick = {
-                scope.launch {
-                    snackbarHostState.showSnackbar("Función próximamente")
-                }
-            },
-        )
+            Text(
+                text = "Demo: test@alphakids.com / 123456",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Light,
+                textAlign = TextAlign.Center,
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Demo hint
-        Text(
-            text = "Demo: test@alphakids.com / 123456",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Light,
-            textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

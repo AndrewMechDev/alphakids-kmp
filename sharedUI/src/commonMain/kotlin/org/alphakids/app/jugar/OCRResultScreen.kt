@@ -40,8 +40,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.game.domain.model.GameSessionState
+import org.alphakids.app.game.domain.repository.GameRepository
+import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
@@ -52,6 +57,7 @@ import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
+import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 
 /**
@@ -78,7 +84,28 @@ fun OCRResultScreen(
         audioService.play(AudioCategory.CHEER)
     }
 
+    // Report game session completion to the API
+    val gameRepo: GameRepository = remember { koinInject() }
+    val studentId = org.alphakids.app.parent.domain.model.SessionManager.currentChild?.id
+    val apiWordId = org.alphakids.app.game.domain.model.GameSessionState.currentWordId
+    LaunchedEffect(Unit) {
+        if (studentId != null && studentId.isNotBlank()) {
+            gameRepo.completeSession(
+                GameSessionCompleteRequestDto(
+                    studentId = studentId,
+                    wordId = apiWordId.ifBlank { null },
+                    gameType = "OCR_SCAN",
+                    status = "COMPLETED",
+                    attempts = attempts,
+                    coinsEarned = rewards.coins,
+                    starsEarned = rewards.stars,
+                )
+            )
+        }
+    }
+
     Scaffold(
+        modifier = Modifier.circadianBackground(),
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
@@ -93,8 +120,7 @@ fun OCRResultScreen(
                         text = "\u2B05\uFE0F",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
-                            .circadianBackground(alpha = 0.3f)
-            .padding(start = 8.dp)
+                            .padding(start = 8.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
@@ -113,7 +139,6 @@ fun OCRResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -157,16 +182,25 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Action buttons ──
+            val isApiWord = GameSessionState.currentWordText.isNotBlank()
+
             org.alphakids.app.components.AlphaPrimaryButton(
                 text = "🎮 Seguir jugando",
                 onClick = {
-                    val nextWord = WordBank.getRandomWord()
-                    navController.navigate(
-                        Screen.WordScannerChallenge.createRoute(
-                            WordBank.words.indexOf(nextWord).coerceAtLeast(0),
-                        )
-                    ) {
-                        popUpTo(Screen.AdventureHome.route)
+                    if (isApiWord) {
+                        GameSessionState.clear()
+                        navController.navigate(Screen.WordSelection.route) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
+                    } else {
+                        val nextWord = WordBank.getRandomWord()
+                        navController.navigate(
+                            Screen.WordScannerChallenge.createRoute(
+                                WordBank.words.indexOf(nextWord).coerceAtLeast(0),
+                            )
+                        ) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -177,12 +211,27 @@ fun OCRResultScreen(
             org.alphakids.app.components.AlphaSecondaryButton(
                 text = "🔄 Repetir",
                 onClick = {
-                    navController.navigate(
-                        Screen.WordScannerChallenge.createRoute(
-                            WordBank.words.indexOf(word).coerceAtLeast(0),
+                    // Re-set state before navigating so App.kt composable
+                    // reads the correct word regardless of route params
+                    if (isApiWord) {
+                        GameSessionState.setWord(
+                            text = GameSessionState.currentWordText,
+                            id = GameSessionState.currentWordId,
+                            difficulty = GameSessionState.currentDifficulty,
+                            imageUrl = GameSessionState.currentImageUrl,
+                            audioUrl = GameSessionState.currentAudioUrl,
                         )
-                    ) {
-                        popUpTo(Screen.AdventureHome.route)
+                        navController.navigate(Screen.WordSelection.route) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
+                    } else {
+                        navController.navigate(
+                            Screen.WordScannerChallenge.createRoute(
+                                WordBank.words.indexOf(word).coerceAtLeast(0),
+                            )
+                        ) {
+                            popUpTo(Screen.AdventureHome.route)
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -201,7 +250,7 @@ fun OCRResultScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
+        }  // ← cierra Column
     }
 }
 
@@ -246,20 +295,31 @@ private fun WordDisplay(word: ChallengeWord) {
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Word image placeholder
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = word.word.first().toString(),
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                // Word image — show API image if available, fallback to letter
+                val imgUrl = GameSessionState.currentImageUrl
+                if (imgUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = imgUrl,
+                        contentDescription = word.word,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(16.dp)),
                     )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = word.word.first().toString(),
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(14.dp))

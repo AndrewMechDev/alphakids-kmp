@@ -35,6 +35,9 @@ sealed class Screen(val route: String) {
     /** DiceBear avatar selection grid */
     data object ChooseAvatar : Screen("choose-avatar")
 
+    /** Optional institution assignment before pet selection */
+    data object AssignInstitution : Screen("assign-institution")
+
     /** First pet selection from 3 starters */
     data object ChooseFirstPet : Screen("choose-first-pet")
 
@@ -71,15 +74,18 @@ sealed class Screen(val route: String) {
     /** LearningAdventureHub — activity picker (Scan / Spell) */
     data object LearningAdventureHub : Screen("learning-adventure-hub")
 
-    /** Word Scanner Challenge with camera + OCR */
+    /** Word Scanner Challenge with camera + OCR (uses WordBank index) */
     data object WordScannerChallenge : Screen("word-scanner-challenge/{wordIndex}") {
         fun createRoute(wordIndex: Int): String = "word-scanner-challenge/$wordIndex"
     }
 
+    /** Word picker before starting a game — fetches from API */
+    data object WordSelection : Screen("word-selection")
+
     /** OCR result with rewards and stats */
-    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}") {
-        fun createRoute(wordIndex: Int, attempts: Int, time: Long): String =
-            "ocr-result/$wordIndex/$attempts/$time"
+    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}/{wordText}") {
+        fun createRoute(wordIndex: Int, attempts: Int, time: Long, wordText: String = ""): String =
+            "ocr-result/$wordIndex/$attempts/$time/$wordText"
     }
 
     companion object {
@@ -97,12 +103,14 @@ sealed class Screen(val route: String) {
             route == SetupWizard.route -> SetupWizard
             route == CreateChild.route -> CreateChild
             route == ChooseAvatar.route -> ChooseAvatar
+            route == AssignInstitution.route -> AssignInstitution
             route == ChooseFirstPet.route -> ChooseFirstPet
             route == Welcome.route -> Welcome
             route == AdventureHome.route -> AdventureHome
             route == ChildProfileSelector.route -> ChildProfileSelector
             route == PlaceholderHome.route -> PlaceholderHome
             route == LearningAdventureHub.route -> LearningAdventureHub
+            route == WordSelection.route -> WordSelection
             route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
             route.startsWith("ocr-result/") -> OcrResult
             route == ParentDashboard.route -> ParentDashboard

@@ -5,7 +5,8 @@ package org.alphakids.app.domain.model
  *
  * @param word      The target word in uppercase Spanish.
  * @param hint      A short description or clue for the child.
- * @param imageName Resource name for an illustrative image.
+ * @param imageName Local resource name (legacy, for WordBank).
+ * @param imageUrl  Cloudinary image URL from the teacher's word assignment.
  * @param category  Category tag — "naturaleza", "animales", "alimentos", "objetos".
  * @param difficulty Difficulty level — "fácil", "media", "difícil".
  */
@@ -15,6 +16,7 @@ data class ChallengeWord(
     val imageName: String,
     val category: String,
     val difficulty: String,
+    val imageUrl: String? = null,
 )
 
 /**

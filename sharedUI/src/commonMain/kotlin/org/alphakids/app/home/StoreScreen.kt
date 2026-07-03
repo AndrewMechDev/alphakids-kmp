@@ -120,8 +120,8 @@ fun StoreScreen(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .fillMaxSize(),
     ) {
         // ── Header: title + coins ──
         StoreHeader(coins = coins)
@@ -136,7 +136,7 @@ fun StoreScreen(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier
-                .circadianBackground(alpha = 0.3f)
+                .circadianBackground()
             .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -170,7 +170,7 @@ fun StoreScreen(
             },
             onDismiss = { pendingPurchase = null },
         )
-    }
+    }  // ← cierra Column
 }
 
 // ── Store Header ──

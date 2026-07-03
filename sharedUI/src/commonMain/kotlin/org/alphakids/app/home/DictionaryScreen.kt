@@ -2,6 +2,8 @@ package org.alphakids.app.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -33,17 +34,25 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,6 +68,16 @@ import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import org.alphakids.app.audio.AudioService
+import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.game.domain.repository.GameRepository
+import org.alphakids.app.koinInject
+import org.alphakids.app.parent.domain.model.SessionManager
 
 // ── Category colour palette ──
 
@@ -95,55 +114,6 @@ private val filterChips = listOf(
 
 // ── Mock data ──
 
-private val mockWords = listOf(
-    // Animales
-    DictionaryWord("Gato", "word_gato", "Animales", "fácil", 2, true, "2025-01-15"),
-    DictionaryWord("Perro", "word_perro", "Animales", "fácil", 3, true, "2025-01-14"),
-    DictionaryWord("Elefante", "word_elefante", "Animales", "media", 1, false),
-    DictionaryWord("Mariposa", "word_mariposa", "Animales", "media", 0, false),
-    DictionaryWord("Tiburón", "word_tiburon", "Animales", "difícil", 0, false),
-    DictionaryWord("Búho", "word_buho", "Animales", "fácil", 1, false),
-    DictionaryWord("Caracol", "word_caracol", "Animales", "media", 2, true, "2025-01-16"),
-    DictionaryWord("Delfín", "word_delfin", "Animales", "difícil", 0, false),
-    // Colores
-    DictionaryWord("Rojo", "word_rojo", "Colores", "fácil", 3, true, "2025-01-10"),
-    DictionaryWord("Azul", "word_azul", "Colores", "fácil", 3, true, "2025-01-11"),
-    DictionaryWord("Amarillo", "word_amarillo", "Colores", "fácil", 2, true, "2025-01-12"),
-    DictionaryWord("Naranja", "word_naranja", "Colores", "fácil", 1, false),
-    DictionaryWord("Turquesa", "word_turquesa", "Colores", "difícil", 0, false),
-    // Objetos
-    DictionaryWord("Libro", "word_libro", "Objetos", "fácil", 2, true, "2025-01-13"),
-    DictionaryWord("Ventana", "word_ventana", "Objetos", "fácil", 1, false),
-    DictionaryWord("Computadora", "word_computadora", "Objetos", "media", 0, false),
-    DictionaryWord("Paraguas", "word_paraguas", "Objetos", "media", 0, false),
-    DictionaryWord("Bicicleta", "word_bicicleta", "Objetos", "media", 2, true, "2025-01-17"),
-    DictionaryWord("Cama", "word_cama", "Objetos", "fácil", 1, false),
-    DictionaryWord("Pelota", "word_pelota", "Objetos", "fácil", 3, true, "2025-01-10"),
-    DictionaryWord("Reloj", "word_reloj", "Objetos", "media", 0, false),
-    DictionaryWord("Silla", "word_silla", "Objetos", "fácil", 1, false),
-    // Alimentos
-    DictionaryWord("Manzana", "word_manzana", "Alimentos", "fácil", 3, true, "2025-01-09"),
-    DictionaryWord("Sandía", "word_sandia", "Alimentos", "media", 1, false),
-    DictionaryWord("Chocolate", "word_chocolate", "Alimentos", "difícil", 0, false),
-    DictionaryWord("Queso", "word_queso", "Alimentos", "fácil", 2, true, "2025-01-15"),
-    DictionaryWord("Helado", "word_helado", "Alimentos", "fácil", 3, true, "2025-01-08"),
-    DictionaryWord("Tomate", "word_tomate", "Alimentos", "media", 0, false),
-    // Naturaleza
-    DictionaryWord("Sol", "word_sol", "Naturaleza", "fácil", 3, true, "2025-01-08"),
-    DictionaryWord("Luna", "word_luna", "Naturaleza", "fácil", 2, true, "2025-01-14"),
-    DictionaryWord("Estrella", "word_estrella", "Naturaleza", "fácil", 1, false),
-    DictionaryWord("Montaña", "word_montana", "Naturaleza", "media", 0, false),
-    DictionaryWord("Arcoíris", "word_arcoiris", "Naturaleza", "difícil", 0, false),
-    DictionaryWord("Flor", "word_flor", "Naturaleza", "fácil", 2, true, "2025-01-12"),
-    DictionaryWord("Fuego", "word_fuego", "Naturaleza", "media", 0, false),
-    DictionaryWord("Isla", "word_isla", "Naturaleza", "fácil", 1, false),
-    DictionaryWord("Jardín", "word_jardin", "Naturaleza", "media", 0, false),
-    DictionaryWord("Río", "word_rio", "Naturaleza", "fácil", 1, false),
-    // Cuerpo
-    DictionaryWord("Mano", "word_mano", "Cuerpo", "fácil", 2, true, "2025-01-12"),
-    DictionaryWord("Ojos", "word_ojos", "Cuerpo", "fácil", 1, false),
-    DictionaryWord("Corazón", "word_corazon", "Cuerpo", "media", 0, false),
-)
 
 // ── Public composable ──
 
@@ -164,15 +134,67 @@ fun DictionaryScreen(
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
 ) {
+    val gameRepo: GameRepository = remember { koinInject() }
+    val audioService = rememberAudioService()
+    val childId = remember { SessionManager.currentChild?.id }
+    
+    var fetchedWords by remember { mutableStateOf<List<DictionaryWord>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(childId) {
+        try {
+            if (childId != null) {
+                // Fetch playable words (assigned + catalog)
+                val playableResult = gameRepo.getPlayableWords(childId)
+                val playableWords = playableResult?.words?.map { dto ->
+                    DictionaryWord(
+                        word = dto.text,
+                        imageName = "",
+                        imageUrl = dto.imageUrl ?: "",
+                        audioUrl = dto.audioUrl ?: "",
+                        category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
+                        difficulty = dto.difficultyLabel.ifBlank { "media" },
+                        stars = 0,
+                        learned = false,
+                    )
+                } ?: emptyList()
+
+                // Fetch dictionary (completed/learned words)
+                val dictResult = gameRepo.getDictionary(childId)
+                val dictWords = dictResult?.dictionary?.flatMap { (_, words) ->
+                    words.map { dto ->
+                        DictionaryWord(
+                            word = dto.text,
+                            imageName = "",
+                            imageUrl = dto.imageUrl ?: "",
+                            audioUrl = dto.audioUrl ?: "",
+                            category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
+                            difficulty = dto.difficultyLabel.ifBlank { "media" },
+                            stars = 0,
+                            learned = true,
+                        )
+                    }
+                } ?: emptyList()
+
+                // Merge: playable words take precedence, dictionary words fill gaps
+                val allWords = (playableWords + dictWords)
+                    .distinctBy { it.word.uppercase() }
+                    .sortedBy { it.word.uppercase() }
+                fetchedWords = allWords
+            }
+        } finally {
+            isLoading = false
+        }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
-    var selectedLetter by remember { mutableStateOf<Char?>(null) }
     var selectedWord by remember { mutableStateOf<DictionaryWord?>(null) }
 
-    val filteredWords by remember(searchQuery, selectedFilterIndex, selectedLetter) {
+    val filteredWords by remember(searchQuery, selectedFilterIndex) {
         derivedStateOf {
             val q = searchQuery.trim().lowercase()
-            mockWords.filter { word ->
+            fetchedWords.filter { word ->
                 val matchesSearch = q.isEmpty() || word.word.lowercase().contains(q)
                 val matchesFilter = when (selectedFilterIndex) {
                     1 -> word.learned
@@ -181,34 +203,64 @@ fun DictionaryScreen(
                     4 -> word.difficulty == "difícil"
                     else -> true
                 }
-                val matchesLetter = selectedLetter == null ||
-                    word.word.first().uppercaseChar() == selectedLetter
-                matchesSearch && matchesFilter && matchesLetter
+                matchesSearch && matchesFilter
             }
         }
     }
 
-    val availableLetters = remember {
-        mockWords.map { it.word.first().uppercaseChar() }.distinct().sorted()
+    val availableLetters = remember(fetchedWords) {
+        fetchedWords.map { it.word.first().uppercaseChar() }.distinct().sorted()
+    }
+
+    val gridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val letterIndexMap = remember(filteredWords) {
+        val map = mutableMapOf<Char, Int>()
+        filteredWords.forEachIndexed { index, word ->
+            val firstChar = word.word.first().uppercaseChar()
+            if (firstChar !in map) map[firstChar] = index
+        }
+        map
+    }
+
+    val activeLetter by remember(filteredWords, selectedWord) {
+        derivedStateOf {
+            if (selectedWord != null) {
+                selectedWord!!.word.first().uppercaseChar()
+            } else {
+                val layoutInfo = gridState.layoutInfo
+                val viewportCenter = layoutInfo.viewportSize.height / 2
+                val centerItem = layoutInfo.visibleItemsInfo.minByOrNull { itemInfo ->
+                    abs((itemInfo.offset.y + itemInfo.size.height / 2) - viewportCenter)
+                }
+                val centerIndex = centerItem?.index ?: gridState.firstVisibleItemIndex
+                filteredWords.getOrNull(centerIndex)?.word?.firstOrNull()?.uppercaseChar()
+            }
+        }
     }
 
     Row(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .fillMaxSize(),
     ) {
-        // ── Alphabet sidebar ──
-        AlphabetNavColumn(
-            selectedLetter = selectedLetter,
-            availableLetters = availableLetters,
-            onLetterSelected = { letter ->
-                selectedLetter = if (letter == selectedLetter) null else letter
-            },
-        )
+            // ── Alphabet sidebar ──
+            AlphabetNavColumn(
+                activeLetter = activeLetter,
+                availableLetters = availableLetters,
+                onLetterSelected = { letter ->
+                    val index = letterIndexMap[letter]
+                    if (index != null) {
+                        coroutineScope.launch {
+                            gridState.animateScrollToItem(index)
+                        }
+                    }
+                },
+            )
 
-        // ── Main content ──
-        Column(modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .weight(1f).fillMaxHeight()) {
+            // ── Main content ──
+            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
             // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
             onBack?.let { back ->
                 Text(
@@ -257,6 +309,7 @@ fun DictionaryScreen(
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 160.dp),
+                    state = gridState,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
@@ -269,10 +322,9 @@ fun DictionaryScreen(
                         items = filteredWords,
                         key = { it.word },
                     ) { word ->
-                        org.alphakids.app.components.WordCard(
-                            word = word.word,
-                            translation = word.category,
-                            isCollected = word.learned,
+                        DictionaryWordCard(
+                            word = word,
+                            audioService = audioService,
                             onClick = {
                                 selectedWord = if (selectedWord?.word == word.word) null else word
                             },
@@ -285,59 +337,120 @@ fun DictionaryScreen(
 }
 
 // ── Alphabet Navigation Sidebar ──
+//
+// Apple Wheel Picker–inspired: fixed layout, continuous interpolation,
+// progressive scale/opacity/weight, drag + tap gesture support.
+
+private val ALPHABET_COLUMN_WIDTH = 36.dp
 
 @Composable
 private fun AlphabetNavColumn(
-    selectedLetter: Char?,
+    activeLetter: Char?,
     availableLetters: List<Char>,
     onLetterSelected: (Char) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val alphabet = remember { ('A'..'Z').toList() }
+    val activeIndex = remember(activeLetter) {
+        activeLetter?.let { alphabet.indexOf(it) } ?: -1
+    }
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val outlineColor = MaterialTheme.colorScheme.outline
+
     Column(
         modifier = modifier
-            .width(40.dp)
+            .width(ALPHABET_COLUMN_WIDTH)
             .fillMaxHeight()
-            .verticalScroll(rememberScrollState())
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp),
-            ),
+            .padding(vertical = 4.dp)
+            .pointerInput(availableLetters) {
+                detectTapGestures { offset ->
+                    val cellHeight = size.height.toFloat() / alphabet.size
+                    val index = (offset.y / cellHeight)
+                        .toInt()
+                        .coerceIn(0, alphabet.lastIndex)
+                    val letter = alphabet[index]
+                    if (letter in availableLetters) onLetterSelected(letter)
+                }
+            }
+            .pointerInput(availableLetters) {
+                detectVerticalDragGestures { change, _ ->
+                    val cellHeight = size.height.toFloat() / alphabet.size
+                    val index = (change.position.y / cellHeight)
+                        .toInt()
+                        .coerceIn(0, alphabet.lastIndex)
+                    val letter = alphabet[index]
+                    if (letter in availableLetters) onLetterSelected(letter)
+                    change.consume()
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(6.dp))
-        ('A'..'Z').forEach { letter ->
+        alphabet.forEachIndexed { index, letter ->
             val isAvailable = letter in availableLetters
-            val isSelected = letter == selectedLetter
+            val rawDistance = if (activeIndex >= 0) abs(index - activeIndex).toFloat() else 4f
 
-            Text(
-                text = letter.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isSelected) FontWeight.Bold
-                else if (isAvailable) FontWeight.Medium
-                else FontWeight.Light,
-                color = when {
-                    isSelected -> MaterialTheme.colorScheme.primary
-                    isAvailable -> MaterialTheme.colorScheme.onSurface
-                    else -> MaterialTheme.colorScheme.outline
-                },
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .then(
-                        if (isAvailable) Modifier.clickable(onClick = { onLetterSelected(letter) })
-                        else Modifier
-                    )
-                    .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-                        else Color.Transparent,
-                        shape = CircleShape,
-                    )
-                    .padding(horizontal = 6.dp, vertical = 3.dp),
+            val targetScale = smoothLerp(1.55f, 0.8f, rawDistance / 3.5f)
+            val scale by animateFloatAsState(
+                targetValue = targetScale,
+                animationSpec = spring(
+                    dampingRatio = 0.7f,
+                    stiffness = Spring.StiffnessLow,
+                ),
+                label = "scale_$letter",
             )
-            Spacer(modifier = Modifier.height(2.dp))
+
+            val targetOpacity = if (isAvailable) {
+                smoothLerp(1f, 0.3f, rawDistance / 3.5f)
+            } else 0.2f
+            val opacity by animateFloatAsState(
+                targetValue = targetOpacity,
+                animationSpec = spring(
+                    dampingRatio = 0.7f,
+                    stiffness = Spring.StiffnessLow,
+                ),
+                label = "opacity_$letter",
+            )
+
+            val fontWeight = when {
+                rawDistance < 0.5f -> FontWeight.ExtraBold
+                rawDistance < 1.5f -> FontWeight.Bold
+                rawDistance < 2.5f -> FontWeight.Medium
+                else -> FontWeight.Normal
+            }
+
+            val textColor = when {
+                rawDistance < 0.5f -> primaryColor
+                isAvailable -> onSurfaceColor
+                else -> outlineColor
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = letter.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = fontWeight,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = opacity
+                    },
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
     }
 }
+
+private fun smoothLerp(start: Float, stop: Float, fraction: Float): Float =
+    start + (stop - start) * fraction.coerceIn(0f, 1f)
 
 // ── Search Bar ──
 
@@ -410,8 +523,113 @@ private fun FilterChipsRow(
     }
 }
 
-// ── Word Card ──
+// ── Dictionary Word Card (grid item with image + audio) ──
 
+@Composable
+private fun DictionaryWordCard(
+    word: DictionaryWord,
+    audioService: AudioService,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val accent = categoryColor(word.category)
+    val scope = rememberCoroutineScope()
+
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Word image — show API image if available, fallback to letter
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(accent.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (word.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = word.imageUrl,
+                        contentDescription = word.word,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                    )
+                } else {
+                    Text(
+                        text = word.word.first().uppercase(),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = accent,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Word text
+            Text(
+                text = word.word,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            // Category + learned badge
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                if (word.learned) {
+                    Text(text = "✅", style = MaterialTheme.typography.labelSmall)
+                }
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = accent.copy(alpha = 0.1f),
+                ) {
+                    Text(
+                        text = word.category,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = accent,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
+            }
+
+            // Audio playback button — visible when audioUrl is available
+            if (word.audioUrl.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .clickable {
+                            audioService.playUrl(word.audioUrl)
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "\uD83D\uDD0A",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+            }
+        }
+    }
+}
 
 // ── Word Detail Card ──
 
@@ -422,6 +640,7 @@ private fun WordDetailCard(
     modifier: Modifier = Modifier,
 ) {
     val accent = categoryColor(word.category)
+    val audioService = rememberAudioService()
 
     Card(
         modifier = modifier,
@@ -435,7 +654,7 @@ private fun WordDetailCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Large image placeholder
+            // Large image — show API image if available, fallback to letter
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -443,12 +662,22 @@ private fun WordDetailCard(
                     .background(accent.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = word.word.first().uppercase(),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = accent,
-                )
+                if (word.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = word.imageUrl,
+                        contentDescription = word.word,
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(14.dp)),
+                    )
+                } else {
+                    Text(
+                        text = word.word.first().uppercase(),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = accent,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -479,10 +708,28 @@ private fun WordDetailCard(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     DifficultyLabel(difficulty = word.difficulty)
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     StarRating(stars = word.stars)
+
+                    // Audio playback button in detail card
+                    if (word.audioUrl.isNotBlank()) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .clickable { audioService.playUrl(word.audioUrl) },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "\uD83D\uDD0A",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
                 }
 
                 if (word.learned && word.dateLearned != null) {

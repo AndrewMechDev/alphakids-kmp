@@ -25,6 +25,20 @@ actual class AudioService(private val context: Context) {
         lastPlayed[category] = System.currentTimeMillis()
     }
 
+    actual fun playUrl(url: String) {
+        currentPlayer?.release()
+        currentPlayer = MediaPlayer().apply {
+            try {
+                setDataSource(url)
+                setOnPreparedListener { start() }
+                setOnCompletionListener { release() }
+                prepareAsync()
+            } catch (e: Exception) {
+                release()
+            }
+        }
+    }
+
     actual fun stop() {
         currentPlayer?.stop()
         currentPlayer?.release()

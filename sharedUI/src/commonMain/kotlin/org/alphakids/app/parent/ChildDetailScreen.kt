@@ -88,16 +88,15 @@ fun ChildDetailScreen(
 
     LazyColumn(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Back button + header
         item(key = "header") {
             Row(
-                modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 TextButton(onClick = { navController.popBackStack() }) {

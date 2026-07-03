@@ -23,6 +23,7 @@ import org.alphakids.app.home.AdventureHomeScreen
 import org.alphakids.app.jugar.LearningAdventureHub
 import org.alphakids.app.jugar.OCRResultScreen
 import org.alphakids.app.jugar.WordScannerChallenge
+import org.alphakids.app.jugar.WordSelectionScreen
 import org.alphakids.app.onboarding.ChildProfileSelectorScreen
 import org.alphakids.app.onboarding.LoginScreen
 import org.alphakids.app.onboarding.PlaceholderHomeScreen
@@ -31,6 +32,8 @@ import org.alphakids.app.onboarding.SplashScreen
 import org.alphakids.app.onboarding.WelcomeSelectionScreen
 import org.alphakids.app.onboarding.NetflixProfilesScreen
 import org.alphakids.app.onboarding.VerificationScreen
+import org.alphakids.app.onboarding.wizard.AssignInstitutionScreen
+import org.alphakids.app.onboarding.wizard.AssignInstitutionViewModel
 import org.alphakids.app.onboarding.wizard.ChooseAvatarScreen
 import org.alphakids.app.onboarding.wizard.ChooseAvatarViewModel
 import org.alphakids.app.onboarding.wizard.ChooseFirstPetScreen
@@ -42,6 +45,7 @@ import org.alphakids.app.onboarding.wizard.WizardViewModel
 import org.alphakids.app.parent.ParentHomeScreen
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.CircadianTheme
 
 @Composable
@@ -171,6 +175,27 @@ fun App() {
             }
 
             composable(
+                Screen.AssignInstitution.route,
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
+            ) {
+                val parentRepo: ParentRepository = koinInject()
+                val assignViewModel = remember {
+                    AssignInstitutionViewModel(
+                        parentRepository = parentRepo,
+                        wizardViewModel = wizardViewModel,
+                    )
+                }
+                AssignInstitutionScreen(
+                    navController = navController,
+                    wizardViewModel = wizardViewModel,
+                    assignViewModel = assignViewModel,
+                )
+            }
+
+            composable(
                 Screen.ChooseFirstPet.route,
                 enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
                 exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
@@ -235,6 +260,17 @@ fun App() {
                 ParentHomeScreen(navController = navController)
             }
 
+            // ── Word Selection Route ──
+            composable(
+                Screen.WordSelection.route,
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
+            ) {
+                WordSelectionScreen(navController = navController)
+            }
+
             // ── Jugar / Activity Routes ──
 
             composable(
@@ -257,8 +293,27 @@ fun App() {
                 popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
-                val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
-                val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                val gameWordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
+                val fallbackText = if (gameWordText.isNotBlank()) gameWordText else ""
+                val word = if (fallbackText.isNotBlank()) {
+                    // Dynamic word from API (WordSelectionScreen)
+                    val safeText = fallbackText.uppercase().filter { it.isLetter() || it.isWhitespace() }
+                        .ifBlank { "ABC" }
+                    org.alphakids.app.domain.model.ChallengeWord(
+                        word = safeText,
+                        hint = "Escanea las letras",
+                        imageName = safeText.first().toString(),
+                        category = "Palabras",
+                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
+                            .ifBlank { "fácil" },
+                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
+                            .ifBlank { null },
+                    )
+                } else {
+                    // Hardcoded word from WordBank (direct navigation)
+                    val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
+                    WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                }
                 WordScannerChallenge(
                     navController = navController,
                     word = word,
@@ -271,16 +326,35 @@ fun App() {
                     navArgument("wordIndex") { type = NavType.IntType },
                     navArgument("attempts") { type = NavType.IntType },
                     navArgument("time") { type = NavType.LongType },
+                    navArgument("wordText") { type = NavType.StringType; defaultValue = "" },
                 ),
                 enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
                 exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
                 popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
-                val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
                 val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
                 val time = backStackEntry.arguments?.getLong("time") ?: 0L
-                val word = WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                val wordTextArg = backStackEntry.arguments?.getString("wordText") ?: ""
+                val ocrWordText = if (wordTextArg.isNotBlank()) wordTextArg
+                    else org.alphakids.app.game.domain.model.GameSessionState.currentWordText
+                val word = if (ocrWordText.isNotBlank()) {
+                    val safeText = ocrWordText.uppercase().filter { it.isLetter() }
+                        .ifBlank { "ABC" }
+                    org.alphakids.app.domain.model.ChallengeWord(
+                        word = safeText,
+                        hint = "Escanea las letras",
+                        imageName = safeText.first().toString(),
+                        category = "Palabras",
+                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
+                            .ifBlank { "fácil" },
+                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
+                            .ifBlank { null },
+                    )
+                } else {
+                    val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
+                    WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                }
                 OCRResultScreen(
                     navController = navController,
                     word = word,

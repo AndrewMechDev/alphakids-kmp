@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -52,6 +53,7 @@ import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
+import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
@@ -81,8 +83,9 @@ fun CreateChildProfileScreen(
 
     Column(
         modifier = Modifier
+            .circadianBackground()
+            .safeDrawingPadding()
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -90,7 +93,7 @@ fun CreateChildProfileScreen(
             title = "Perfil del niño",
             subtitle = "Cuéntanos sobre tu hijo",
             currentStep = 2,
-            totalSteps = 5,
+            totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
             onBack = { navController.popBackStack() },
         )

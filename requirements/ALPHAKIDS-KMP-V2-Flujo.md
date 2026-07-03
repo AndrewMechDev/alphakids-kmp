@@ -4,13 +4,24 @@ Estructura Definitiva de Pantallas, Pestañas,
 
 Submódulos y Flujo Completo
 
+ESTADO ACTUAL DE IMPLEMENTACIÓN — Julio 2026
+
+Todas las 6 fases de mejora UX/UI completadas:
+- Sistema de diseño global (circadian backgrounds, cards homogéneas, safe areas)
+- Splash + Welcome rediseñados
+- Login con campos mejorados, contraste y circadian
+- Selector de perfiles con avatares circulares (Netflix-style)
+- Panel de padres con dashboard de datos reales (AggregatedStats por hijo)
+- Dashboard del niño con avatar circular + Alphi sin card
+- Hub de juegos con gradientes + selector de palabras en grid
+- Escáner de letras simplificado (sin métricas redundantes)
+- Todos los colores usan tokens circadian (sin Color.White hardcodeado)
+
 1. FLUJO COMPLETO DEL PRODUCTO
 
 Primera Instalación
 
-AlphaKidsSplash ↓ ParentLogin ↓ ParentRegister ↓ Verificación de Cuenta ↓ ParentSetupWizard ↓
-
-CreateChildProfile ↓ ChooseChildAvatar ↓ ChooseFirstPet ↓ WelcomeAdventure ↓ AdventureHome
+AlphaKidsSplash ↓ WelcomeSelection ↓ ParentLogin (o Register) ↓ Verificación OTP ↓ SetupWizard (6 pasos) ↓ AdventureHome
 
 Uso Diario
 
@@ -20,7 +31,7 @@ AlphaKidsSplash ↓ AdventureHome
 
 Si existen varios hijos
 
-AlphaKidsSplash ↓ ChildProfileSelector ↓ AdventureHome
+AlphaKidsSplash ↓ ChildProfileSelector ↓ NetflixProfilesScreen ↓ AdventureHome
 
 2. FLUJO DE ACCESO
 
@@ -300,35 +311,24 @@ Crear perfil
 
 Editar perfil
 
-3. NAVEGACIÓN PRINCIPAL DEL NIÑO
+3. NAVEGACIÓN PRINCIPAL DEL NIÑO (AdventureHome)
 
-1.
+Bottom Navigation (3 tabs):
 
-Inicio
+1. 📊 Inicio — Dashboard + acceso a Jugar y Diccionario (overlay)
+2. 🛒 Tienda — Mascotas, alimentos, accesorios
+3. 🐾 Mascotas — Perfiles + desbloqueo por nivel
 
-2.
+Nota: Diccionario y Logros están integrados dentro de la pantalla de Inicio como
+overlay y sub-secciones respectivamente, no como tabs separados.
 
-Jugar
-
-3.
-
-Diccionario
-
-4.
-
-Mascotas
-
-5.
-
-Logros
-
-4. PESTAÑA INICIO (AdventureHome)
+4. PESTAÑA INICIO (AdventureHome — Tab 1)
 
 Header Global
 
 •
 
-Avatar
+Avatar (circular con color de la paleta de avatarColors)
 
 •
 
@@ -337,10 +337,6 @@ Nombre
 •
 
 Nivel
-
-•
-
-Rango
 
 •
 
@@ -958,33 +954,65 @@ Niveles alcanzados
 
 9. PANEL PADRE/TUTOR
 
-Dashboard
+Dashboard (implementado con AggregatedStats)
 
 •
 
-Hijos registrados
+Hijos registrados (total count)
 
 •
 
-Actividad reciente
+Palabras aprendidas (suma de todos los hijos)
 
 •
 
-Rendimiento general
-
-Gestión de Hijos
+Tiempo total de juego (minutos)
 
 •
 
-Crear hijo
+Monedas ganadas
 
 •
 
-Editar hijo
+Estrellas obtenidas
 
 •
 
-Eliminar hijo
+OCR completados
+
+•
+
+Deletreos completados
+
+•
+
+Nivel promedio
+
+•
+
+Actividad reciente (lista)
+
+Gestión de Hijos (LazyColumn + cards + AsyncImage)
+
+•
+
+Lista de hijos con avatar circular + nombre + edad + nivel
+
+•
+
+Última conexión
+
+•
+
+Botón Editar
+
+•
+
+Botón Eliminar
+
+•
+
+Botón Agregar hijo
 
 Perfil Hijo
 

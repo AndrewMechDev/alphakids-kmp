@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,7 +31,6 @@ import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.PrimaryBlue
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
 import org.alphakids.app.theme.circadianBackground
 
@@ -47,9 +47,9 @@ import org.alphakids.app.theme.circadianBackground
 fun WelcomeSelectionScreen(navController: NavController) {
     Box(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .safeDrawingPadding()
+            .fillMaxSize(),
     ) {
         Column(
             modifier = Modifier
@@ -64,19 +64,10 @@ fun WelcomeSelectionScreen(navController: NavController) {
             Image(
                 painter = painterResource(Res.drawable.logo_alphi_principal),
                 contentDescription = "AlphaKids Logo",
-                modifier = Modifier.size(100.dp),
+                modifier = Modifier.size(120.dp),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Alphi mascot
-            Image(
-                painter = painterResource(Res.drawable.alphi_anunciando),
-                contentDescription = "Alphi",
-                modifier = Modifier.size(100.dp),
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             // Welcome title
             Text(

@@ -161,8 +161,8 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .fillMaxSize(),
     ) {
         // ── Sub-tab bar ──
         AchievementsSubTabBar(
@@ -171,13 +171,15 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
         )
 
         // ── Content ──
-        when (selectedSubTab) {
-            AchievementsSubTab.Rangos.index -> RangosContent()
-            AchievementsSubTab.Trofeos.index -> TrofeosContent()
-            AchievementsSubTab.Estadisticas.index -> EstadisticasContent()
-            AchievementsSubTab.Historial.index -> HistorialContent()
+        Box(modifier = Modifier.weight(1f)) {
+            when (selectedSubTab) {
+                AchievementsSubTab.Rangos.index -> RangosContent()
+                AchievementsSubTab.Trofeos.index -> TrofeosContent()
+                AchievementsSubTab.Estadisticas.index -> EstadisticasContent()
+                AchievementsSubTab.Historial.index -> HistorialContent()
+            }
         }
-    }
+    }  // ← cierra Column
 }
 
 // ── Sub-tab Bar ──
@@ -189,7 +191,7 @@ private fun AchievementsSubTabBar(
 ) {
     Row(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),

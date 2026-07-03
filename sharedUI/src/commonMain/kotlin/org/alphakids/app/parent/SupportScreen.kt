@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.FAQItem
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Support screen with FAQ accordion and contact form.
@@ -48,7 +49,9 @@ fun SupportScreen(
     val state by viewModel.uiState.collectAsState()
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .circadianBackground()
+            .fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

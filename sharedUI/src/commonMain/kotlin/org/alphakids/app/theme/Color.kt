@@ -1,6 +1,9 @@
 package org.alphakids.app.theme
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 // ── Primary Palette ──
 val PrimaryBlue = Color(0xFF3B7DF6)
@@ -62,11 +65,11 @@ val LightColorScheme = androidx.compose.material3.lightColorScheme(
     onError = CtaTextWhite,
     errorContainer = Color(0xFFFFDAD6),
     onErrorContainer = Color(0xFF410002),
-    background = Color(0xFFFDFBFF),
+    background = Color(0x00FFFFFF),
     onBackground = DeepNavy,
-    surface = CardWhite,
+    surface = Color(0xF2FFFFFF),
     onSurface = DeepNavy,
-    surfaceVariant = SoftLavender,
+    surfaceVariant = Color(0xE6E9E4FB),
     onSurfaceVariant = SlateGray,
     outline = DisabledGray,
     outlineVariant = Color(0xFFC5C5D2),
@@ -94,11 +97,11 @@ val DarkColorScheme = androidx.compose.material3.darkColorScheme(
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),
     onErrorContainer = Color(0xFFFFDAD6),
-    background = Color(0xFF111318),
+    background = Color(0x00111318),
     onBackground = Color(0xFFE2E2E9),
-    surface = Color(0xFF1A1C21),
+    surface = Color(0xE61A1C21),
     onSurface = Color(0xFFE2E2E9),
-    surfaceVariant = Color(0xFF44464F),
+    surfaceVariant = Color(0xD944464F),
     onSurfaceVariant = Color(0xFFC5C6D0),
     outline = Color(0xFF8F909A),
     outlineVariant = Color(0xFF44464F),
@@ -107,3 +110,10 @@ val DarkColorScheme = androidx.compose.material3.darkColorScheme(
     inversePrimary = PrimaryBlue,
     surfaceTint = Color(0xFF9DBEFF),
 )
+
+object AlphaCardDefaults {
+    val Elevation = 2.dp
+    val Shape = RoundedCornerShape(16.dp)
+    val ContentPadding = PaddingValues(16.dp)
+    val Spacing = 12.dp
+}
