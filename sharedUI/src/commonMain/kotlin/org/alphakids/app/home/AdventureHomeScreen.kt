@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,6 +65,11 @@ fun AdventureHomeScreen(navController: NavController) {
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
+
+    // Refresh coins from GameProgressManager when switching tabs
+    LaunchedEffect(selectedTab) {
+        viewModel.refreshCoins()
+    }
 
     // Back handler → show exit confirmation
     BackHandler {

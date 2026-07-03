@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.parent.domain.model.SessionManager
 
 /**
@@ -74,7 +75,6 @@ data class PendingActivity(
 class HomeViewModel : ViewModel() {
     companion object {
         /** Persists during app session even if ViewModel is recreated. */
-        private var sessionCoins: Int = 50
         private var sessionStars: Int = 0
     }
 
@@ -85,6 +85,14 @@ class HomeViewModel : ViewModel() {
         loadMockData()
     }
 
+    /**
+     * Reloads coins from [GameProgressManager] — call after game completions
+     * or store purchases to refresh the dashboard balance.
+     */
+    fun refreshCoins() {
+        _state.update { it.copy(coins = GameProgressManager.coinsBalance) }
+    }
+
     private fun loadMockData() {
         val child = SessionManager.currentChild
         _state.update {
@@ -92,7 +100,7 @@ class HomeViewModel : ViewModel() {
                 childName = child?.name ?: "Valentina",
                 childLevel = child?.level ?: 1,
                 childRank = child?.rank ?: "Semillita",
-                coins = sessionCoins,
+                coins = GameProgressManager.coinsBalance,
                 stars = child?.stars ?: sessionStars,
                 xp = 30,
                 xpToNextLevel = 100,
@@ -124,7 +132,7 @@ class HomeViewModel : ViewModel() {
 
     /** Deduct coins when the child buys something from the Tienda. */
     fun spendCoins(amount: Int) {
-        sessionCoins = maxOf(0, sessionCoins - amount)
-        _state.update { it.copy(coins = sessionCoins) }
+        GameProgressManager.spendCoins(amount)
+        _state.update { it.copy(coins = GameProgressManager.coinsBalance) }
     }
 }

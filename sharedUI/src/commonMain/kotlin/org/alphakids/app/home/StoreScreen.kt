@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
@@ -110,8 +111,8 @@ fun StoreScreen(
     childLevel: Int = 1,
     modifier: Modifier = Modifier,
 ) {
-    // Track purchased item IDs across the session
-    var purchasedIds by remember { mutableStateOf(setOf<String>()) }
+    // Session-persistent inventory via GameProgressManager
+    var purchasedIds by remember { mutableStateOf(GameProgressManager.inventory) }
     // Currently selected category section
     var selectedCategory by remember { mutableStateOf(StoreCategory.Mascotas) }
     // Non-null when the purchase confirmation dialog is open
@@ -169,7 +170,9 @@ fun StoreScreen(
             item = item,
             currentCoins = coins,
             onConfirm = {
-                purchasedIds = purchasedIds + item.id
+                // Persist in session-scoped manager (survives tab switches)
+                GameProgressManager.addToInventory(item.id)
+                purchasedIds = GameProgressManager.inventory
                 onSpendCoins(item.price)
                 pendingPurchase = null
             },
