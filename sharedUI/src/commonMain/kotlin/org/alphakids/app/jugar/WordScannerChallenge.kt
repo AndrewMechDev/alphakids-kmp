@@ -63,49 +63,31 @@ import alphakids_kmp.sharedui.generated.resources.alphi_buscando
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 
-/**
- * Result of an OCR scan attempt.
- */
 data class OcrResult(
     val success: Boolean,
     val detectedText: String,
 )
 
-/**
- * Word Scanner Challenge screen.
- *
- * The child sees letter slots matching the target word length and uses the
- * camera to scan physical letter tiles. CameraX + ML Kit OCR is provided
- * via the platform-specific [CameraView] composable.
- *
- * @param navController  Navigation controller.
- * @param word           The target word to scan.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordScannerChallenge(
     navController: NavController,
     word: ChallengeWord = WordBank.words.first(),
 ) {
-    // ── Game state ──
     val letters = word.word.toList().map { it.toString() }
     val letterSlots = remember { mutableStateListOf(*Array(letters.size) { "" }) }
     var attempts by remember { mutableIntStateOf(0) }
     var isScanning by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<OcrResult?>(null) }
     var showResult by remember { mutableStateOf(false) }
-
-    // Prevent re-triggering during scan
     var scanTriggered by remember { mutableStateOf(false) }
 
     val audioService = rememberAudioService()
 
-    // Play instruction audio on screen launch
     LaunchedEffect(Unit) {
         audioService.play(AudioCategory.INSTRUCTION)
     }
 
-    // ── Callback for OCR text ──
     val onTextDetected: (String) -> Unit = {
         if (scanTriggered) {
             scanTriggered = false
@@ -115,7 +97,6 @@ fun WordScannerChallenge(
             val cleaned = it.trim().uppercase()
             val chars = cleaned.filter { ch -> ch.isLetter() }.take(letterSlots.size)
 
-            // Fill slots character by character
             for (i in chars.indices) {
                 if (i < letterSlots.size) {
                     letterSlots[i] = chars[i].toString()
@@ -150,7 +131,7 @@ fun WordScannerChallenge(
                 },
                 navigationIcon = {
                     Text(
-                        text = "\u2B05\uFE0F",
+                        text = "⬅️",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(start = 8.dp)
@@ -163,7 +144,7 @@ fun WordScannerChallenge(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    titleContentColor = Color.White,
                 ),
             )
         },
@@ -176,12 +157,11 @@ fun WordScannerChallenge(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // ── Reference image / hint section ──
+            // Simplified hint card — letter count only
             WordHintSection(word = word)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Letter slots ──
             LetterSlotsRow(
                 letters = letters,
                 filledSlots = letterSlots.toList(),
@@ -189,18 +169,17 @@ fun WordScannerChallenge(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Camera preview area (platform-specific: CameraX + ML Kit) ──
             CameraView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp),
                 onTextDetected = onTextDetected,
-                onError = { /* handled by UI state if needed */ },
+                onError = {},
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ── Capture button ──
+            // Capture button
             Box(
                 modifier = Modifier.size(72.dp),
                 contentAlignment = Alignment.Center,
@@ -218,7 +197,7 @@ fun WordScannerChallenge(
                     ),
                 ) {
                     Text(
-                        text = "\uD83D\uDCF7",
+                        text = "📷",
                         style = MaterialTheme.typography.titleLarge,
                     )
                 }
@@ -237,33 +216,24 @@ fun WordScannerChallenge(
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                     )
                     Text(
                         text = "Escaneando...",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color.White.copy(alpha = 0.8f),
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Metrics row ──
-            MetricsRow(
-                attempts = attempts,
-                detectedCount = letterSlots.count { it.isNotEmpty() },
-                totalSlots = letterSlots.size,
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // ── Alphi hint ──
+            // Alphi hint — responsive
             AlphiHint()
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // ── Result / Retry actions ──
+            // Result / Retry actions
             if (showResult && result != null) {
                 val r = result!!
                 if (r.success) {
@@ -282,15 +252,15 @@ fun WordScannerChallenge(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(14.dp),
+                            .height(52.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SuccessGreen,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            contentColor = Color.White,
                         ),
                     ) {
                         Text(
-                            text = "\u2705 \u00a1Palabra completada! Ver resultado",
+                            text = "¡Completada! Ver resultado",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                         )
@@ -298,7 +268,6 @@ fun WordScannerChallenge(
                 } else {
                     Button(
                         onClick = {
-                            // Reset for retry
                             showResult = false
                             result = null
                             letterSlots.forEachIndexed { index, _ ->
@@ -309,11 +278,11 @@ fun WordScannerChallenge(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(14.dp),
+                            .height(52.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = ErrorRed,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            contentColor = Color.White,
                         ),
                     ) {
                         Text(
@@ -326,7 +295,7 @@ fun WordScannerChallenge(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }  // ← cierra Column
+        }
     }
 }
 
@@ -335,8 +304,10 @@ private fun WordHintSection(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.15f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier
@@ -344,21 +315,20 @@ private fun WordHintSection(word: ChallengeWord) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Reference image — Cloudinary URL from teacher or gradient fallback
             val refImageUrl = word.imageUrl
             if (refImageUrl != null && refImageUrl.isNotBlank()) {
                 AsyncImage(
                     model = refImageUrl,
                     contentDescription = word.word,
                     modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(16.dp)),
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(14.dp)),
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(14.dp))
                         .background(
                             brush = AlphaGradients.angled(AlphaGradients.Nature),
                         ),
@@ -366,7 +336,7 @@ private fun WordHintSection(word: ChallengeWord) {
                 ) {
                     Text(
                         text = word.word.first().toString(),
-                        style = MaterialTheme.typography.displaySmall,
+                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
@@ -380,43 +350,16 @@ private fun WordHintSection(word: ChallengeWord) {
                     text = word.hint,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = word.category,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = RoundedCornerShape(4.dp),
-                            )
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Letras: ${word.word.length}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    text = "${word.word.length} letras",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Difficulty indicator
-            Text(
-                text = when (word.difficulty) {
-                    "f\u00e1cil" -> "\uD83D\uDFE2"
-                    "media" -> "\uD83D\uDFE1"
-                    "dif\u00edcil" -> "\uD83D\uDD34"
-                    else -> "\u26AA"
-                },
-                style = MaterialTheme.typography.titleLarge,
-            )
         }
     }
 }
@@ -443,7 +386,7 @@ private fun LetterSlotsRow(
                         color = if (letter.isNotEmpty())
                             MaterialTheme.colorScheme.primaryContainer
                         else
-                            MaterialTheme.colorScheme.surfaceVariant,
+                            Color.White.copy(alpha = 0.15f),
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -458,7 +401,7 @@ private fun LetterSlotsRow(
                     Text(
                         text = "_",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        color = Color.White.copy(alpha = 0.5f),
                     )
                 }
             }
@@ -471,96 +414,15 @@ private fun LetterSlotsRow(
 }
 
 @Composable
-private fun CameraPlaceholder() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = "\uD83D\uDCF7",
-            style = MaterialTheme.typography.displayMedium,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "C\u00e1mara",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Medium,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "Coloca las letras frente a la c\u00e1mara",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun MetricsRow(
-    attempts: Int,
-    detectedCount: Int,
-    totalSlots: Int,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            MetricItem(
-                emoji = "\uD83D\uDD04",
-                label = "Intentos",
-                value = "$attempts",
-            )
-            MetricItem(
-                emoji = "\uD83D\uDD0D",
-                label = "Detectadas",
-                value = "$detectedCount/$totalSlots",
-            )
-        }
-    }
-}
-
-@Composable
-private fun MetricItem(
-    emoji: String,
-    label: String,
-    value: String,
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = emoji, style = MaterialTheme.typography.titleMedium)
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
 private fun AlphiHint() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(12.dp),
+                color = Color.White.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(14.dp),
             )
-            .padding(12.dp),
+            .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
@@ -570,9 +432,9 @@ private fun AlphiHint() {
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = "\u00a1Busca las letras y col\u00f3calas en orden!",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = "Busca las letras y ordénalas",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.9f),
             modifier = Modifier.weight(1f),
         )
     }

@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,27 +43,11 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.AlphaGradients
-import org.alphakids.app.theme.CardWhite
-import org.alphakids.app.theme.CoinGold
-import org.alphakids.app.theme.CoinGoldBorder
-import org.alphakids.app.theme.DisabledGray
-import org.alphakids.app.theme.PrimaryBlue
-import org.alphakids.app.theme.SlateGray
-import org.alphakids.app.theme.SuccessGreen
-import org.alphakids.app.theme.TrophyGold
+import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
 import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
-import org.alphakids.app.theme.circadianBackground
 
-/**
- * Hub screen between Home and the individual activities.
- *
- * Displays two large activity cards (Escaneo de Letras / Aventura de Deletreo)
- * and an Alphi mascot header. The spelling card shows "Próximamente" (disabled)
- * with a snackbar hint.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LearningAdventureHub(navController: NavController) {
@@ -80,13 +61,13 @@ fun LearningAdventureHub(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "\u00a1A Jugar!",
+                        text = "¡A Jugar!",
                         fontWeight = FontWeight.Bold,
                     )
                 },
                 navigationIcon = {
                     Text(
-                        text = "\u2B05\uFE0F",
+                        text = "⬅️",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(start = 8.dp)
@@ -95,7 +76,7 @@ fun LearningAdventureHub(navController: NavController) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    titleContentColor = Color.White,
                 ),
             )
         },
@@ -112,117 +93,101 @@ fun LearningAdventureHub(navController: NavController) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // ── Alphi Mascot Header ──
-            AlphiHeader()
+            // Alphi mascot + message — directly on background, bigger
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.alphi_trabajando),
+                    contentDescription = "Alphi",
+                    modifier = Modifier.size(100.dp),
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "¡Elige una actividad!",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Practica palabras nuevas y gana recompensas",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.85f),
+                    )
+                }
+            }
 
-            // ── OCR Activity Card ──
-            ActivityCard(
-                emoji = "\uD83D\uDCF7",
+            // Game cards — minimal, same size, no badges
+            GameCard(
+                emoji = "📷",
                 title = "Escaneo de Letras",
-                description = "Forma palabras con letras f\u00edsicas y escan\u00e9alas",
-                rewardsBadge = "\uD83E\uDE99 +50 \u26A1 +20 \u2B50 +1",
-                difficultyBadge = "F\u00e1cil",
-                difficultyColor = SuccessGreen,
-                buttonText = "Comenzar",
-                buttonColor = PrimaryBlue,
-                onButtonClick = {
+                description = "Forma palabras con letras físicas y escanéalas",
+                gradient = AlphaGradients.Nature,
+                onClick = {
                     navController.navigate(Screen.WordSelection.route)
                 },
             )
 
-            // ── Spelling Activity Card ──
-            ActivityCard(
-                emoji = "\uD83C\uDF99\uFE0F",
+            GameCard(
+                emoji = "🎙️",
                 title = "Aventura de Deletreo",
                 description = "Deletrea palabras con tu voz",
-                rewardsBadge = "\uD83E\uDE99 +30 \u26A1 +15 \u2B50 +1",
-                difficultyBadge = "Media",
-                difficultyColor = TrophyGold,
-                buttonText = "Pr\u00f3ximamente",
-                buttonColor = DisabledGray,
+                gradient = AlphaGradients.Adventure,
                 enabled = false,
-                onButtonClick = {
+                onClick = {
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            message = "\u00a1Pr\u00f3ximamente disponible!"
+                            message = "¡Próximamente disponible!"
                         )
                     }
                 },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-        }  // ← cierra Column
-    }
-}
-
-@Composable
-private fun AlphiHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                brush = AlphaGradients.angled(AlphaGradients.Nature),
-                shape = RoundedCornerShape(20.dp),
-            )
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            painter = painterResource(alphakids_kmp.sharedui.generated.resources.Res.drawable.alphi_trabajando),
-            contentDescription = "Alphi",
-            modifier = Modifier.size(64.dp),
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "\u00a1Elige una actividad!",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Practica palabras nuevas y gana recompensas",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.85f),
-            )
         }
     }
 }
 
 @Composable
-private fun ActivityCard(
+private fun GameCard(
     emoji: String,
     title: String,
     description: String,
-    rewardsBadge: String,
-    difficultyBadge: String,
-    difficultyColor: Color,
-    buttonText: String,
-    buttonColor: Color,
+    gradient: List<Color>,
     enabled: Boolean = true,
-    onButtonClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
     Card(
+        onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Box(modifier = Modifier.background(
-            brush = AlphaGradients.angled(AlphaGradients.Nature),
-            shape = RoundedCornerShape(20.dp),
-        )) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = AlphaGradients.angled(
+                        if (enabled) gradient else gradient.map { it.copy(alpha = 0.4f) }
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                )
+                .padding(24.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                // Emoji icon
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(72.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(Color.White.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center,
@@ -233,90 +198,31 @@ private fun ActivityCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-                // Title
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Description
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-            // Rewards badge
-            Row(
-                modifier = Modifier
-                    .background(
-                        color = CoinGold.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(8.dp),
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
                     )
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = rewardsBadge,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = CoinGoldBorder,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Difficulty badge
-            Row(
-                modifier = Modifier
-                    .background(
-                        color = difficultyColor.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(6.dp),
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.85f),
                     )
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = difficultyBadge,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = difficultyColor,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Action button
-            Button(
-                onClick = onButtonClick,
-                enabled = enabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonColor,
-                    contentColor = Color.White,
-                    disabledContainerColor = DisabledGray,
-                    disabledContentColor = Color.White,
-                ),
-            ) {
-                Text(
-                    text = buttonText,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+                    if (!enabled) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Próximamente",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White.copy(alpha = 0.6f),
+                        )
+                    }
+                }
             }
         }
     }

@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.components.AlphaPrimaryButton
-import org.alphakids.app.components.AlphaTextButton
+
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.PlanBenefit
 import org.alphakids.app.parent.domain.model.PlanType
@@ -223,15 +223,6 @@ fun SubscriptionScreen(
                         )
                     }
                 }
-            }
-
-            // Terms link
-            item(key = "terms") {
-                AlphaTextButton(
-                    text = "Términos y condiciones",
-                    onClick = { /* future */ },
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
 
             // Bottom spacer

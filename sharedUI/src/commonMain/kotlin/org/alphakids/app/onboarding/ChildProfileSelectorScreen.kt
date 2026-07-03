@@ -88,7 +88,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
             text = "\uD83D\uDC4B ¿Quién está listo para aprender hoy?",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = androidx.compose.ui.graphics.Color.White,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -98,7 +98,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
         Text(
             text = "Cada niño tiene su propio viaje, sus logros y su historia",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
