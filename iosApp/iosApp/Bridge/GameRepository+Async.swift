@@ -38,7 +38,7 @@ extension GameRepositoryAsync {
     /// `SharedLogicGameRepository`.
     static var repository: SharedLogic.GameRepository {
         return SharedLogic.AppKoin.shared.koin.get(
-            objCClass: SharedLogic.GameRepository.self
+            qualifier: nil, parameters: nil
         ) as! SharedLogic.GameRepository
     }
 

@@ -16,9 +16,13 @@ import org.alphakids.app.studentpet.di.studentPetModule
  * SharedLogicKt.doInitKoin()
  * let repo = SharedLogic.AppKoin.shared.koin.get(objCClass: GameRepository.self) as! GameRepository
  * ```
+ *
+ * Note: the Koin instance is exposed as `koin`, not `shared` — Kotlin objects
+ * exported to Objective-C/Swift automatically get a synthetic `shared` class
+ * property to access the singleton, so a member also named `shared` would collide.
  */
 object AppKoin {
-    val shared = run {
+    val koin = run {
         startKoin {
             modules(
                 commonModule,
@@ -39,6 +43,6 @@ object AppKoin {
  * Safe to call multiple times — subsequent calls are ignored.
  */
 fun doInitKoin() {
-    // Force lazy initialization of AppKoin.shared
-    val _ = AppKoin.shared
+    // Force lazy initialization of AppKoin.koin
+    AppKoin.koin
 }

@@ -33,7 +33,7 @@ extension AuthRepositoryAsync {
     /// `SharedLogicAuthRepository`.
     static var repository: SharedLogic.AuthRepository {
         return SharedLogic.AppKoin.shared.koin.get(
-            objCClass: SharedLogic.AuthRepository.self
+            qualifier: nil, parameters: nil
         ) as! SharedLogic.AuthRepository
     }
 

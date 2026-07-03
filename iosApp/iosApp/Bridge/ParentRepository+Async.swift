@@ -32,7 +32,7 @@ extension ParentRepositoryAsync {
     /// `SharedLogicParentRepository`.
     static var repository: SharedLogic.ParentRepository {
         return SharedLogic.AppKoin.shared.koin.get(
-            objCClass: SharedLogic.ParentRepository.self
+            qualifier: nil, parameters: nil
         ) as! SharedLogic.ParentRepository
     }
 

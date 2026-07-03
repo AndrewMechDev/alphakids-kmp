@@ -53,7 +53,7 @@ final class DashboardViewModel: ObservableObject {
     @Published var childName: String = ""
     @Published var childLevel: Int = 1
     @Published var childRank: String = "Semillita"
-    @Published var coins: Int = Self.sessionCoins
+    @Published var coins: Int = DashboardViewModel.sessionCoins
     @Published var stars: Int = 0
     @Published var xp: Int = 0
     @Published var xpToNextLevel: Int = 100
@@ -113,9 +113,9 @@ final class DashboardViewModel: ObservableObject {
         // 1. Load from session state (always available)
         let child = SharedLogic.SessionManager.shared.currentChild
         childName = child?.name ?? "Explorador"
-        childLevel = child?.level ?? 1
+        childLevel = child.map { Int($0.level) } ?? 1
         childRank = child?.rank ?? "Semillita"
-        stars = child?.stars ?? 0
+        stars = child.map { Int($0.stars) } ?? 0
         coins = Self.sessionCoins
 
         // Default values (no API endpoints exist for these yet)
@@ -130,7 +130,7 @@ final class DashboardViewModel: ObservableObject {
         alphiMessage = "¡Bienvenido de vuelta! ¿Listo para aprender?"
 
         // Use the base wordsLearned from ChildSummary as fallback
-        wordsLearned = child?.wordsLearned ?? 0
+        wordsLearned = child.map { Int($0.wordsLearned) } ?? 0
         wordsPending = 0
         pendingActivities = []
 

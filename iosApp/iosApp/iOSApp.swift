@@ -8,7 +8,7 @@ struct iOSApp: App {
         // Initialize Koin dependency injection from shared KMP module.
         // If Koin fails internally, the Kotlin runtime will handle it;
         // we log the attempt and let the app continue in dev mode.
-        SharedLogicKt.doInitKoin()
+        InitKoinKt.doInitKoin()
         print("[AlphaKids] Koin initialized successfully")
     }
 
