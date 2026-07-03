@@ -22,97 +22,178 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 ## Flujo actual
 
 ```
-Vista 1 — Splash (carga)
-┌──────────────────────────────────┐
-│      🖼️ Logo AlphaKids           │
-│      🦊 Alphi                    │
-│      ⏳ Cargando... (2.5s)       │
-│      → Valida sesión             │
-└──────────────────────────────────┘
+Vista 1 — Splash (carga + validación de sesión)
+┌───────────────────────────────────────────┐
+│      🖼️ Logo + 🦊 Alphi grande            │
+│      ⏳ Cargando... (2.5s)                │
+│      → Valida sesión + tokens             │
+└───────────────────────────────────────────┘
         │
         ▼
 Vista 2 — Welcome Selection (bienvenida)
-┌──────────────────────────────────┐
-│    🖼️ Logo + 🦊 Alphi            │
-│                                  │
-│  ¡Bienvenido a AlphaKids!        │
-│  Elige la opción más adecuada    │
-│                                  │
-│  ┌──────────────────────────┐   │
-│  │ 👤 Tutor registrado      │   │
-│  │    Iniciar sesión        │   │
-│  └──────────────────────────┘   │
-│  ┌──────────────────────────┐   │
-│  │ ✨ ¿No estás registrado?  │   │
-│  │    Crear cuenta gratis   │   │
-│  └──────────────────────────┘   │
-└──────────────────────────────────┘
+┌───────────────────────────────────────────┐
+│    🖼️ Logo + 🦊 Alphi + texto circadian   │
+│  ┌─────────────────────────────────────┐  │
+│  │ 👤 Tutor registrado  → Login       │  │
+│  └─────────────────────────────────────┘  │
+│  ┌─────────────────────────────────────┐  │
+│  │ ✨ Crear cuenta gratis → Register   │  │
+│  └─────────────────────────────────────┘  │
+└───────────────────────────────────────────┘
         │
-        ├── "Tutor registrado" → Login
-        │   ← Botón "Volver" a WelcomeSelection
-        │   → Login exitoso → Netflix de Perfiles 🎬
+        ├── "Tutor registrado"
+        │   ▼
+        │  LoginScreen (circadian + safe area)
+        │  ┌─────────────────────────────────┐
+        │  │  Campo email + contraseña      │
+        │  │  TextField con colores circadian│
+        │  │  Botón "Iniciar sesión"        │
+        │  │  ← Volver a Welcome            │
+        │  └─────────────────────────────────┘
+        │   → Login exitoso
+        │   ▼
+        │  NetflixProfilesScreen 🎬 (avatares circulares)
+        │  ┌─────────────────────────────────────┐
+        │  │  👤 Papá (nivel padre)             │
+        │  │  👶 Hijo1 🐾 (avatar circular + nivel)│
+        │  │  👶 Hijo2 🐾                        │
+        │  │  ➕ Agregar perfil (icono ilustrado)│
+        │  └─────────────────────────────────────┘
+        │   → Selecciona perfil hijo
+        │   ▼
         │
-        │   Vista 3 — Netflix de Perfiles 👥 → SetupWizard
-        │   ┌─────────────────────────────────┐
-        │   │  Wizard 6 pasos (1 opcional):   │
-        │   │  1. SetupIntro (bienvenida)     │
-        │   │  2. CreateChild (nombre, edad)  │
-        │   │  3. ChooseAvatar (DiceBear)     │
-        │   │  4. AssignInstitution (opcional)│
-        │   │     → GET /institutions/public  │
-        │   │     → Selecciona colegio+sección│
-        │   │  5. ChooseFirstPet              │
-        │   │  6. Welcome → POST /tutors/child│
-        │   │     ├── con institución → PENDING│
-        │   │     └── sin institución → VERIFIED│
-        │   └─────────────────────────────────┘
+        ├── "Crear cuenta gratis"
+        │   ▼
+        │  RegisterScreen → Verificación OTP (auto-6 dígitos)
+        │   → Login automático
+        │   ▼
         │
-        ├── "¿No estás registrado?" → Register → OTP → SetupWizard
+        └── SetupWizard (6 pasos, 1 opcional)
+            ┌─────────────────────────────────┐
+            │  1. SetupIntro                  │
+            │  2. CreateChildProfile          │
+            │  3. ChooseAvatar (DiceBear)     │
+            │  4. AssignInstitution (opcional)│
+            │     → GET /institutions/public  │
+            │  5. ChooseFirstPet              │
+            │  6. Welcome → POST /tutors/child│
+            │     ├── con institución → PENDING│
+            │     └── sin institución → VERIFIED│
+            └─────────────────────────────────┘
+             → AdventureHome 🏠
+
+AdventureHome 🏠 (3 tabs + Diccionario overlay)
+  ┌──────────────────────────────────────────────┐
+  │  Header: Avatar circular + nombre + nivel    │
+  │  ┌──────┬────────┬────────┐                  │
+  │  │ 📊  │ 🛒    │ 🐾    │                  │
+  │  │Inicio│ Tienda│Mascotas│                  │
+  │  └──────┴────────┴────────┘                  │
+  └──────────────────────────────────────────────┘
         │
-        └── OTP → SetupWizard → AdventureHome 🏠
-
-AdventureHome 🏠 (4 tabs)
-  ├── Inicio 📊  — Dashboard → Jugar → Diccionario (scroll-sync A–Z)
-  ├── Tienda 🛒  — Mascotas, alimentos, accesorios
-  ├── Mascotas 🐾 — Perfiles, estados, desbloqueo por nivel
-  └── Logros 🏆  — Rangos, Trofeos, Estadísticas, Historial
+        ├── Inicio 📊
+        │  ┌────────────────────────────────────┐
+        │  │  "¡Bienvenido, [nombre]!" (título) │
+        │  │  🦊 Alphi grande (sin card)        │
+        │  │  Mensaje motivacional              │
+        │  │  ┌─────────┐ ┌─────────┐          │
+        │  │  │ 🎮 Jugar │ │ 📖 Dicc.│          │
+        │  │  └─────────┘ └─────────┘          │
+        │  │  Cards de actividad (mismo tamaño) │
+        │  │  Progreso: palabras, racha, nivel  │
+        │  └────────────────────────────────────┘
         │
-        └── 🎮 Jugar → WordSelection (palabras del API)
-              ├── ASIGNED → "📢 Tienes palabras del profesor!" + badge
-              └── CATALOG → palabras generales
-                    │
-                    ▼
-              WordScannerChallenge 📷
-              ├── Muestra imagen de referencia (Cloudinary)
-              ├── Cámara + OCR (ML Kit)
-              └── Éxito → OCRResult 🎉
-                    ├── Reporta: POST /game-sessions/complete
-                    ├── "Seguir jugando" → WordSelection
-                    └── "Repetir" → misma palabra
+        ├── Tienda 🛒 — Mascotas, alimentos, accesorios
+        │
+        ├── Mascotas 🐾 — Perfiles + desbloqueo por nivel
+        │
+        ├── Diccionario overlay (scroll-sync A–Z)
+        │  ┌────────────────────────────────────┐
+        │  │  A│ 🔍 Buscar palabra...           │
+        │  │  B│ ┌─────────┐ ┌─────────┐      │
+        │  │  C│ │ Casa    │ │  Perro  │      │
+        │  │  D│ └─────────┘ └─────────┘      │
+        │  │  E│ [Fácil] [Media] [Difícil]    │
+        │  │  ..│ Grid responsive + detalle     │
+        │  └────────────────────────────────────┘
+        │
+        └── 🎮 Jugar → LearningAdventureHub
+           ┌────────────────────────────────────┐
+           │  🦊 Alphi grande + "¡Elige una!"   │
+           │  ┌──────────────────────────────┐  │
+           │  │ 📷 Escaneo de Letras (OCR)   │  │
+           │  │   Gradiente naturaleza       │  │
+           │  │   → Palabras del profesor    │  │
+           │  └──────────────────────────────┘  │
+           │  ┌──────────────────────────────┐  │
+           │  │ 🎤 Deletreo (STT)            │  │
+           │  │   Gradiente aventura         │  │
+           │  │   Próximamente               │  │
+           │  └──────────────────────────────┘  │
+           └────────────────────────────────────┘
+                 │
+                 ▼
+           WordSelectionScreen (grid con gradientes)
+           ├── ASIGNED → badge "Profesor"
+           ├── CATALOG → palabras generales
+           │   Uso de LazyVerticalGrid + imágenes
+           │
+           ▼
+           WordScannerChallenge 📷
+           ├── TopAppBar + header circadian
+           ├── Imagen referencia (Cloudinary)
+           ├── Letter slots (diseño simplificado)
+           ├── Cámara + OCR (ML Kit)
+           ├── AlphiHint estilo Apple
+           └── Éxito → OCRResult 🎉
+                 ├── POST /game-sessions/complete
+                 ├── "Seguir jugando" → WordSelection
+                 └── "Repetir" → misma palabra
 
-Parent Dashboard (3 tabs)
-  ├── Dashboard  — Resumen hijos
-  ├── Hijos     — Detalle por hijo
-  └── Suscripción — Plan y beneficios
+Parent Dashboard (3 tabs) 🧑‍👩‍👧‍👦
+  ┌──────────────────────────────────────────────┐
+  │  TopAppBar: "Panel de Padres" (1 línea)     │
+  │  ≡ menú │ engranaje │ modo niño             │
+  ├──────────────────────────────────────────────┤
+  │  ┌──────┬──────┬──────────────┐             │
+  │  │ 📊  │ 👶  │ 💳          │             │
+  │  │Dash.│ Hijos│ Suscripción  │             │
+  │  └──────┴──────┴──────────────┘             │
+  └──────────────────────────────────────────────┘
+        │
+        ├── Dashboard 📊
+        │  ┌────────────────────────────────────┐
+        │  │  Hijos registrados: N              │
+        │  │  Palabras aprendidas: M            │
+        │  │  Tiempo total: X min               │
+        │  │  Monedas/Estrellas/OCR/Spelling    │
+        │  │  Nivel promedio                    │
+        │  │  Actividad reciente                │
+        │  └────────────────────────────────────┘
+        │
+        ├── Hijos 👶
+        │  ┌────────────────────────────────────┐
+        │  │  👤 Avatar + nombre + edad        │
+        │  │  Nivel + última conexión           │
+        │  │  [Editar] [Eliminar]               │
+        │  │  [+ Agregar hijo]                  │
+        │  └────────────────────────────────────┘
+        │
+        └── Suscripción 💳 — Plan y beneficios
 
-### Mejoras implementadas
+### Mejoras implementadas (UX/UI V2)
 
-| Mejora | Descripción | Estado |
-|--------|-------------|--------|
-| 🎬 **Netflix de Perfiles** | Selector visual de perfiles post-login (niños + padre) | ✅ Implementado |
-| 🔙 **Back buttons** | Botón "Volver" en Login, Register, AdventureHome, y wizard | ✅ Implementado |
-| ✉️ **Auto-OTP** | Verificar código automático al completar 6 dígitos | ✅ Implementado |
-| 🔐 **Biométrico** | Login con huella/rostro en vez de contraseña | 💡 Futuro |
-| 🌓 **Circadian Theme** | Tema oscuro automático de noche | ✅ Implementado |
-| 😴 **Sistema inactividad** | Alphi reacciona al idle del dispositivo | 💡 Futuro |
-
-### Sistema de inactividad (futuro)
-
-```
-Inactividad 30s → Alphi piensa  🤔  "¿Listo para seguir aprendiendo?"
-Inactividad 60s → Alphi descansa 😴  "Te espero cuando quieras jugar"
-Inactividad 120s → Alphi invita  🌱  "Tus palabras te están esperando"
-```
+| # | Mejora | Descripción | Fase |
+|---|--------|-------------|------|
+| 🌓 | **Sistema de Diseño Global** | Circadian background en todas las pantallas, cards consistentes, safe areas | F1 |
+| 🖼️ | **Splash + Welcome** | Rediseño completo con Alphi grande, contraste mejorado, fondos circadian | F2 |
+| 🔐 | **Login rediseñado** | Box layout, safeDrawingPadding, textfields con colores circadian, mejor contraste | F3 |
+| 🎬 | **Selector de Perfiles Netflix-style** | Avatares circulares con paleta de colores, sin cards, orden padre→hijos→agregar | F3 |
+| 📊 | **Panel de Padres completo** | Dashboard con aggregated stats reales del API, hijos con LazyColumn + AsyncImage | F4 |
+| 🏠 | **Dashboard del Niño** | Avatar circular con color, header integrado, Alphi sin card, bienvenida como título | F5 |
+| 🎮 | **Hub de Juegos** | Alphi grande sin card, cards con gradientes, diseño minimalista | F5 |
+| 📖 | **Selector de Palabras** | LazyVerticalGrid con gradientes, imágenes de referencia, responsive | F5 |
+| 📷 | **Escáner de Letras** | UI simplificada, sin MetricsRow, AlphiHint renovado, colores circadian | F6 |
 
 ## Comandos
 
@@ -133,6 +214,12 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Phase 2** — AdventureHome (4 tabs: Inicio, Tienda, Mascotas, Logros)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
+- ✅ **UX/UI Fase 1** — Sistema de diseño global (circadian backgrounds, cards consistentes, safe areas)
+- ✅ **UX/UI Fase 2** — Splash + Welcome rediseñados (Alphi grande, contraste mejorado)
+- ✅ **UX/UI Fase 3** — Login rediseñado (Box + safeDrawingPadding) + avatares circulares en selector perfiles
+- ✅ **UX/UI Fase 4** — Panel de padres expandido (AggregatedStats, cards hijos con async images)
+- ✅ **UX/UI Fase 5** — Dashboard niño (avatar color, Alphi sin card) + hub juegos (gradientes) + selector palabras (grid)
+- ✅ **UX/UI Fase 6** — Escáner simplificado (sin metrics row, colores circadian) + auditoría global de tokens
 - ✅ **Welcome Selection** — Pantalla de bienvenida con 2 cards (tutor / registro)
 - ✅ **Netflix de Perfiles** — Selector visual multiusuario post-login
 - ✅ **Back buttons** — Botones de retroceso en Login, Register, wizard y AdventureHome
@@ -149,9 +236,10 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Imagen Cloudinary** — Muestra imagen de referencia del profesor en el juego
 - ✅ **GameSessionState** — Singleton para pasar palabra API → juego → resultado
 - ✅ **POST /game-sessions/complete** — Reporta resultados al API con coins y stars
-- ✅ **Scroll-sync alphabet** — Navegador A–Z sincronizado con scroll progresivo
+- ✅ **Scroll-sync alphabet** — Navegador A–Z sincronizado con scroll progresivo (Apple Wheel style)
 - ✅ **Koin modules registrados** — gameModule, storeModule, studentPetModule en AlphaKidsApp
 - ✅ **Background circadian** — Todas las pantallas con imagen de fondo día/tarde/noche
+- ✅ **Tokens circadian sin hardcode** — Todos los `Color.White` reemplazados por theme tokens
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
