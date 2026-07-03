@@ -32,9 +32,7 @@ extension AuthRepositoryAsync {
     /// Kotlin interface `AuthRepository` is exported as ObjC protocol
     /// `SharedLogicAuthRepository`.
     static var repository: SharedLogic.AuthRepository {
-        return SharedLogic.AppKoin.shared.koin.get(
-            qualifier: nil, parameters: nil
-        ) as! SharedLogic.AuthRepository
+        return InitKoinKt.getAuthRepository()
     }
 
     // MARK: - login()

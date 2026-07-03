@@ -31,9 +31,7 @@ extension ParentRepositoryAsync {
     /// Kotlin interface `ParentRepository` is exported as ObjC protocol
     /// `SharedLogicParentRepository`.
     static var repository: SharedLogic.ParentRepository {
-        return SharedLogic.AppKoin.shared.koin.get(
-            qualifier: nil, parameters: nil
-        ) as! SharedLogic.ParentRepository
+        return InitKoinKt.getParentRepository()
     }
 
     // MARK: - getChildren()

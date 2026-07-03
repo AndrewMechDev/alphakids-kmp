@@ -37,9 +37,7 @@ extension GameRepositoryAsync {
     /// Kotlin interface `GameRepository` is exported as ObjC protocol
     /// `SharedLogicGameRepository`.
     static var repository: SharedLogic.GameRepository {
-        return SharedLogic.AppKoin.shared.koin.get(
-            qualifier: nil, parameters: nil
-        ) as! SharedLogic.GameRepository
+        return InitKoinKt.getGameRepository()
     }
 
     // MARK: - getPlayableWords()
