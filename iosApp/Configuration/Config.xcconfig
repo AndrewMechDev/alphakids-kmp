@@ -1,4 +1,4 @@
-TEAM_ID=
+TEAM_ID = // TODO: reemplazar con Team ID real de Apple Developer
 
 PRODUCT_NAME=alphakids-kmp
 PRODUCT_BUNDLE_IDENTIFIER=org.alphakids.app.alphakids-kmp$(TEAM_ID)
