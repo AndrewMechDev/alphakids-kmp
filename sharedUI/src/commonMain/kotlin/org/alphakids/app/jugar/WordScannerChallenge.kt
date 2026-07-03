@@ -138,7 +138,7 @@ fun WordScannerChallenge(
     }
 
     Scaffold(
-        modifier = Modifier.circadianBackground(alpha = 0.3f),
+        modifier = Modifier.circadianBackground(),
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(

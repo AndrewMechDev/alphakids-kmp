@@ -83,7 +83,7 @@ fun LoginScreen(navController: NavController) {
     ) { paddingValues ->
     Column(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxSize()
             .padding(paddingValues)
             .verticalScroll(scrollState)

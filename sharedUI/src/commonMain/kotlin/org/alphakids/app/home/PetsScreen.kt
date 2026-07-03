@@ -195,7 +195,7 @@ fun PetsScreen(
 
     Column(
         modifier = modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxSize(),
     ) {
         // ── Sub-tab bar ──

@@ -74,7 +74,7 @@ fun LearningAdventureHub(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        modifier = Modifier.circadianBackground(alpha = 0.3f),
+        modifier = Modifier.circadianBackground(),
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(

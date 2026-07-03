@@ -58,8 +58,8 @@ fun ParentInsightCenter(
 
     LazyColumn(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -76,8 +76,7 @@ fun ParentInsightCenter(
         // Welcome card
         item(key = "welcome") {
             Card(
-                modifier = Modifier.circadianBackground(alpha = 0.3f)
-            .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,

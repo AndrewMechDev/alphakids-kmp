@@ -93,7 +93,7 @@ fun WordSelectionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
     ) {
         Column(
             modifier = Modifier

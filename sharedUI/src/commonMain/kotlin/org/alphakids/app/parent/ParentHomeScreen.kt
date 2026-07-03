@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,6 +32,7 @@ import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.model.SessionManager
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Bottom navigation tab definition for the parent dashboard using emoji icons.
@@ -69,6 +71,8 @@ fun ParentHomeScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        modifier = Modifier.circadianBackground(),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {

@@ -120,7 +120,7 @@ fun StoreScreen(
 
     Column(
         modifier = modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxSize(),
     ) {
         // ── Header: title + coins ──
@@ -136,7 +136,7 @@ fun StoreScreen(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier
-                .circadianBackground(alpha = 0.3f)
+                .circadianBackground()
             .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

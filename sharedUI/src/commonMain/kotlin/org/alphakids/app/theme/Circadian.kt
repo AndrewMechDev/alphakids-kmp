@@ -60,7 +60,7 @@ fun backgroundForTimePeriod(period: TimePeriod): String = when (period) {
  * Modifier that applies the circadian background based on the current time of day.
  */
 @Composable
-fun Modifier.circadianBackground(alpha: Float = 0.3f, contentScale: ContentScale = ContentScale.Crop): Modifier {
+fun Modifier.circadianBackground(alpha: Float = 1.0f, contentScale: ContentScale = ContentScale.Crop): Modifier {
     val period = currentTimePeriod()
     val drawable = when (period) {
         TimePeriod.MORNING -> Res.drawable.bg_dia

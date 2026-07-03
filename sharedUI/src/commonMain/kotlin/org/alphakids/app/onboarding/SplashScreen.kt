@@ -75,7 +75,7 @@ fun SplashScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxSize()
             .background(AlphaGradients.vertical(AlphaGradients.Adventure.map { it.copy(alpha = 0.8f) })),
         contentAlignment = Alignment.Center,

@@ -54,7 +54,7 @@ fun DashboardContent(
 
     Column(
         modifier = modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxSize()
             .wrapContentWidth(align = Alignment.CenterHorizontally)
                 .widthIn(max = 600.dp)

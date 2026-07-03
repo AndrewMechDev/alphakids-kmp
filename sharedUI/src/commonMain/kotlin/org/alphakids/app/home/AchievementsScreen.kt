@@ -161,7 +161,7 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxSize(),
     ) {
         // ── Sub-tab bar ──
@@ -191,7 +191,7 @@ private fun AchievementsSubTabBar(
 ) {
     Row(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
+            .circadianBackground()
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),

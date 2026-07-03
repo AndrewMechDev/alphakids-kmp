@@ -22,12 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Bottom navigation tab definition using emoji icons (no Material Icons dependency).
@@ -104,6 +106,8 @@ fun AdventureHomeScreen(navController: NavController) {
     var showDictionary by remember { mutableStateOf(false) }
 
     Scaffold(
+        modifier = Modifier.circadianBackground(),
+        containerColor = Color.Transparent,
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,

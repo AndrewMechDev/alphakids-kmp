@@ -41,6 +41,7 @@ import org.alphakids.app.parent.domain.model.PlanType
 import org.alphakids.app.theme.StarGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGoldDetail
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Subscription screen showing current plan, benefits, upgrade button, and payment history.
@@ -60,7 +61,11 @@ fun SubscriptionScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .circadianBackground()
+            .fillMaxSize(),
+    ) {
         if (state.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             return@Box

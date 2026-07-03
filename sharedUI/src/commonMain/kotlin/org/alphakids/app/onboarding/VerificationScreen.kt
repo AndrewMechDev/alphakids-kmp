@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import org.alphakids.app.components.OTPInputField
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * OTP verification screen — 6-digit code input with resend cooldown.
@@ -57,6 +59,8 @@ fun VerificationScreen(navController: NavController, email: String) {
 
     Column(
         modifier = Modifier
+            .circadianBackground()
+            .statusBarsPadding()
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),

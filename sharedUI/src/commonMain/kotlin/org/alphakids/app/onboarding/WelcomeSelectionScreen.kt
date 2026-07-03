@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -47,9 +48,9 @@ import org.alphakids.app.theme.circadianBackground
 fun WelcomeSelectionScreen(navController: NavController) {
     Box(
         modifier = Modifier
-            .circadianBackground(alpha = 0.3f)
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+            .circadianBackground()
+            .statusBarsPadding()
+            .fillMaxSize(),
     ) {
         Column(
             modifier = Modifier

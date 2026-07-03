@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,6 +45,7 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.repository.ParentRepository
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Child profile selector screen.
@@ -74,8 +76,10 @@ fun ChildProfileSelectorScreen(navController: NavController) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier = Modifier
+            .circadianBackground()
+            .statusBarsPadding()
+            .fillMaxSize(),
     ) {
         // Header
         Spacer(modifier = Modifier.height(48.dp))

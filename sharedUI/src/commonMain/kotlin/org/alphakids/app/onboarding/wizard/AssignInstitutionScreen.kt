@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -42,6 +43,7 @@ import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
+import org.alphakids.app.theme.circadianBackground
 
 /**
  * Step 4 of 6 — Optional institution assignment screen.
@@ -71,8 +73,9 @@ fun AssignInstitutionScreen(
 
     Column(
         modifier = Modifier
+            .circadianBackground()
+            .statusBarsPadding()
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
