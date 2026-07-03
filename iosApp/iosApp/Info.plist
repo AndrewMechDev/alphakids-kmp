@@ -15,6 +15,10 @@
 		<string>DMSans-SemiBold.ttf</string>
 		<string>DMSans-Bold.ttf</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>AlphaKids usa la cámara para escanear letras y palabras. Las fotos no se almacenan ni comparten.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AlphaKids puede acceder a tus fotos para escanear letras cuando la cámara no está disponible.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

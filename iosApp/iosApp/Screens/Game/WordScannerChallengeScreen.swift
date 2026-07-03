@@ -4,6 +4,10 @@ import SharedLogic
 struct WordScannerChallengeScreen: View {
     @Binding var path: NavigationPath
     @StateObject private var viewModel = GameViewModel()
+    @State private var capturedImage: UIImage?
+    @State private var showImagePicker = false
+    @State private var showCameraAlert = false
+    @State private var cameraAlertMessage = ""
 
     var body: some View {
         ZStack {
@@ -67,7 +71,7 @@ struct WordScannerChallengeScreen: View {
                 }
 
                 // Captured image preview
-                if let image = viewModel.capturedImage {
+                if let image = capturedImage {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
@@ -115,7 +119,7 @@ struct WordScannerChallengeScreen: View {
                 } else {
                     VStack(spacing: 12) {
                         Button {
-                            viewModel.showImagePicker = true
+                            showImagePicker = true
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "camera.fill")
@@ -168,30 +172,40 @@ struct WordScannerChallengeScreen: View {
                     .foregroundColor(.white.opacity(0.6))
             }
         }
-        .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePicker(image: Binding(
-                get: { nil },
-                set: { image in
-                    if let image = image {
-                        Task { await viewModel.processImage(image) }
-                    }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePickerView { image in
+                if let image = image {
+                    capturedImage = image
+                    Task { await viewModel.processImage(image) }
                 }
-            ))
+            }
+        }
+        .alert("Cámara no disponible", isPresented: $showCameraAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(cameraAlertMessage)
         }
         .onAppear { viewModel.setupSlots() }
     }
 }
 
-// MARK: - UIImagePickerController wrapper
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var image: UIImage?
+// MARK: - ImagePicker con callback (más robusto que Binding)
+struct ImagePickerView: UIViewControllerRepresentable {
+    let onImagePicked: (UIImage?) -> Void
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
-        picker.sourceType = .camera
         picker.allowsEditing = false
+
+        // Check if camera is available BEFORE creating the picker
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+        } else {
+            // Fallback to photo library on simulator
+            picker.sourceType = .photoLibrary
+        }
         return picker
     }
 
@@ -200,13 +214,12 @@ struct ImagePicker: UIViewControllerRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: ImagePicker
-        init(_ parent: ImagePicker) { self.parent = parent }
+        let parent: ImagePickerView
+        init(_ parent: ImagePickerView) { self.parent = parent }
 
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.image = image
-            }
+            let image = info[.originalImage] as? UIImage
+            parent.onImagePicked(image)
             parent.dismiss()
         }
 
