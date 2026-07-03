@@ -32,11 +32,16 @@ object GameSessionState {
     var currentImageUrl: String = ""
         private set
 
-    fun setWord(text: String, id: String = "", difficulty: String = "", imageUrl: String = "") {
+    /** Cloudinary audio URL for the word pronunciation. */
+    var currentAudioUrl: String = ""
+        private set
+
+    fun setWord(text: String, id: String = "", difficulty: String = "", imageUrl: String = "", audioUrl: String = "") {
         currentWordText = text
         currentWordId = id
         currentDifficulty = difficulty
         currentImageUrl = imageUrl
+        currentAudioUrl = audioUrl
     }
 
     fun clear() {
@@ -44,5 +49,6 @@ object GameSessionState {
         currentWordId = ""
         currentDifficulty = ""
         currentImageUrl = ""
+        currentAudioUrl = ""
     }
 }

@@ -57,6 +57,7 @@ import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
+import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 
 /**
@@ -218,6 +219,7 @@ fun OCRResultScreen(
                             id = GameSessionState.currentWordId,
                             difficulty = GameSessionState.currentDifficulty,
                             imageUrl = GameSessionState.currentImageUrl,
+                            audioUrl = GameSessionState.currentAudioUrl,
                         )
                         navController.navigate(Screen.WordSelection.route) {
                             popUpTo(Screen.AdventureHome.route)
@@ -293,20 +295,31 @@ private fun WordDisplay(word: ChallengeWord) {
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Word image placeholder
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = word.word.first().toString(),
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                // Word image — show API image if available, fallback to letter
+                val imgUrl = GameSessionState.currentImageUrl
+                if (imgUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = imgUrl,
+                        contentDescription = word.word,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(16.dp)),
                     )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = word.word.first().toString(),
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(14.dp))

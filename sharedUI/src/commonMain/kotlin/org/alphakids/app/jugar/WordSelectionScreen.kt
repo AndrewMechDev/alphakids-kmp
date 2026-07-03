@@ -200,6 +200,7 @@ fun WordSelectionScreen(
                                         id = word.id,
                                         difficulty = word.difficultyLabel,
                                         imageUrl = word.imageUrl ?: "",
+                                        audioUrl = word.audioUrl ?: "",
                                     )
                                     navController.navigate(
                                         Screen.WordScannerChallenge.createRoute(0)

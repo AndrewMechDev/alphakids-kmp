@@ -69,7 +69,12 @@ import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import org.alphakids.app.audio.AudioService
+import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.SessionManager
@@ -130,6 +135,7 @@ fun DictionaryScreen(
     onBack: (() -> Unit)? = null,
 ) {
     val gameRepo: GameRepository = remember { koinInject() }
+    val audioService = rememberAudioService()
     val childId = remember { SessionManager.currentChild?.id }
     
     var fetchedWords by remember { mutableStateOf<List<DictionaryWord>>(emptyList()) }
@@ -138,19 +144,43 @@ fun DictionaryScreen(
     LaunchedEffect(childId) {
         try {
             if (childId != null) {
-                val result = gameRepo.getPlayableWords(childId)
-                if (result != null) {
-                    fetchedWords = result.words.map { dto ->
+                // Fetch playable words (assigned + catalog)
+                val playableResult = gameRepo.getPlayableWords(childId)
+                val playableWords = playableResult?.words?.map { dto ->
+                    DictionaryWord(
+                        word = dto.text,
+                        imageName = "",
+                        imageUrl = dto.imageUrl ?: "",
+                        audioUrl = dto.audioUrl ?: "",
+                        category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
+                        difficulty = dto.difficultyLabel.ifBlank { "media" },
+                        stars = 0,
+                        learned = false,
+                    )
+                } ?: emptyList()
+
+                // Fetch dictionary (completed/learned words)
+                val dictResult = gameRepo.getDictionary(childId)
+                val dictWords = dictResult?.dictionary?.flatMap { (_, words) ->
+                    words.map { dto ->
                         DictionaryWord(
                             word = dto.text,
                             imageName = "",
+                            imageUrl = dto.imageUrl ?: "",
+                            audioUrl = dto.audioUrl ?: "",
                             category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
                             difficulty = dto.difficultyLabel.ifBlank { "media" },
                             stars = 0,
-                            learned = false
+                            learned = true,
                         )
-                    }.sortedBy { it.word.uppercase() }
-                }
+                    }
+                } ?: emptyList()
+
+                // Merge: playable words take precedence, dictionary words fill gaps
+                val allWords = (playableWords + dictWords)
+                    .distinctBy { it.word.uppercase() }
+                    .sortedBy { it.word.uppercase() }
+                fetchedWords = allWords
             }
         } finally {
             isLoading = false
@@ -292,10 +322,9 @@ fun DictionaryScreen(
                         items = filteredWords,
                         key = { it.word },
                     ) { word ->
-                        org.alphakids.app.components.WordCard(
-                            word = word.word,
-                            translation = word.category,
-                            isCollected = word.learned,
+                        DictionaryWordCard(
+                            word = word,
+                            audioService = audioService,
                             onClick = {
                                 selectedWord = if (selectedWord?.word == word.word) null else word
                             },
@@ -494,8 +523,113 @@ private fun FilterChipsRow(
     }
 }
 
-// ── Word Card ──
+// ── Dictionary Word Card (grid item with image + audio) ──
 
+@Composable
+private fun DictionaryWordCard(
+    word: DictionaryWord,
+    audioService: AudioService,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val accent = categoryColor(word.category)
+    val scope = rememberCoroutineScope()
+
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Word image — show API image if available, fallback to letter
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(accent.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (word.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = word.imageUrl,
+                        contentDescription = word.word,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                    )
+                } else {
+                    Text(
+                        text = word.word.first().uppercase(),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = accent,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Word text
+            Text(
+                text = word.word,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            // Category + learned badge
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                if (word.learned) {
+                    Text(text = "✅", style = MaterialTheme.typography.labelSmall)
+                }
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = accent.copy(alpha = 0.1f),
+                ) {
+                    Text(
+                        text = word.category,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = accent,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
+            }
+
+            // Audio playback button — visible when audioUrl is available
+            if (word.audioUrl.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .clickable {
+                            audioService.playUrl(word.audioUrl)
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "\uD83D\uDD0A",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+            }
+        }
+    }
+}
 
 // ── Word Detail Card ──
 
@@ -506,6 +640,7 @@ private fun WordDetailCard(
     modifier: Modifier = Modifier,
 ) {
     val accent = categoryColor(word.category)
+    val audioService = rememberAudioService()
 
     Card(
         modifier = modifier,
@@ -519,7 +654,7 @@ private fun WordDetailCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Large image placeholder
+            // Large image — show API image if available, fallback to letter
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -527,12 +662,22 @@ private fun WordDetailCard(
                     .background(accent.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = word.word.first().uppercase(),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = accent,
-                )
+                if (word.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = word.imageUrl,
+                        contentDescription = word.word,
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(14.dp)),
+                    )
+                } else {
+                    Text(
+                        text = word.word.first().uppercase(),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = accent,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -567,6 +712,24 @@ private fun WordDetailCard(
                     DifficultyLabel(difficulty = word.difficulty)
                     Spacer(modifier = Modifier.width(8.dp))
                     StarRating(stars = word.stars)
+
+                    // Audio playback button in detail card
+                    if (word.audioUrl.isNotBlank()) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .clickable { audioService.playUrl(word.audioUrl) },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "\uD83D\uDD0A",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
                 }
 
                 if (word.learned && word.dateLearned != null) {

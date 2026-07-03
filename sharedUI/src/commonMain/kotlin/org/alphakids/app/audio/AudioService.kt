@@ -5,6 +5,7 @@ import org.alphakids.app.audio.AudioCategory
 
 expect class AudioService {
     fun play(category: AudioCategory)
+    fun playUrl(url: String)
     fun stop()
     fun release()
 }
