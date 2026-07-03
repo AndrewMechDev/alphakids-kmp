@@ -1,5 +1,97 @@
 # AlphaKids iOS — Setup Guide
 
+## ⚠️ REGLA DE ORO: SIEMPRE EN `feature/ios-ui`
+
+**NUNCA hagas commit ni push directo a `main` o `develop`.**
+
+Siempre verificá en qué branch estás antes de escribir código:
+
+```bash
+git branch   # → debe mostrar: * feature/ios-ui
+```
+
+Si no estás en `feature/ios-ui`, cambiá antes de hacer cualquier cambio:
+
+```bash
+git checkout feature/ios-ui
+```
+
+### Tu rama permanente: `feature/ios-ui`
+
+Ya está creada y pusheada en GitHub. **TODOS tus commits van acá.** Esta es tu rama de trabajo única y permanente. Nunca se mergea a `develop` ni a `main` — eso lo hace otro equipo después.
+
+### Sin Pull Requests
+
+Trabajás sin PRs — commit y push directo a `feature/ios-ui`. No hace falta abrir PRs ni esperar reviews para mergear.
+
+### Git Flow (solo para vos)
+
+```
+main         → releases (NO TOCAR)
+develop      → integración de Android (NO TOCAR)
+feature/ios-ui → TU rama. Acá vivís. Nunca salís de acá.
+```
+
+Si necesitás crear sub-ramas para organizar mejor tu trabajo:
+
+```bash
+# Opcional: crear sub-rama desde feature/ios-ui
+git checkout feature/ios-ui
+git checkout -b feature/ios-ui/login-screen   # sub-rama temporal
+# ... trabajás ...
+git checkout feature/ios-ui                   # volvés a tu rama
+git merge feature/ios-ui/login-screen          # mergeás tu sub-rama
+git branch -d feature/ios-ui/login-screen      # eliminás la sub-rama
+```
+
+Siempre volvés a `feature/ios-ui` al final.
+
+### Conventional Commits (OBLIGATORIO)
+
+Cada commit debe seguir este formato:
+
+```
+tipo(alcance): descripción en español o inglés
+
+Ejemplos:
+feat(login): implementar login screen con email y contraseña
+fix(scanner): corregir orientación de cámara en iPad
+refactor(koin): simplificar resolución de dependencias
+docs(api): actualizar endpoints del diccionario
+```
+
+Tipos permitidos: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+
+### Workflow diario
+
+```bash
+# 1. Verificar branch (SIEMPRE)
+git branch   # ¿Estás en feature/ios-ui? Si no: git checkout feature/ios-ui
+
+# 2. Traer lo último
+git pull origin feature/ios-ui
+
+# 3. Trabajar en cambios pequeños
+
+# 4. Commitar con mensaje convencional
+git add -A
+git commit -m "feat(home): implementar dashboard con avatar y monedas"
+
+# 5. Pushear seguido (a feature/ios-ui, NUNCA a develop/main)
+git push
+
+# 6. Si necesitás traer cambios de sharedLogic (de develop):
+git fetch origin develop
+git merge origin develop
+# Resolver conflictos si los hay, luego commit y push siempre a feature/ios-ui
+```
+
+### Checklist diario antes de arrancar
+
+- [ ] `git branch` → `feature/ios-ui` ✅
+- [ ] `git pull origin feature/ios-ui` → actualizado ✅
+- [ ] No hay archivos sin commitear de la sesión anterior ✅
+
 ## Prerequisites
 
 - macOS with Xcode 15+ (iOS 16+ target)
