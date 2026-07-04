@@ -159,7 +159,7 @@ fun ParentHomeScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleContentColor = Color.White,
                 ),
             )
         },

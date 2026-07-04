@@ -1,6 +1,7 @@
 package org.alphakids.app.parent
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,6 +45,9 @@ import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 
 /**
  * Child detail screen showing full profile, stats, weekly progress, pets, and achievements.
@@ -99,13 +104,14 @@ fun ChildDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = { navController.popBackStack() }) {
-                    Text(
-                        text = "\u2190 Volver",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_left),
+                    contentDescription = "Volver",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { navController.popBackStack() },
+                )
             }
         }
 
@@ -139,13 +145,13 @@ fun ChildDetailScreen(
                     text = child.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                 )
 
                 Text(
                     text = "Nivel ${child.level} · ${child.rank}",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.7f),
                 )
             }
         }

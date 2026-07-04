@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,6 +48,7 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import org.alphakids.app.theme.circadianBackground
 
 @Composable
@@ -89,13 +91,13 @@ fun LoginScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "⬅️ Volver",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
+            Icon(
+                painter = painterResource(Res.drawable.ic_arrow_left),
+                contentDescription = "Volver",
+                tint = Color.White,
                 modifier = Modifier
                     .align(Alignment.Start)
+                    .size(24.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,

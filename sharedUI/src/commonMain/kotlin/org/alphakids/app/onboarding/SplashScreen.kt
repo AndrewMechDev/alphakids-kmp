@@ -143,12 +143,12 @@ fun SplashScreen(navController: NavController) {
                             text = "Preparando tu aventura educativa...",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = Color.White,
                         )
                         Text(
                             text = "Cargando tu mundo de aprendizaje",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = Color.White.copy(alpha = 0.8f),
                         )
                     }
                 }

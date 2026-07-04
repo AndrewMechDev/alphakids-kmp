@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.components.AlphaPrimaryButton
@@ -61,7 +62,7 @@ fun SupportScreen(
                 text = "\u2753 Soporte",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
             )
         }
 
@@ -70,7 +71,7 @@ fun SupportScreen(
             Text(
                 text = "Encuentra respuestas a preguntas frecuentes o contáctanos directamente.",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
             )
         }
 
@@ -80,7 +81,7 @@ fun SupportScreen(
                 text = "Preguntas frecuentes",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 modifier = Modifier.padding(top = 8.dp),
             )
         }
@@ -109,7 +110,7 @@ fun SupportScreen(
                 text = "\u2709\uFE0F Contáctanos",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
             )
         }
 

@@ -86,7 +86,7 @@ fun AlphaLoadingIndicator(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                 )
             }
         }

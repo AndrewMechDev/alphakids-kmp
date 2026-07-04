@@ -29,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -79,6 +80,9 @@ import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.SessionManager
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 
 // ── Category colour palette ──
 
@@ -264,12 +268,12 @@ fun DictionaryScreen(
             Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
             // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
             onBack?.let { back ->
-                Text(
-                    text = "\u2190 Volver",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold,
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_left),
+                    contentDescription = "Volver",
+                    tint = Color.White,
                     modifier = Modifier
+                        .size(24.dp)
                         .clickable(onClick = back)
                         .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 4.dp),
                 )

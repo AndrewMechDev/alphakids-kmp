@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import org.alphakids.app.theme.circadianBackground
 
 /**
@@ -80,13 +82,13 @@ fun RegisterScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Back button to WelcomeSelection
-        Text(
-            text = "\u2B05\uFE0F Volver",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Medium,
+        Icon(
+            painter = painterResource(Res.drawable.ic_arrow_left),
+            contentDescription = "Volver",
+            tint = Color.White,
             modifier = Modifier
                 .align(Alignment.Start)
+                .size(24.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,

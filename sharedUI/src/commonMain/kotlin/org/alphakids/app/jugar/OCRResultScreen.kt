@@ -23,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -59,6 +60,7 @@ import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
@@ -149,11 +151,13 @@ fun OCRResultScreen(
                     )
                 },
                 navigationIcon = {
-                    Text(
-                        text = "\u2B05\uFE0F",
-                        style = MaterialTheme.typography.titleLarge,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
+                        tint = Color.White,
                         modifier = Modifier
                             .padding(start = 8.dp)
+                            .size(24.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
