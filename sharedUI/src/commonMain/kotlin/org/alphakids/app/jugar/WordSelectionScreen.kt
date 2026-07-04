@@ -124,7 +124,7 @@ fun WordSelectionScreen(
                     text = "Elige una palabra",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                 )
             }
 
@@ -141,7 +141,7 @@ fun WordSelectionScreen(
                     Text(
                         text = "Palabras asignadas por tu profesor",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -165,7 +165,7 @@ fun WordSelectionScreen(
                         Text(
                             text = error!!,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = Color.White,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -178,7 +178,7 @@ fun WordSelectionScreen(
                         Text(
                             text = "No hay palabras disponibles por ahora",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                            color = Color.White.copy(alpha = 0.8f),
                             textAlign = TextAlign.Center,
                         )
                     }
