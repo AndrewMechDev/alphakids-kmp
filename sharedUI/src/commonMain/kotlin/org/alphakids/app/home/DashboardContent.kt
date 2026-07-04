@@ -26,6 +26,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,11 +34,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.Icon
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_logout
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 /** Base URL for DiceBear avatar generation. */
@@ -57,6 +62,7 @@ fun DashboardContent(
     onNavigateToHub: () -> Unit = {},
     onNavigateToDictionary: () -> Unit = {},
     onNavigateToParentDashboard: () -> Unit = {},
+    onSwitchProfile: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val audioService = rememberAudioService()
@@ -113,6 +119,19 @@ fun DashboardContent(
                 )
             }
             org.alphakids.app.components.CoinCounter(amount = state.coins)
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                painter = painterResource(Res.drawable.ic_logout),
+                contentDescription = "Cambiar perfil",
+                tint = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onSwitchProfile,
+                    ),
+            )
         }
 
         Spacer(modifier = Modifier.height(4.dp))
