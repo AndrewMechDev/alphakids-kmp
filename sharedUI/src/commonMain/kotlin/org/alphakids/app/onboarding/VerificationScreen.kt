@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -72,7 +73,7 @@ fun VerificationScreen(navController: NavController, email: String) {
         Text(
             text = "Verifica tu cuenta",
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             textAlign = TextAlign.Center,
         )
 
@@ -82,7 +83,7 @@ fun VerificationScreen(navController: NavController, email: String) {
         Text(
             text = "Ingresa el código de 6 dígitos enviado a $email",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
 

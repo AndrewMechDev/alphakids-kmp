@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -109,7 +110,7 @@ fun RegisterScreen(navController: NavController) {
         Text(
             text = "Crear cuenta",
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             textAlign = TextAlign.Center,
         )
 
@@ -192,7 +193,7 @@ fun RegisterScreen(navController: NavController) {
             Text(
                 text = "Acepto los términos y condiciones",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 modifier = Modifier
                     .clickable(enabled = !state.isLoading) {
                         viewModel.onTermsChanged(!state.termsAccepted)
