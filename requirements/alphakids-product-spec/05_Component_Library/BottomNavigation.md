@@ -2,7 +2,7 @@
 
 **Propósito:** navegación principal del niño dentro de la experiencia.
 
-**Variantes:** 5 ítems fijos — Inicio, Diccionario, Tienda, Mascota, Copas.
+**Variantes:** 5 ítems fijos — Inicio, Diccionario, Tienda, Mascota, Logros.
 
 **Estados:** Activo (ícono filled + Primary Blue + label bold), Inactivo (ícono outline + gris).
 
@@ -10,4 +10,4 @@
 
 **Uso prohibido:** no agregar más de 5 ítems sin rediseño; no remover el label de texto.
 
-**Navegación asociada:** AdventureHome y pantallas hijas (Diccionario/WordTreasureChest, Tienda/PetMarket, Mascota/PetKingdom, Copas/HallOfChampions — pantallas ⏳ pendientes de referencia visual).
+**Navegación asociada:** AdventureHome y pantallas hijas (Diccionario/WordTreasureChest, Tienda/PetMarket, Mascota/PetKingdom, Logros/HallOfChampions — pantallas ⏳ pendientes de referencia visual).

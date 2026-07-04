@@ -82,27 +82,38 @@ Vista 2 — Welcome Selection (bienvenida)
             └─────────────────────────────────┘
              → AdventureHome 🏠
 
-AdventureHome 🏠 (5 tabs + Diccionario overlay)
-  ┌──────────────────────────────────────────────────────┐
-  │  Header: Avatar circular + nombre + nivel            │
-  │  ┌──────┬────────┬────────┬────────┬────────┐       │
-  │  │ 📊  │ 🛒    │ 🐾    │ 🏆    │       │       │
-  │  │Inicio│ Tienda│Mascotas│ Logros │       │       │
-  │  └──────┴────────┴────────┴────────┴────────┘       │
-  └──────────────────────────────────────────────────────┘
+AdventureHome 🏠 (5 tabs — glassmorphic navbar con SVG icons)
+  ┌──────────────────────────────────────────────────────────┐
+  │  Header: Avatar circular + nombre + nivel + monedas      │
+  │  ┌────────┬────────────┬────────┬────────┬────────┐     │
+  │  │ 🏠    │ 📖        │ 🛒    │ 🐾    │ 🏆    │     │
+  │  │Inicio  │Diccionario │ Tienda│Mascotas│ Logros │     │
+  │  └────────┴────────────┴────────┴────────┴────────┘     │
+  │  Glassmorphic navbar (semi-transparent, rounded top)     │
+  └──────────────────────────────────────────────────────────┘
         │
-        ├── Inicio 📊
+        ├── Inicio 🏠
         │  ┌────────────────────────────────────┐
         │  │  "¡Bienvenido, [nombre]!" (título) │
         │  │  🦊 Alphi grande (sin card)        │
-        │  │  Mensaje motivacional              │
-        │  │  ┌─────────┐ ┌─────────┐          │
-        │  │  │ 🎮 Jugar │ │ 📖 Dicc.│          │
-        │  │  └─────────┘ └─────────┘          │
-        │  │  Cards de actividad (mismo tamaño) │
-        │  │  Progreso: palabras, racha, nivel  │
+        │  │  ┌──────────────────────────────┐  │
+        │  │  │ 🎮 ¡A Jugar! (gradiente)    │  │
+        │  │  └──────────────────────────────┘  │
+        │  │  Card con press animation (0.98)   │
         │  │  Monedas: GameProgressManager      │
         │  └────────────────────────────────────┘
+        │
+        ├── Diccionario 📖 (scroll-sync A–Z + imágenes + audio)
+        │  ┌──────────────────────────────────────────┐
+        │  │  A│ 🔍 Buscar palabra...                 │
+        │  │  B│ ┌──────────┐ ┌──────────┐           │
+        │  │  C│ │ 🖼️ Casa │ │ 🖼️ Perro │ 🔊       │
+        │  │  D│ └──────────┘ └──────────┘           │
+        │  │  E│ [Fácil] [Media] [Difícil]            │
+        │  │  ..│ Grid responsive + imagen + audio    │
+        │  │     Detalle: imagen grande + 🔊 play    │
+        │  │     Palabras: jugables + aprendidas API  │
+        │  └──────────────────────────────────────────┘
         │
         ├── Tienda 🛒 — Mascotas, alimentos, accesorios
         │   Inventario: GameProgressManager.inventory
@@ -115,18 +126,6 @@ AdventureHome 🏠 (5 tabs + Diccionario overlay)
         │   ├── Estadísticas: palabras, partidas, tiempo, monedas
         │   └── Historial: timeline de actividad reciente en vivo
         │   Datos: API GET /students/:id/achievements + fallback local
-        │
-        ├── Diccionario overlay (scroll-sync A–Z + imágenes + audio)
-        │  ┌──────────────────────────────────────────┐
-        │  │  A│ 🔍 Buscar palabra...                 │
-        │  │  B│ ┌──────────┐ ┌──────────┐           │
-        │  │  C│ │ 🖼️ Casa │ │ 🖼️ Perro │ 🔊       │
-        │  │  D│ └──────────┘ └──────────┘           │
-        │  │  E│ [Fácil] [Media] [Difícil]            │
-        │  │  ..│ Grid responsive + imagen + audio    │
-        │  │     Detalle: imagen grande + 🔊 play    │
-        │  │     Palabras: jugables + aprendidas API  │
-        │  └──────────────────────────────────────────┘
         │
         └── 🎮 Jugar → LearningAdventureHub
            ┌────────────────────────────────────┐
@@ -231,7 +230,7 @@ Abrir iosApp/ en Xcode y compilar
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
 - ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 6 pasos)
-- ✅ **Phase 2** — AdventureHome (4 tabs: Inicio, Tienda, Mascotas, Logros)
+- ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Mascotas, Logros)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
 - ✅ **UX/UI Fase 1** — Sistema de diseño global (circadian backgrounds, cards consistentes, safe areas)
@@ -263,14 +262,22 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Imagen en OCRResult** — Pantalla de resultado muestra la imagen real de la palabra escaneada
 - ✅ **Koin modules registrados** — gameModule, storeModule, studentPetModule en AlphaKidsApp
 - ✅ **Background circadian** — Todas las pantallas con imagen de fondo día/tarde/noche
-- ✅ **Tokens circadian sin hardcode** — Todos los `Color.White` reemplazados por theme tokens
+- ✅ **Tokens circadian** — Texto sobre fondos circadian usa `Color.White` directo (no theme tokens que son invisibles sobre imágenes)
 - ✅ **Logros API + Analytics** — AchievementsScreen con ViewModel, 4 sub-tabs, datos API con fallback offline
 - ✅ **GameProgressManager** — Monedas, inventario y progreso compartido entre OCR, Store, Dashboard y Logros
 - ✅ **Session-persistent inventory** — Compras en Tienda persisten al cambiar de pestaña
 - ✅ **AchievementAnalytics** — Eventos de juego trackeados in-memory para historial en vivo
+- ✅ **UX Audit: SVG back buttons** — Todos los botones de retroceso usan `ic_arrow_left` SVG en vez de emoji
+- ✅ **UX Audit: Glassmorphic navbar** — Bottom nav semi-transparente con bordes redondeados y SVG icons
+- ✅ **UX Audit: Glass cards** — Cards sobre fondos circadian usan `glassCardColor()` semi-transparente
+- ✅ **UX Audit: 48dp touch targets** — Todos los botones e ítems interactivos cumplen mínimo 48dp
+- ✅ **UX Audit: Press animations** — Scale 0.98 en cards interactivos (juegos, palabras, perfiles)
+- ✅ **UX Audit: Alphi loading** — `AlphaInlineLoading` con mascota Alphi pulsante + texto `Color.White`
+- ✅ **UX Audit: Diccionario tab** — Diccionario integrado como tab 2 en bottom nav (ya no es overlay)
+- ✅ **UX Audit: Splash animations** — Logo y Alphi entran con `fadeIn + scaleIn` en SplashScreen
+- ✅ **UX Audit: Demo credentials removed** — Eliminado texto de credenciales demo en LoginScreen
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
-- ⏳ **iOS (SwiftUI)** — Próxima fase
 - ⏳ **iOS (SwiftUI)** — Próxima fase

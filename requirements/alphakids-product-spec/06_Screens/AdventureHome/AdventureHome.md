@@ -4,7 +4,7 @@
 
 **Usuario:** niño (perfil activo seleccionado).
 
-**Contenido:** header (avatar + saludo "¡Hola, Lucas!" + rank badge + contador de monedas + contador de estrellas + notificación), Level Badge con XP bar, 2 tarjetas hero ("Jugar", "Logros"), "Objetivo del día" (progreso + recompensa), "Racha de aprendizaje" (7 días, checks diarios + regalo), "Mi mascota" (nombre, nivel, barra de felicidad), "Mi progreso" (XP total, logros/lecciones/desafíos), banner "Siguiente actividad" con CTA "Continuar", footer de confianza, bottom navigation (Inicio/Diccionario/Tienda/Mascota/Copas).
+**Contenido:** header (avatar + saludo "¡Hola, Lucas!" + rank badge + contador de monedas + contador de estrellas + notificación), Level Badge con XP bar, 2 tarjetas hero ("Jugar", "Logros"), "Objetivo del día" (progreso + recompensa), "Racha de aprendizaje" (7 días, checks diarios + regalo), "Mi mascota" (nombre, nivel, barra de felicidad), "Mi progreso" (XP total, logros/lecciones/desafíos), banner "Siguiente actividad" con CTA "Continuar", footer de confianza, bottom navigation (Inicio/Diccionario/Tienda/Mascota/Logros).
 
 **Secciones:** Header · Stats row (2 hero cards) · Grid 2x2 de widgets · Banner de actividad sugerida · Footer · Bottom Nav.
 
