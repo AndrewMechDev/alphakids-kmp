@@ -60,7 +60,6 @@ private val avatarColors = listOf(
 fun DashboardContent(
     state: UiState,
     onNavigateToHub: () -> Unit = {},
-    onNavigateToDictionary: () -> Unit = {},
     onNavigateToParentDashboard: () -> Unit = {},
     onSwitchProfile: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -192,44 +191,6 @@ fun DashboardContent(
                         )
                         Text(
                             text = "Escanea letras con la cámara",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f),
-                        )
-                    }
-                }
-            }
-        }
-
-        Card(
-            onClick = onNavigateToDictionary,
-            modifier = Modifier.fillMaxWidth().height(cardHeight),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = AlphaGradients.angled(AlphaGradients.Magic),
-                        shape = RoundedCornerShape(20.dp),
-                    ),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(text = "📖", style = MaterialTheme.typography.headlineMedium)
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Diccionario",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                        )
-                        Text(
-                            text = "Descubre y aprende palabras nuevas",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.8f),
                         )
