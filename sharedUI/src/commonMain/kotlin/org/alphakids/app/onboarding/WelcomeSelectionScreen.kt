@@ -34,6 +34,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 
 /**
  * Welcome selection screen shown after splash.
@@ -101,8 +102,8 @@ fun WelcomeSelectionScreen(navController: NavController) {
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = glassCardColor()),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
                 Column(
                     modifier = Modifier
@@ -119,13 +120,13 @@ fun WelcomeSelectionScreen(navController: NavController) {
                         text = "Tutor registrado",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = Color.White,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Inicia sesión para ver el progreso\nde tus hijos y gestionar su aprendizaje",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -161,7 +162,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    containerColor = glassCardColor(),
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
@@ -180,13 +181,13 @@ fun WelcomeSelectionScreen(navController: NavController) {
                         text = "¿No estás registrado?",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = Color.White,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Crea una cuenta gratis y comienza\nesta aventura educativa con tus hijos",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(16.dp))

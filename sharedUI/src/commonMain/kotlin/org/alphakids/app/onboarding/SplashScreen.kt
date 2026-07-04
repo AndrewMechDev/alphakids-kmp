@@ -2,6 +2,7 @@ package org.alphakids.app.onboarding
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,7 +84,10 @@ fun SplashScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(80.dp))
 
-            AnimatedVisibility(visible = contentVisible, enter = fadeIn()) {
+            AnimatedVisibility(
+                visible = contentVisible,
+                enter = fadeIn() + scaleIn(initialScale = 0.8f),
+            ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
                         painter = painterResource(Res.drawable.logo_alphi_principal),
@@ -113,7 +117,10 @@ fun SplashScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            AnimatedVisibility(visible = contentVisible, enter = fadeIn()) {
+            AnimatedVisibility(
+                visible = contentVisible,
+                enter = fadeIn() + scaleIn(initialScale = 0.85f),
+            ) {
                 Image(
                     painter = painterResource(Res.drawable.alphi_anunciando),
                     contentDescription = "Alphi",
