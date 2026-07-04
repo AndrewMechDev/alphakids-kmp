@@ -91,20 +91,25 @@ fun LoginScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Icon(
-                painter = painterResource(Res.drawable.ic_arrow_left),
-                contentDescription = "Volver",
-                tint = Color.White,
+            Box(
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .size(24.dp)
+                    .size(48.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                     ) {
                         navController.popBackStack()
                     },
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_left),
+                    contentDescription = "Volver",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp),
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

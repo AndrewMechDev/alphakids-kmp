@@ -68,14 +68,18 @@ fun LearningAdventureHub(navController: NavController) {
                     )
                 },
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_left),
-                        contentDescription = "Volver",
+                    Box(
                         modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(24.dp)
+                            .size(48.dp)
                             .clickable { navController.popBackStack() },
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_arrow_left),
+                            contentDescription = "Volver",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,

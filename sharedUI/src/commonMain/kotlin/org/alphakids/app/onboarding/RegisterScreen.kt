@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -81,21 +82,25 @@ fun RegisterScreen(navController: NavController) {
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Back button to WelcomeSelection
-        Icon(
-            painter = painterResource(Res.drawable.ic_arrow_left),
-            contentDescription = "Volver",
-            tint = Color.White,
+        Box(
             modifier = Modifier
                 .align(Alignment.Start)
-                .size(24.dp)
+                .size(48.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                 ) {
                     navController.popBackStack()
                 },
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_arrow_left),
+                contentDescription = "Volver",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp),
+            )
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 

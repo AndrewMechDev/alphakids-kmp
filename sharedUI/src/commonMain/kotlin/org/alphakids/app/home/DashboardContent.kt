@@ -119,18 +119,23 @@ fun DashboardContent(
             }
             org.alphakids.app.components.CoinCounter(amount = state.coins)
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                painter = painterResource(Res.drawable.ic_logout),
-                contentDescription = "Cambiar perfil",
-                tint = Color.White.copy(alpha = 0.8f),
+            Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(48.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = onSwitchProfile,
                     ),
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_logout),
+                    contentDescription = "Cambiar perfil",
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.size(24.dp),
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))

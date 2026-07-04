@@ -117,15 +117,19 @@ fun WordSelectionScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Volver",
-                    tint = Color.White,
+                Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clickable { navController.popBackStack() }
-                        .padding(end = 8.dp),
-                )
+                        .size(48.dp)
+                        .clickable { navController.popBackStack() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
                 Text(
                     text = "Elige una palabra",
                     style = MaterialTheme.typography.headlineSmall,

@@ -104,14 +104,19 @@ fun ChildDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Volver",
-                    tint = Color.White,
+                Box(
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(48.dp)
                         .clickable { navController.popBackStack() },
-                )
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
             }
         }
 

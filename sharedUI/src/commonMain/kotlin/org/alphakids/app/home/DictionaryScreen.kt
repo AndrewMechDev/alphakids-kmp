@@ -268,15 +268,19 @@ fun DictionaryScreen(
             Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
             // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
             onBack?.let { back ->
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Volver",
-                    tint = Color.White,
+                Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clickable(onClick = back)
-                        .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 4.dp),
-                )
+                        .size(48.dp)
+                        .clickable(onClick = back),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
             }
             // Search bar
             SearchBar(

@@ -132,18 +132,22 @@ fun WordScannerChallenge(
                     )
                 },
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_left),
-                        contentDescription = "Volver",
+                    Box(
                         modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(24.dp)
+                            .size(48.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                                 onClick = { navController.popBackStack() },
                             ),
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_arrow_left),
+                            contentDescription = "Volver",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
@@ -371,7 +375,7 @@ private fun LetterSlotsRow(
 
             Box(
                 modifier = Modifier
-                    .size(width = 44.dp, height = 52.dp)
+                    .size(width = 48.dp, height = 56.dp)
                     .padding(2.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(
