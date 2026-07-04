@@ -333,7 +333,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
             text = "\uD83D\uDED2 Tienda",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             modifier = Modifier.weight(1f),
         )
 

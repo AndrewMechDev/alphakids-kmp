@@ -416,7 +416,7 @@ private fun SectionHeader(text: String) {
         text = text,
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = Color.White,
     )
 }
 

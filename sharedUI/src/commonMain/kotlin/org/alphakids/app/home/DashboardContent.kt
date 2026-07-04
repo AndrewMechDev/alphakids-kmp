@@ -102,14 +102,14 @@ fun DashboardContent(
                     text = state.childName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "Nivel ${state.childLevel} · ${state.childRank}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.8f),
                 )
             }
             org.alphakids.app.components.CoinCounter(amount = state.coins)
@@ -122,7 +122,7 @@ fun DashboardContent(
             text = "¡Bienvenido de vuelta, ${state.childName.split(" ").first()}!",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
         )
 
         // Alphi mascot — directly on background, bigger
