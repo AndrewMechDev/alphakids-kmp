@@ -26,16 +26,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
@@ -162,13 +166,21 @@ fun DashboardContent(
 
         // Action cards — all same height and style
         val cardHeight = 80.dp
+        val playInteraction = remember { MutableInteractionSource() }
+        val playPressed by playInteraction.collectIsPressedAsState()
+        val playScale by animateFloatAsState(
+            targetValue = if (playPressed) 0.98f else 1f,
+            label = "playCardPress",
+        )
 
         Card(
             onClick = {
                 audioService.play(AudioCategory.JUGAR)
                 onNavigateToHub()
             },
-            modifier = Modifier.fillMaxWidth().height(cardHeight),
+            interactionSource = playInteraction,
+            modifier = Modifier.fillMaxWidth().height(cardHeight)
+                .graphicsLayer(scaleX = playScale, scaleY = playScale),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
