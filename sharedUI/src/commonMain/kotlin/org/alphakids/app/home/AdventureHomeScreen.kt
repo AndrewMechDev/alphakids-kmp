@@ -1,11 +1,20 @@
 package org.alphakids.app.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,42 +32,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.theme.TimePeriod
-import org.alphakids.app.theme.currentTimePeriod
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.isNightTime
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_home
+import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
+import alphakids_kmp.sharedui.generated.resources.ic_paw
+import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
-/**
- * Bottom navigation tab definition using emoji icons (SVG not supported on Android Compose).
- */
-private data class BottomNavTab(
-    val label: String,
-    val emoji: String,
-    val index: Int,
-)
-
-private val tabs = listOf(
-    BottomNavTab(label = "Inicio", emoji = "\uD83C\uDFE0", index = 0),
-    BottomNavTab(label = "Tienda", emoji = "\uD83D\uDED2", index = 1),
-    BottomNavTab(label = "Mascotas", emoji = "\uD83D\uDC3E", index = 2),
-    BottomNavTab(label = "Logros", emoji = "\uD83C\uDFC6", index = 3),
-)
-
-/**
- * Main post-onboarding screen with bottom navigation.
- *
- * Tab 1 (Inicio) shows the full dashboard with child stats, active pet,
- * pending activities, and quick-access cards. Tab 2 (Diccionario) shows
- * the word treasure chest with alphabet nav, search, and filters.
- * Tabs 3–5 show placeholder text stubs.
- */
 @Composable
 fun AdventureHomeScreen(navController: NavController) {
     val viewModel = remember { HomeViewModel() }
@@ -66,24 +57,21 @@ fun AdventureHomeScreen(navController: NavController) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
-    // Refresh coins from GameProgressManager when switching tabs
     LaunchedEffect(selectedTab) {
         viewModel.refreshCoins()
     }
 
-    // Back handler → show exit confirmation
     BackHandler {
         showExitDialog = true
     }
 
-    // Exit confirmation dialog
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
             shape = MaterialTheme.shapes.large,
             title = {
                 Text(
-                    text = "\uD83D\uDC4B ¿Salir de AlphaKids?",
+                    text = "👋 ¿Salir de AlphaKids?",
                     style = MaterialTheme.typography.headlineSmall,
                 )
             },
@@ -111,48 +99,16 @@ fun AdventureHomeScreen(navController: NavController) {
         )
     }
 
-    // Inline dictionary view state — toggled from Inicio tab's Diccionario quick card
     var showDictionary by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.circadianBackground(),
         containerColor = Color.Transparent,
         bottomBar = {
-            val isNight = isNightTime()
-            NavigationBar(
-                containerColor = if (isNight) Color(0xFF1A1A2E) else Color(0xFFF8F9FF),
-                tonalElevation = 0.dp,
-            ) {
-                tabs.forEach { tab ->
-                    val isSelected = selectedTab == tab.index
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = { selectedTab = tab.index },
-                        icon = {
-                            Text(
-                                text = tab.emoji,
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = tab.label,
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        },
-                        alwaysShowLabel = false,
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = if (isNight) Color(0xFF7C9DFF) else MaterialTheme.colorScheme.primary,
-                            selectedTextColor = if (isNight) Color(0xFF7C9DFF) else MaterialTheme.colorScheme.primary,
-                            unselectedIconColor = if (isNight) Color(0xFF6B6B8D) else MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = if (isNight) Color(0xFF6B6B8D) else MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = if (isNight) Color(0xFF2A2A4A) else MaterialTheme.colorScheme.primaryContainer,
-                        ),
-                    )
-                }
-            }
+            GlassmorphicNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+            )
         },
     ) { innerPadding ->
         if (selectedTab == 0 && showDictionary) {
@@ -170,6 +126,11 @@ fun AdventureHomeScreen(navController: NavController) {
                     onNavigateToDictionary = { showDictionary = true },
                     onNavigateToParentDashboard = {
                         navController.navigate(Screen.NetflixProfiles.route)
+                    },
+                    onSwitchProfile = {
+                        navController.navigate(Screen.NetflixProfiles.route) {
+                            popUpTo(Screen.AdventureHome.route) { inclusive = true }
+                        }
                     },
                     modifier = Modifier.padding(innerPadding),
                 )
@@ -193,34 +154,85 @@ fun AdventureHomeScreen(navController: NavController) {
     }
 }
 
-/**
- * Placeholder content for tabs that are not yet implemented.
- * Shows centered title and descriptive message.
- */
+private data class NavTab(
+    val label: String,
+    val index: Int,
+)
+
+private val navTabs = listOf(
+    NavTab(label = "Inicio", index = 0),
+    NavTab(label = "Tienda", index = 1),
+    NavTab(label = "Mascotas", index = 2),
+    NavTab(label = "Logros", index = 3),
+)
+
 @Composable
-private fun PlaceholderTabContent(
-    title: String,
-    message: String,
-    modifier: Modifier = Modifier,
+private fun GlassmorphicNavigationBar(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val isNight = isNightTime()
+    val glassColor = if (isNight)
+        Color.White.copy(alpha = 0.08f)
+    else
+        Color.White.copy(alpha = 0.65f)
+    val borderColor = if (isNight)
+        Color.White.copy(alpha = 0.12f)
+    else
+        Color.White.copy(alpha = 0.4f)
+
+    val shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+
+    Box(
+        modifier = Modifier
+            .clip(shape)
+            .background(glassColor)
+            .border(width = 0.5.dp, color = borderColor, shape = shape)
+            .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp),
-        )
+        NavigationBar(
+            containerColor = Color.Transparent,
+            tonalElevation = 0.dp,
+        ) {
+            navTabs.forEach { tab ->
+                val isSelected = selectedTab == tab.index
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = { onTabSelected(tab.index) },
+                    icon = {
+                        Icon(
+                            painter = tabIcon(tab.index),
+                            contentDescription = tab.label,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = tab.label,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    alwaysShowLabel = true,
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                        selectedTextColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
+                        unselectedTextColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
+                        indicatorColor = if (isNight) Color.White.copy(alpha = 0.1f) else Color.White.copy(alpha = 0.7f),
+                    ),
+                )
+            }
+        }
     }
+}
+
+@Composable
+private fun tabIcon(index: Int): Painter = when (index) {
+    0 -> painterResource(Res.drawable.ic_home)
+    1 -> painterResource(Res.drawable.ic_shopping_cart)
+    2 -> painterResource(Res.drawable.ic_paw)
+    3 -> painterResource(Res.drawable.ic_trophy)
+    else -> painterResource(Res.drawable.ic_home)
 }
