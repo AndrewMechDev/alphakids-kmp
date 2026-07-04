@@ -45,8 +45,10 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,11 +68,12 @@ fun LearningAdventureHub(navController: NavController) {
                     )
                 },
                 navigationIcon = {
-                    Text(
-                        text = "⬅️",
-                        style = MaterialTheme.typography.titleLarge,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
                         modifier = Modifier
                             .padding(start = 8.dp)
+                            .size(24.dp)
                             .clickable { navController.popBackStack() },
                     )
                 },

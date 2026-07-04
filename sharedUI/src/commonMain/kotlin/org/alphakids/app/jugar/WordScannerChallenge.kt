@@ -58,7 +58,9 @@ import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.alphi_buscando
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
@@ -130,11 +132,12 @@ fun WordScannerChallenge(
                     )
                 },
                 navigationIcon = {
-                    Text(
-                        text = "⬅️",
-                        style = MaterialTheme.typography.titleLarge,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
                         modifier = Modifier
                             .padding(start = 8.dp)
+                            .size(24.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,

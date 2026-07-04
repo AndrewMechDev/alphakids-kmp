@@ -34,6 +34,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 
 /**
  * Wizard header — screen header with optional subtitle, step indicator, back
@@ -57,10 +58,11 @@ fun AlphaHeader(
         ) {
             if (onBack != null) {
                 TextButton(onClick = onBack) {
-                    Text(
-                        text = "←",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_left),
+                        contentDescription = "Volver",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
                     )
                 }
             } else {
