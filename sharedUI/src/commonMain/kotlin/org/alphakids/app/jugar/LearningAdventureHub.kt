@@ -76,8 +76,8 @@ fun LearningAdventureHub(navController: NavController) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
                 ),
             )
         },

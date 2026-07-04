@@ -162,7 +162,8 @@ fun OCRResultScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
                 ),
             )
         },
