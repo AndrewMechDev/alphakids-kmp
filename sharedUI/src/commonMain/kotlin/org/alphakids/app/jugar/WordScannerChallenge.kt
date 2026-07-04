@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -61,6 +59,8 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import alphakids_kmp.sharedui.generated.resources.ic_camera
+import org.alphakids.app.theme.glassCardColor
 import alphakids_kmp.sharedui.generated.resources.alphi_buscando
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
@@ -157,54 +157,49 @@ fun WordScannerChallenge(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Simplified hint card — letter count only
             WordHintSection(word = word)
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             LetterSlotsRow(
                 letters = letters,
                 filledSlots = letterSlots.toList(),
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             CameraView(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp),
+                    .weight(1f),
                 onTextDetected = onTextDetected,
                 onError = {},
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Capture button
-            Box(
-                modifier = Modifier.size(72.dp),
-                contentAlignment = Alignment.Center,
+            // Capture button — centered
+            Button(
+                onClick = {
+                    scanTriggered = true
+                    isScanning = !isScanning
+                },
+                modifier = Modifier.size(64.dp),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White,
+                ),
             ) {
-                Button(
-                    onClick = {
-                        scanTriggered = true
-                        isScanning = !isScanning
-                    },
-                    modifier = Modifier.size(64.dp),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                ) {
-                    Text(
-                        text = "📷",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
+                Icon(
+                    painter = painterResource(Res.drawable.ic_camera),
+                    contentDescription = "Capturar",
+                    modifier = Modifier.size(28.dp),
+                    tint = Color.White,
+                )
             }
 
             AnimatedVisibility(
@@ -215,27 +210,20 @@ fun WordScannerChallenge(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier.padding(top = 4.dp),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                     )
                     Text(
                         text = "Escaneando...",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                        color = Color.White.copy(alpha = 0.8f),
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Alphi hint — responsive
-            AlphiHint()
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             // Result / Retry actions
             if (showResult && result != null) {
@@ -309,7 +297,7 @@ private fun WordHintSection(word: ChallengeWord) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -423,7 +411,7 @@ private fun AlphiHint() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surface,
+                color = glassCardColor(),
                 shape = RoundedCornerShape(14.dp),
             )
             .padding(14.dp),
@@ -438,7 +426,7 @@ private fun AlphiHint() {
         Text(
             text = "Busca las letras y ordénalas",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = Color.White,
             modifier = Modifier.weight(1f),
         )
     }

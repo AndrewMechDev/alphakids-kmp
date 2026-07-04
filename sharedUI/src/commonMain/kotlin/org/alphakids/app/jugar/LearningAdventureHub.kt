@@ -114,14 +114,14 @@ fun LearningAdventureHub(navController: NavController) {
                     Text(
                         text = "¡Elige una actividad!",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Practica palabras nuevas y gana recompensas",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f),
+                        color = Color.White.copy(alpha = 0.85f),
                     )
                 }
             }
