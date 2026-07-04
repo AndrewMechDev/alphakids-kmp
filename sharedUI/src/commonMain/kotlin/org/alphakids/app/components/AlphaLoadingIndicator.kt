@@ -101,22 +101,41 @@ fun AlphaInlineLoading(
     modifier: Modifier = Modifier,
     message: String? = null,
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "inlinePulse")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = AlphaMotion.Slow),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "inlinePulseScale",
+    )
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        Image(
+            painter = painterResource(Res.drawable.alphi_pensando),
+            contentDescription = "Alphi",
+            modifier = Modifier
+                .size(56.dp)
+                .graphicsLayer(scaleX = scale, scaleY = scale),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         CircularProgressIndicator(
-            modifier = Modifier.size(32.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 3.dp,
+            modifier = Modifier.size(24.dp),
+            color = Color.White.copy(alpha = 0.7f),
+            strokeWidth = 2.dp,
         )
         if (message != null) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
             )
         }
     }

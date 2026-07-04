@@ -212,14 +212,6 @@ fun LoginScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "Demo: test@alphakids.com / 123456",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.7f),
-                fontWeight = FontWeight.Light,
-                textAlign = TextAlign.Center,
-            )
-
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
