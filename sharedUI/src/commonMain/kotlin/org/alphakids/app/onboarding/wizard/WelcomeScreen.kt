@@ -136,7 +136,7 @@ fun WelcomeScreen(
         Text(
             text = "¡${data.childName}, tu aventura comienza ahora!",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -187,13 +187,13 @@ fun WelcomeScreen(
                     Text(
                         text = data.petName,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = "Tu compañero fiel",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                        color = Color.White.copy(alpha = 0.8f),
                     )
                 }
             }
@@ -254,7 +254,7 @@ fun WelcomeScreen(
         Text(
             text = "¡Todo listo para empezar!",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )

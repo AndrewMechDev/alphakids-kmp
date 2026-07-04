@@ -2,6 +2,7 @@ package org.alphakids.app.onboarding.wizard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -103,7 +104,7 @@ fun AssignInstitutionScreen(
         Text(
             text = "¿Tu hijo asiste a un colegio?",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -114,7 +115,7 @@ fun AssignInstitutionScreen(
         Text(
             text = "Elige el colegio al que asiste para que sus maestros puedan seguir su progreso",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -181,7 +182,7 @@ fun AssignInstitutionScreen(
                     Text(
                         text = "Selecciona un colegio",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     )

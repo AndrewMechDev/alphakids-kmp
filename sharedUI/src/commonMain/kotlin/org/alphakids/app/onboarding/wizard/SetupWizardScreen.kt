@@ -2,6 +2,7 @@ package org.alphakids.app.onboarding.wizard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,7 +82,7 @@ fun SetupWizardScreen(
             Text(
                 text = "¡Bienvenido a AlphaKids!",
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             )
@@ -91,7 +92,7 @@ fun SetupWizardScreen(
             Text(
                 text = "Configura el perfil de tu hijo para comenzar su aventura educativa",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                color = Color.White.copy(alpha = 0.9f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             )

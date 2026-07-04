@@ -3,6 +3,7 @@ package org.alphakids.app.onboarding.wizard
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -112,7 +113,7 @@ fun CreateChildProfileScreen(
         Text(
             text = "¡Creemos el perfil de tu hijo!",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -135,7 +136,7 @@ fun CreateChildProfileScreen(
         Text(
             text = "Edad",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.height(4.dp))

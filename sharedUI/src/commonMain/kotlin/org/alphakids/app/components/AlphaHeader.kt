@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -59,7 +60,7 @@ fun AlphaHeader(
                     Text(
                         text = "←",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                     )
                 }
             } else {
@@ -69,7 +70,7 @@ fun AlphaHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 modifier = Modifier.weight(1f),
             )
 
@@ -88,7 +89,7 @@ fun AlphaHeader(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = if (onBack != null) 48.dp else 0.dp),
             )
         }
@@ -104,7 +105,7 @@ fun AlphaHeader(
                 Text(
                     text = "Paso $currentStep de $totalSteps",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.7f),
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
