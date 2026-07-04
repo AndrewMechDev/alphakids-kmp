@@ -55,6 +55,7 @@ import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 
 // ── Data Model ──
 
@@ -436,7 +437,7 @@ private fun ActivePetCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
         Column(
@@ -541,7 +542,7 @@ private fun PetProfileCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column(
@@ -694,7 +695,7 @@ private fun SmallPetCard(
             .width(140.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(

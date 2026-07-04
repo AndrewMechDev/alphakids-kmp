@@ -56,6 +56,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.XpBarEnd
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 
 // ── Sub-tab definitions ──
 
@@ -236,7 +237,7 @@ private fun CurrentRankCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
         Column(
@@ -307,8 +308,8 @@ private fun RankCard(
 ) {
     val bgColor = when {
         isCurrent -> MaterialTheme.colorScheme.primaryContainer
-        isUnlocked -> MaterialTheme.colorScheme.surface
-        else -> MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+        isUnlocked -> glassCardColor()
+        else -> glassCardColor().copy(alpha = 0.7f)
     }
 
     Card(
@@ -453,7 +454,7 @@ private fun StatCard(stat: StatItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
@@ -570,7 +571,7 @@ private fun HistoryTimelineItem(entry: HistoryEntry) {
         Card(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = glassCardColor()),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         ) {
             Row(

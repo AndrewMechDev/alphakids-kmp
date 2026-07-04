@@ -61,6 +61,7 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 
 /**
  * OCR Result Screen showing celebration, rewards, and stats.
@@ -380,7 +381,7 @@ private fun RewardsCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -441,7 +442,7 @@ private fun StatsCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(

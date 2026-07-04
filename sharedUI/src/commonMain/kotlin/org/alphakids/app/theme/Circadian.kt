@@ -3,6 +3,7 @@ package org.alphakids.app.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -55,6 +56,16 @@ fun backgroundForTimePeriod(period: TimePeriod): String = when (period) {
     TimePeriod.EVENING -> "bg_noche"
     TimePeriod.NIGHT -> "bg_noche"
 }
+
+/**
+ * Semi-transparent card color that integrates with the circadian background.
+ * Use instead of opaque `MaterialTheme.colorScheme.surface` for cards rendered
+ * directly on top of the circadian background image.
+ */
+@Composable
+fun glassCardColor(): Color =
+    if (isNightTime()) Color(0xFF1E2030).copy(alpha = 0.78f)
+    else Color.White.copy(alpha = 0.82f)
 
 /**
  * Modifier that applies the circadian background based on the current time of day.

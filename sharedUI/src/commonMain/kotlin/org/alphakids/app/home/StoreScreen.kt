@@ -46,6 +46,7 @@ import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 
 // ── Data Models ──
 
@@ -555,7 +556,7 @@ private fun PurchaseConfirmationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = glassCardColor(),
         title = {
             Column(
                 modifier = Modifier.fillMaxWidth(),

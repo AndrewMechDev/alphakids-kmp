@@ -68,6 +68,7 @@ import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -540,7 +541,7 @@ private fun DictionaryWordCard(
         modifier = modifier,
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -650,7 +651,7 @@ private fun WordDetailCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
