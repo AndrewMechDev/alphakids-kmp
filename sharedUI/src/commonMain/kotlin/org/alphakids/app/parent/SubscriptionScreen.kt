@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.components.AlphaPrimaryButton
@@ -81,7 +82,7 @@ fun SubscriptionScreen(
                     text = "\uD83D\uDCB3 Suscripción",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                 )
             }
 
@@ -160,7 +161,7 @@ fun SubscriptionScreen(
                     text = "Beneficios",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                 )
             }
 
@@ -175,7 +176,7 @@ fun SubscriptionScreen(
                     text = "\uD83D\uDCC6 Historial de pagos",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                     modifier = Modifier.padding(top = 8.dp),
                 )
             }
