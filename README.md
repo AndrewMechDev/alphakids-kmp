@@ -276,6 +276,10 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **UX Audit: Diccionario tab** — Diccionario integrado como tab 2 en bottom nav (ya no es overlay)
 - ✅ **UX Audit: Splash animations** — Logo y Alphi entran con `fadeIn + scaleIn` en SplashScreen
 - ✅ **UX Audit: Demo credentials removed** — Eliminado texto de credenciales demo en LoginScreen
+- ✅ **UX Audit: Parent TopAppBar** — Transparent TopAppBar (fix: título invisible en modo día)
+- ✅ **UX Audit: Parent glassmorphic nav** — Bottom nav de padres con glassmorphic style + SVG icons (ic_chart_bar, ic_kid, ic_credit_card)
+- ✅ **UX Audit: Parent loading states** — AlphaInlineLoading con Alphi en SubscriptionScreen, ParentInsightCenter, ChildDetailScreen, ChildProfileSelectorScreen
+- ✅ **UX Audit: Parent SVG icons** — Emoji en TopAppBar reemplazados por SVG (ic_settings, ic_kid)
 - 💡 **Biométrico** — Login con huella/rostro (futuro)
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
