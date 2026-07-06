@@ -1,11 +1,16 @@
 package org.alphakids.app.studentpet.di
 
+import org.alphakids.app.data.fake.FakeStudentPetRepository
 import org.alphakids.app.data.remote.AlphaKidsApiClient
+import org.alphakids.app.di.OfflineMode
 import org.alphakids.app.studentpet.data.StudentPetRepositoryImpl
 import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val studentPetModule: Module = module {
-    single<StudentPetRepository> { StudentPetRepositoryImpl(get<AlphaKidsApiClient>()) }
+    single<StudentPetRepository> {
+        if (OfflineMode.enabled) FakeStudentPetRepository()
+        else StudentPetRepositoryImpl(get<AlphaKidsApiClient>())
+    }
 }

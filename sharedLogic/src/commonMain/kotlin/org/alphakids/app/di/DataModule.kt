@@ -7,6 +7,13 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val dataModule: Module = module {
-    single<TokenStorage> { InMemoryTokenStorage() }
+    single<TokenStorage> {
+        InMemoryTokenStorage().apply {
+            if (OfflineMode.enabled) {
+                accessToken = "fake-offline-token"
+                refreshToken = "fake-offline-refresh"
+            }
+        }
+    }
     single { AlphaKidsApiClient(get()) }
 }
