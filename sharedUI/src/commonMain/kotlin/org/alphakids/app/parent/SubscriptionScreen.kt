@@ -18,7 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import org.alphakids.app.components.AlphaInlineLoading
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -68,7 +68,10 @@ fun SubscriptionScreen(
             .fillMaxSize(),
     ) {
         if (state.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            AlphaInlineLoading(
+                message = "Cargando planes...",
+                modifier = Modifier.align(Alignment.Center),
+            )
             return@Box
         }
 

@@ -1,6 +1,7 @@
 package org.alphakids.app.parent
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,12 +9,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +27,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -44,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,17 +64,23 @@ import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.isNightTime
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
+import alphakids_kmp.sharedui.generated.resources.ic_credit_card
+import alphakids_kmp.sharedui.generated.resources.ic_kid
+import alphakids_kmp.sharedui.generated.resources.ic_settings
 
 private data class ParentNavTab(
     val label: String,
-    val emoji: String,
     val index: Int,
 )
 
 private val parentTabs = listOf(
-    ParentNavTab(label = "Dashboard", emoji = "📊", index = 0),
-    ParentNavTab(label = "Hijos", emoji = "👶", index = 1),
-    ParentNavTab(label = "Suscripción", emoji = "💳", index = 2),
+    ParentNavTab(label = "Dashboard", index = 0),
+    ParentNavTab(label = "Hijos", index = 1),
+    ParentNavTab(label = "Suscripción", index = 2),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,21 +116,34 @@ fun ParentHomeScreen(
                             }
                         },
                     ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_kid),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "👶 Modo niños",
+                            text = "Modo niños",
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Color.White,
                             maxLines = 1,
                         )
                     }
                     Box {
-                        Text(
-                            text = "⚙️",
-                            style = MaterialTheme.typography.titleLarge,
+                        Box(
                             modifier = Modifier
-                                .clickable(onClick = { showMenu = true })
-                                .padding(horizontal = 8.dp),
-                        )
+                                .size(48.dp)
+                                .clickable(onClick = { showMenu = true }),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_settings),
+                                contentDescription = "Configuración",
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
                         DropdownMenu(
                             expanded = showMenu,
                             onDismissRequest = { showMenu = false },
@@ -158,45 +183,17 @@ fun ParentHomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = Color.Transparent,
                     titleContentColor = Color.White,
+                    actionIconContentColor = Color.White,
                 ),
             )
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp,
-            ) {
-                parentTabs.forEach { tab ->
-                    val isSelected = selectedTab == tab.index
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = { selectedTab = tab.index },
-                        icon = {
-                            Text(
-                                text = tab.emoji,
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = tab.label,
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                        ),
-                    )
-                }
-            }
+            ParentGlassmorphicNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+            )
         },
     ) { innerPadding ->
         when (selectedTab) {
@@ -399,4 +396,74 @@ private fun ChildAdminCard(
             }
         }
     }
+}
+
+@Composable
+private fun ParentGlassmorphicNavigationBar(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+) {
+    val isNight = isNightTime()
+    val glassColor = if (isNight)
+        Color.White.copy(alpha = 0.08f)
+    else
+        Color.White.copy(alpha = 0.65f)
+    val borderColor = if (isNight)
+        Color.White.copy(alpha = 0.12f)
+    else
+        Color.White.copy(alpha = 0.4f)
+
+    val shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+
+    Box(
+        modifier = Modifier
+            .clip(shape)
+            .background(glassColor)
+            .border(width = 0.5.dp, color = borderColor, shape = shape)
+            .windowInsetsPadding(WindowInsets.navigationBars),
+    ) {
+        NavigationBar(
+            containerColor = Color.Transparent,
+            tonalElevation = 0.dp,
+        ) {
+            parentTabs.forEach { tab ->
+                val isSelected = selectedTab == tab.index
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = { onTabSelected(tab.index) },
+                    icon = {
+                        Icon(
+                            painter = parentTabIcon(tab.index),
+                            contentDescription = tab.label,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = tab.label,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    alwaysShowLabel = true,
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                        selectedTextColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
+                        unselectedTextColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
+                        indicatorColor = if (isNight) Color.White.copy(alpha = 0.1f) else Color.White.copy(alpha = 0.7f),
+                    ),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun parentTabIcon(index: Int): Painter = when (index) {
+    0 -> painterResource(Res.drawable.ic_chart_bar)
+    1 -> painterResource(Res.drawable.ic_kid)
+    2 -> painterResource(Res.drawable.ic_credit_card)
+    else -> painterResource(Res.drawable.ic_chart_bar)
 }
