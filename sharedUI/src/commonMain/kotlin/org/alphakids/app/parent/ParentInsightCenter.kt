@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.parent.domain.model.ChildSummary
 
 @Composable
@@ -118,10 +119,10 @@ fun ParentInsightCenter(
         if (state.children.isNotEmpty()) {
             item(key = "children-title") {
                 Text(
-                    text = "👶 Tus hijos",
+                    text = "Tus hijos",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
@@ -147,7 +148,7 @@ fun ParentInsightCenter(
                     },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    containerColor = glassCardColor(),
                 ),
             ) {
                 Row(
@@ -156,13 +157,13 @@ fun ParentInsightCenter(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = "➕", style = MaterialTheme.typography.titleLarge)
+                    Text(text = "+", style = MaterialTheme.typography.titleLarge, color = Color.White)
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Agregar hijo",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                     )
                 }
             }
@@ -172,10 +173,10 @@ fun ParentInsightCenter(
         if (state.recentActivity.isNotEmpty()) {
             item(key = "activity-title") {
                 Text(
-                    text = "📅 Actividad reciente",
+                    text = "Actividad reciente",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }

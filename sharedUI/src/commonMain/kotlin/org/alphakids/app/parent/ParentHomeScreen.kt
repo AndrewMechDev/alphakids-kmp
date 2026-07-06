@@ -64,6 +64,7 @@ import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -270,13 +271,13 @@ private fun ChildrenListTab(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        containerColor = glassCardColor(),
                     ),
                 ) {
                     Text(
                         text = "No hay hijos registrados aún. ¡Agrega el primero!",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color.White,
                         modifier = Modifier.padding(16.dp),
                     )
                 }
@@ -299,7 +300,7 @@ private fun ChildrenListTab(
                     },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    containerColor = glassCardColor(),
                 ),
             ) {
                 Row(
@@ -309,13 +310,13 @@ private fun ChildrenListTab(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    Text(text = "➕", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "+", style = MaterialTheme.typography.titleLarge, color = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Agregar hijo",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                     )
                 }
             }

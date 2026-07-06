@@ -282,7 +282,7 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             org.alphakids.app.components.AlphaTextButton(
-                text = "🏠 Ir al inicio",
+                text = "Ir al inicio",
                 onClick = {
                     navController.navigate(Screen.AdventureHome.route) {
                         popUpTo(Screen.AdventureHome.route) { inclusive = true }

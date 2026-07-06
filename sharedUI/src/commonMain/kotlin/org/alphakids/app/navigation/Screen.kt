@@ -66,9 +66,6 @@ sealed class Screen(val route: String) {
     /** Support / FAQ screen for parents */
     data object ParentSupport : Screen("parent-support")
 
-    /** Placeholder home screen ("¡Pronto!") — kept for backward compat */
-    data object PlaceholderHome : Screen("placeholder-home")
-
     // ── Jugar / Activity Screens ──
 
     /** LearningAdventureHub — activity picker (Scan / Spell) */
@@ -108,7 +105,6 @@ sealed class Screen(val route: String) {
             route == Welcome.route -> Welcome
             route == AdventureHome.route -> AdventureHome
             route == ChildProfileSelector.route -> ChildProfileSelector
-            route == PlaceholderHome.route -> PlaceholderHome
             route == LearningAdventureHub.route -> LearningAdventureHub
             route == WordSelection.route -> WordSelection
             route.startsWith("word-scanner-challenge/") -> WordScannerChallenge

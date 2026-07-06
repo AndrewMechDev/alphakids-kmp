@@ -54,6 +54,9 @@ import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import alphakids_kmp.sharedui.generated.resources.ic_camera
+import alphakids_kmp.sharedui.generated.resources.ic_microphone
+import androidx.compose.ui.graphics.painter.Painter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +140,7 @@ fun LearningAdventureHub(navController: NavController) {
 
             // Game cards — minimal, same size, no badges
             GameCard(
-                emoji = "📷",
+                icon = painterResource(Res.drawable.ic_camera),
                 title = "Escaneo de Letras",
                 description = "Forma palabras con letras físicas y escanéalas",
                 gradient = AlphaGradients.Nature,
@@ -147,7 +150,7 @@ fun LearningAdventureHub(navController: NavController) {
             )
 
             GameCard(
-                emoji = "🎙️",
+                icon = painterResource(Res.drawable.ic_microphone),
                 title = "Aventura de Deletreo",
                 description = "Deletrea palabras con tu voz",
                 gradient = AlphaGradients.Adventure,
@@ -168,7 +171,7 @@ fun LearningAdventureHub(navController: NavController) {
 
 @Composable
 private fun GameCard(
-    emoji: String,
+    icon: Painter,
     title: String,
     description: String,
     gradient: List<Color>,
@@ -213,9 +216,11 @@ private fun GameCard(
                         .background(Color.White.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = emoji,
-                        style = MaterialTheme.typography.displaySmall,
+                    Icon(
+                        painter = icon,
+                        contentDescription = title,
+                        tint = Color.White,
+                        modifier = Modifier.size(36.dp),
                     )
                 }
 
