@@ -1,12 +1,12 @@
 package org.alphakids.app.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,8 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -47,19 +49,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.pointer.pointerInput
-import kotlinx.coroutines.launch
-import kotlin.math.abs
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.roundToInt
+import org.alphakids.app.audio.AudioService
+import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.domain.model.DictionaryWord
+import org.alphakids.app.game.domain.repository.GameRepository
+import org.alphakids.app.koinInject
+import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.PetDrakoCyan
@@ -71,16 +83,6 @@ import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.isNightTime
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
-import coil3.compose.AsyncImage
-import kotlinx.coroutines.launch
-import org.alphakids.app.audio.AudioService
-import org.alphakids.app.audio.rememberAudioService
-import org.alphakids.app.game.domain.repository.GameRepository
-import org.alphakids.app.koinInject
-import org.alphakids.app.parent.domain.model.SessionManager
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
@@ -118,23 +120,17 @@ private val filterChips = listOf(
     FilterChipOption("Difíciles", 4),
 )
 
-// ── Mock data ──
+// ── Alphabet Wheel Constants ──
 
+private const val ALPHABET_SIZE = 26
+private const val WHEEL_REPEAT = 200
+private const val WHEEL_TOTAL = ALPHABET_SIZE * WHEEL_REPEAT
+private const val WHEEL_MIDDLE = (WHEEL_REPEAT / 2) * ALPHABET_SIZE
+private val WHEEL_ITEM_HEIGHT = 40.dp
+private val WHEEL_WIDTH = 48.dp
 
 // ── Public composable ──
 
-/**
- * Full Diccionario screen for Tab 2.
- *
- * Features:
- * - Alphabet navigation sidebar (A–Z, tap to filter by first letter)
- * - Search bar with text input
- * - Filter chips: Todas, Aprendidas, Pendientes, Fáciles, Difíciles
- * - Word grid (2 columns) with word cards
- * - Inline detail card when a word is tapped
- *
- * @param onBack Optional callback for a back arrow. When null, no back arrow is shown.
- */
 @Composable
 fun DictionaryScreen(
     modifier: Modifier = Modifier,
@@ -143,14 +139,13 @@ fun DictionaryScreen(
     val gameRepo: GameRepository = remember { koinInject() }
     val audioService = rememberAudioService()
     val childId = remember { SessionManager.currentChild?.id }
-    
+
     var fetchedWords by remember { mutableStateOf<List<DictionaryWord>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(childId) {
         try {
             if (childId != null) {
-                // Fetch playable words (assigned + catalog)
                 val playableResult = gameRepo.getPlayableWords(childId)
                 val playableWords = playableResult?.words?.map { dto ->
                     DictionaryWord(
@@ -165,7 +160,6 @@ fun DictionaryScreen(
                     )
                 } ?: emptyList()
 
-                // Fetch dictionary (completed/learned words)
                 val dictResult = gameRepo.getDictionary(childId)
                 val dictWords = dictResult?.dictionary?.flatMap { (_, words) ->
                     words.map { dto ->
@@ -182,7 +176,6 @@ fun DictionaryScreen(
                     }
                 } ?: emptyList()
 
-                // Merge: playable words take precedence, dictionary words fill gaps
                 val allWords = (playableWords + dictWords)
                     .distinctBy { it.word.uppercase() }
                     .sortedBy { it.word.uppercase() }
@@ -230,19 +223,15 @@ fun DictionaryScreen(
         map
     }
 
-    val activeLetter by remember(filteredWords, selectedWord) {
+    val activeLetter by remember {
         derivedStateOf {
-            if (selectedWord != null) {
-                selectedWord!!.word.first().uppercaseChar()
-            } else {
-                val layoutInfo = gridState.layoutInfo
-                val viewportCenter = layoutInfo.viewportSize.height / 2
-                val centerItem = layoutInfo.visibleItemsInfo.minByOrNull { itemInfo ->
-                    abs((itemInfo.offset.y + itemInfo.size.height / 2) - viewportCenter)
-                }
-                val centerIndex = centerItem?.index ?: gridState.firstVisibleItemIndex
-                filteredWords.getOrNull(centerIndex)?.word?.firstOrNull()?.uppercaseChar()
+            val layoutInfo = gridState.layoutInfo
+            val viewportCenter = layoutInfo.viewportSize.height / 2
+            val centerItem = layoutInfo.visibleItemsInfo.minByOrNull { itemInfo ->
+                abs((itemInfo.offset.y + itemInfo.size.height / 2) - viewportCenter)
             }
+            val centerIndex = centerItem?.index ?: gridState.firstVisibleItemIndex
+            filteredWords.getOrNull(centerIndex)?.word?.firstOrNull()?.uppercaseChar()
         }
     }
 
@@ -251,23 +240,23 @@ fun DictionaryScreen(
             .circadianBackground()
             .fillMaxSize(),
     ) {
-            // ── Alphabet sidebar ──
-            AlphabetNavColumn(
-                activeLetter = activeLetter,
-                availableLetters = availableLetters,
-                onLetterSelected = { letter ->
-                    val index = letterIndexMap[letter]
-                    if (index != null) {
-                        coroutineScope.launch {
-                            gridState.animateScrollToItem(index)
-                        }
+        // ── Alphabet wheel picker ──
+        AlphabetWheelPicker(
+            activeLetter = activeLetter,
+            availableLetters = availableLetters,
+            onLetterSelected = { letter ->
+                val index = letterIndexMap[letter]
+                if (index != null) {
+                    coroutineScope.launch {
+                        gridState.animateScrollToItem(index)
                     }
-                },
-            )
+                }
+            },
+        )
 
-            // ── Main content ──
-            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-            // Back arrow (shown when onBack is provided, e.g. from Inicio tab)
+        // ── Main content ──
+        Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            // Back arrow
             onBack?.let { back ->
                 Box(
                     modifier = Modifier
@@ -277,19 +266,20 @@ fun DictionaryScreen(
                 ) {
                     Icon(
                         painter = painterResource(Res.drawable.ic_arrow_left),
-                        contentDescription = "Volver",
+                        contentDescription = "Back",
                         tint = Color.White,
                         modifier = Modifier.size(24.dp),
                     )
                 }
             }
+
             // Search bar
             SearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 12.dp, top = 8.dp, bottom = 4.dp),
+                    .padding(start = 4.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
             )
 
             // Filter chips
@@ -298,19 +288,8 @@ fun DictionaryScreen(
                 onChipSelected = { selectedFilterIndex = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 12.dp, bottom = 4.dp),
+                    .padding(start = 4.dp, end = 8.dp, bottom = 4.dp),
             )
-
-            // Selected word detail (inline)
-            selectedWord?.let { word ->
-                WordDetailCard(
-                    word = word,
-                    onClose = { selectedWord = null },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                )
-            }
 
             // Word grid
             val isEmpty = filteredWords.isEmpty()
@@ -318,12 +297,12 @@ fun DictionaryScreen(
                 EmptyState(modifier = Modifier.weight(1f).fillMaxWidth())
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 160.dp),
+                    columns = GridCells.Adaptive(minSize = 150.dp),
                     state = gridState,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .padding(start = 8.dp, end = 12.dp, bottom = 8.dp),
+                        .padding(start = 4.dp, end = 8.dp, bottom = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(top = 4.dp),
@@ -335,6 +314,7 @@ fun DictionaryScreen(
                         DictionaryWordCard(
                             word = word,
                             audioService = audioService,
+                            isSelected = selectedWord?.word == word.word,
                             onClick = {
                                 selectedWord = if (selectedWord?.word == word.word) null else word
                             },
@@ -346,115 +326,183 @@ fun DictionaryScreen(
     }
 }
 
-// ── Alphabet Navigation Sidebar ──
-//
-// Apple Wheel Picker–inspired: fixed layout, continuous interpolation,
-// progressive scale/opacity/weight, drag + tap gesture support.
-
-private val ALPHABET_COLUMN_WIDTH = 36.dp
+// ── Alphabet Wheel Picker ──
 
 @Composable
-private fun AlphabetNavColumn(
+private fun AlphabetWheelPicker(
     activeLetter: Char?,
     availableLetters: List<Char>,
     onLetterSelected: (Char) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val alphabet = remember { ('A'..'Z').toList() }
-    val activeIndex = remember(activeLetter) {
-        activeLetter?.let { alphabet.indexOf(it) } ?: -1
-    }
-
     val isNight = isNightTime()
     val activeColor = Color(0xFFFFD54F)
     val availableColor = if (isNight) Color.White else Color(0xFF4A5568)
-    val unavailableColor = if (isNight) Color.White.copy(alpha = 0.2f) else Color(0xFF4A5568).copy(alpha = 0.3f)
+    val unavailableColor = if (isNight) Color.White.copy(alpha = 0.15f) else Color(0xFF4A5568).copy(alpha = 0.25f)
 
-    Column(
+    val activeAlphabetIndex = activeLetter?.let { alphabet.indexOf(it) }?.coerceAtLeast(0) ?: 0
+    val initialCenterIndex = WHEEL_MIDDLE + activeAlphabetIndex
+
+    val density = LocalDensity.current
+    val itemHeightPx = with(density) { WHEEL_ITEM_HEIGHT.toPx() }
+
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = initialCenterIndex - 3,
+    )
+    val coroutineScope = rememberCoroutineScope()
+
+    // Track whether the user is actively scrolling the sidebar
+    var userScrolling by remember { mutableStateOf(false) }
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isScrollInProgress }
+            .collect { scrolling ->
+                if (scrolling) {
+                    userScrolling = true
+                } else if (userScrolling) {
+                    userScrolling = false
+                    // Snap to nearest center item when scroll stops
+                    val layoutInfo = listState.layoutInfo
+                    val viewportCenter = layoutInfo.viewportSize.height / 2
+                    val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
+                        abs((it.offset + it.size / 2) - viewportCenter)
+                    }
+                    if (centerItem != null) {
+                        val letter = alphabet[centerItem.index % ALPHABET_SIZE]
+                        // Snap scroll
+                        listState.animateScrollToItem(
+                            centerItem.index - (layoutInfo.viewportSize.height / 2 / itemHeightPx).roundToInt(),
+                        )
+                        if (letter in availableLetters) {
+                            onLetterSelected(letter)
+                        }
+                    }
+                }
+            }
+    }
+
+    // Sync from grid: when activeLetter changes externally, scroll sidebar to match
+    LaunchedEffect(activeLetter) {
+        if (activeLetter != null && !userScrolling) {
+            val targetAlphaIndex = alphabet.indexOf(activeLetter)
+            if (targetAlphaIndex >= 0) {
+                val layoutInfo = listState.layoutInfo
+                val viewportCenter = layoutInfo.viewportSize.height / 2
+                val currentCenter = layoutInfo.visibleItemsInfo.minByOrNull {
+                    abs((it.offset + it.size / 2) - viewportCenter)
+                }?.index ?: initialCenterIndex
+
+                val currentMod = currentCenter % ALPHABET_SIZE
+                if (currentMod != targetAlphaIndex) {
+                    val currentBase = (currentCenter / ALPHABET_SIZE) * ALPHABET_SIZE
+                    val targetIndex = currentBase + targetAlphaIndex
+                    val visibleCount = (layoutInfo.viewportSize.height / itemHeightPx).roundToInt()
+                    listState.animateScrollToItem(targetIndex - visibleCount / 2)
+                }
+            }
+        }
+    }
+
+    // Compute center index for visual effects
+    val centerVisualIndex by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val viewportCenter = layoutInfo.viewportSize.height / 2
+            val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
+                abs((it.offset + it.size / 2) - viewportCenter)
+            }
+            centerItem?.index ?: initialCenterIndex
+        }
+    }
+
+    BoxWithConstraints(
         modifier = modifier
-            .width(ALPHABET_COLUMN_WIDTH)
-            .fillMaxHeight()
-            .padding(vertical = 8.dp)
-            .pointerInput(availableLetters) {
-                detectTapGestures { offset ->
-                    val cellHeight = size.height.toFloat() / alphabet.size
-                    val index = (offset.y / cellHeight)
-                        .toInt()
-                        .coerceIn(0, alphabet.lastIndex)
-                    val letter = alphabet[index]
-                    if (letter in availableLetters) onLetterSelected(letter)
-                }
-            }
-            .pointerInput(availableLetters) {
-                detectVerticalDragGestures { change, _ ->
-                    val cellHeight = size.height.toFloat() / alphabet.size
-                    val index = (change.position.y / cellHeight)
-                        .toInt()
-                        .coerceIn(0, alphabet.lastIndex)
-                    val letter = alphabet[index]
-                    if (letter in availableLetters) onLetterSelected(letter)
-                    change.consume()
-                }
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .width(WHEEL_WIDTH)
+            .fillMaxHeight(),
     ) {
-        alphabet.forEachIndexed { index, letter ->
-            val isAvailable = letter in availableLetters
-            val rawDistance = if (activeIndex >= 0) abs(index - activeIndex).toFloat() else 4f
+        val verticalPadding = maxHeight / 2 - WHEEL_ITEM_HEIGHT / 2
 
-            val targetScale = smoothLerp(1.55f, 0.8f, rawDistance / 3.5f)
-            val scale by animateFloatAsState(
-                targetValue = targetScale,
-                animationSpec = spring(
-                    dampingRatio = 0.7f,
-                    stiffness = Spring.StiffnessLow,
-                ),
-                label = "scale_$letter",
-            )
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(vertical = verticalPadding),
+        ) {
+            items(WHEEL_TOTAL) { index ->
+                val letter = alphabet[index % ALPHABET_SIZE]
+                val isAvailable = letter in availableLetters
+                val distFromCenter = abs(index - centerVisualIndex).toFloat()
 
-            val targetOpacity = if (isAvailable) {
-                smoothLerp(1f, 0.3f, rawDistance / 3.5f)
-            } else 0.2f
-            val opacity by animateFloatAsState(
-                targetValue = targetOpacity,
-                animationSpec = spring(
-                    dampingRatio = 0.7f,
-                    stiffness = Spring.StiffnessLow,
-                ),
-                label = "opacity_$letter",
-            )
-
-            val fontWeight = when {
-                rawDistance < 0.5f -> FontWeight.ExtraBold
-                rawDistance < 1.5f -> FontWeight.Bold
-                rawDistance < 2.5f -> FontWeight.Medium
-                else -> FontWeight.Normal
-            }
-
-            val textColor = when {
-                rawDistance < 0.5f -> activeColor
-                isAvailable -> availableColor
-                else -> unavailableColor
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = letter.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = fontWeight,
-                    color = textColor,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        alpha = opacity
-                    },
+                val targetScale = smoothLerp(1.8f, 0.55f, distFromCenter / 3f)
+                val scale by animateFloatAsState(
+                    targetValue = targetScale,
+                    animationSpec = spring(
+                        dampingRatio = 0.6f,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    label = "wscale_$index",
                 )
+
+                val targetOpacity = if (isAvailable) {
+                    smoothLerp(1f, 0.2f, distFromCenter / 3f)
+                } else 0.12f
+                val opacity by animateFloatAsState(
+                    targetValue = targetOpacity,
+                    animationSpec = spring(
+                        dampingRatio = 0.6f,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                    label = "wopacity_$index",
+                )
+
+                val fontWeight = when {
+                    distFromCenter < 0.5f -> FontWeight.ExtraBold
+                    distFromCenter < 1.5f -> FontWeight.Bold
+                    distFromCenter < 2.5f -> FontWeight.Medium
+                    else -> FontWeight.Normal
+                }
+
+                val textColor = when {
+                    distFromCenter < 0.5f -> activeColor
+                    isAvailable -> availableColor
+                    else -> unavailableColor
+                }
+
+                val fontSize = when {
+                    distFromCenter < 0.5f -> 20.sp
+                    distFromCenter < 1.5f -> 14.sp
+                    distFromCenter < 2.5f -> 12.sp
+                    else -> 10.sp
+                }
+
+                Box(
+                    modifier = Modifier
+                        .height(WHEEL_ITEM_HEIGHT)
+                        .fillMaxWidth()
+                        .clickable(enabled = isAvailable) {
+                            coroutineScope.launch {
+                                val layoutInfo = listState.layoutInfo
+                                val visibleCount = (layoutInfo.viewportSize.height / itemHeightPx).roundToInt()
+                                listState.animateScrollToItem(index - visibleCount / 2)
+                            }
+                            onLetterSelected(letter)
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = letter.toString(),
+                        fontSize = fontSize,
+                        fontWeight = fontWeight,
+                        color = textColor,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            alpha = opacity
+                        },
+                    )
+                }
             }
         }
     }
@@ -484,7 +532,7 @@ private fun SearchBar(
         },
         leadingIcon = {
             Text(
-                text = "\uD83D\uDD0D",
+                text = "🔍",
                 style = MaterialTheme.typography.titleMedium,
             )
         },
@@ -548,26 +596,59 @@ private fun FilterChipsRow(
     }
 }
 
-// ── Dictionary Word Card (grid item with image + audio) ──
+// ── Dictionary Word Card ──
 
 @Composable
 private fun DictionaryWordCard(
     word: DictionaryWord,
     audioService: AudioService,
+    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val accent = categoryColor(word.category)
-    val scope = rememberCoroutineScope()
+    val isNight = isNightTime()
+    val selectedBorderColor = if (isNight) Color(0xFFFFD54F) else MaterialTheme.colorScheme.primary
+
+    val targetScale = if (isSelected) 1.03f else 1f
+    val scale by animateFloatAsState(
+        targetValue = targetScale,
+        animationSpec = spring(
+            dampingRatio = 0.7f,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "cardScale",
+    )
+
+    val borderAlpha by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0f,
+        label = "cardBorder",
+    )
 
     Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .then(
+                if (isSelected) Modifier.border(
+                    width = 2.dp,
+                    color = selectedBorderColor.copy(alpha = borderAlpha),
+                    shape = RoundedCornerShape(14.dp),
+                ) else Modifier
+            ),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = glassCardColor(),
+            containerColor = if (isSelected) {
+                if (isNight) Color(0xFF1E2030).copy(alpha = 0.92f)
+                else Color.White.copy(alpha = 0.95f)
+            } else glassCardColor(),
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isSelected) 6.dp else 2.dp,
+        ),
     ) {
         Row(
             modifier = Modifier
@@ -575,7 +656,6 @@ private fun DictionaryWordCard(
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Word image — left side
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -603,7 +683,6 @@ private fun DictionaryWordCard(
 
             Spacer(modifier = Modifier.width(10.dp))
 
-            // Middle: word text + category
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = word.word,
@@ -636,9 +715,29 @@ private fun DictionaryWordCard(
                         )
                     }
                 }
+
+                // Show extra info when selected
+                if (isSelected) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        DifficultyLabel(difficulty = word.difficulty)
+                        StarRating(stars = word.stars)
+                    }
+                    if (word.learned && word.dateLearned != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "✅ Aprendida el ${word.dateLearned}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = SuccessGreen,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
             }
 
-            // Right: audio button
             if (word.audioUrl.isNotBlank()) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Box(
@@ -646,143 +745,15 @@ private fun DictionaryWordCard(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(glassCardColor())
-                        .clickable {
-                            audioService.playUrl(word.audioUrl)
-                        },
+                        .clickable { audioService.playUrl(word.audioUrl) },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "\uD83D\uDD0A",
+                        text = "🔊",
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
             }
-        }
-    }
-}
-
-// ── Word Detail Card ──
-
-@Composable
-private fun WordDetailCard(
-    word: DictionaryWord,
-    onClose: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val accent = categoryColor(word.category)
-    val audioService = rememberAudioService()
-
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Large image — show API image if available, fallback to letter
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(accent.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (word.imageUrl.isNotBlank()) {
-                    AsyncImage(
-                        model = word.imageUrl,
-                        contentDescription = word.word,
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(RoundedCornerShape(14.dp)),
-                    )
-                } else {
-                    Text(
-                        text = word.word.first().uppercase(),
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = accent,
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = word.word,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Category badge
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = accent.copy(alpha = 0.12f),
-                ) {
-                    Text(
-                        text = word.category,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = accent,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    DifficultyLabel(difficulty = word.difficulty)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    StarRating(stars = word.stars)
-
-                    // Audio playback button in detail card
-                    if (word.audioUrl.isNotBlank()) {
-                        Spacer(modifier = Modifier.weight(1f))
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(glassCardColor())
-                                .clickable { audioService.playUrl(word.audioUrl) },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "\uD83D\uDD0A",
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                        }
-                    }
-                }
-
-                if (word.learned && word.dateLearned != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "\u2705 Aprendida el ${word.dateLearned}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = SuccessGreen,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            }
-
-            // Close button
-            Text(
-                text = "\u2716",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable(onClick = onClose)
-                    .padding(6.dp),
-            )
         }
     }
 }
@@ -828,7 +799,7 @@ private fun StarRating(stars: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         for (i in 0 until 3) {
             Text(
-                text = if (i < stars) "\u2B50" else "\u2606",
+                text = if (i < stars) "⭐" else "☆",
                 style = MaterialTheme.typography.labelSmall,
             )
         }
@@ -845,7 +816,7 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "\uD83D\uDD0D",
+            text = "🔍",
             style = MaterialTheme.typography.displayMedium,
         )
         Spacer(modifier = Modifier.height(8.dp))
