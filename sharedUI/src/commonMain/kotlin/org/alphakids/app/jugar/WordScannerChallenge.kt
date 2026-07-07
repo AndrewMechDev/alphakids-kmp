@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -183,7 +184,7 @@ fun WordScannerChallenge(
                 onError = {},
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Capture button — centered
             Button(
@@ -228,6 +229,8 @@ fun WordScannerChallenge(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Result / Retry actions
             if (showResult && result != null) {
@@ -346,13 +349,13 @@ private fun WordHintSection(word: ChallengeWord) {
                     text = word.hint,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${word.word.length} letras",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.8f),
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -380,9 +383,14 @@ private fun LetterSlotsRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (letter.isNotEmpty())
-                            MaterialTheme.colorScheme.primaryContainer
+                            glassCardColor()
                         else
-                            MaterialTheme.colorScheme.surface,
+                            glassCardColor().copy(alpha = 0.5f),
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(10.dp),
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -391,13 +399,13 @@ private fun LetterSlotsRow(
                         text = letter,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                     )
                 } else {
                     Text(
                         text = "_",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color.White.copy(alpha = 0.5f),
                     )
                 }
             }
