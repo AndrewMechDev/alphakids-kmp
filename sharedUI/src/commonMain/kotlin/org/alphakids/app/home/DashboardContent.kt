@@ -47,6 +47,7 @@ import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_logout
+import alphakids_kmp.sharedui.generated.resources.ic_book_open
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 /** Base URL for DiceBear avatar generation. */
@@ -66,11 +67,12 @@ fun DashboardContent(
     onNavigateToHub: () -> Unit = {},
     onNavigateToParentDashboard: () -> Unit = {},
     onSwitchProfile: () -> Unit = {},
+    onNavigateToDictionary: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val audioService = rememberAudioService()
     val avatarColor = avatarColors[state.childName.hashCode().mod(avatarColors.size).let { if (it < 0) it + avatarColors.size else it }]
-    val avatarSeed = state.childName.lowercase().replace(" ", "")
+    val avatarSeed = state.childAvatarSeed.ifEmpty { state.childName.lowercase().replace(" ", "") }
 
     Column(
         modifier = modifier
@@ -208,6 +210,59 @@ fun DashboardContent(
                         )
                         Text(
                             text = "Escanea letras con la cámara",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+                    }
+                }
+            }
+        }
+
+        // Dictionary card
+        val dictInteraction = remember { MutableInteractionSource() }
+        val dictPressed by dictInteraction.collectIsPressedAsState()
+        val dictScale by animateFloatAsState(
+            targetValue = if (dictPressed) 0.98f else 1f,
+            label = "dictCardPress",
+        )
+
+        Card(
+            onClick = onNavigateToDictionary,
+            interactionSource = dictInteraction,
+            modifier = Modifier.fillMaxWidth().height(cardHeight)
+                .graphicsLayer(scaleX = dictScale, scaleY = dictScale),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = AlphaGradients.angled(AlphaGradients.Adventure),
+                        shape = RoundedCornerShape(20.dp),
+                    ),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_book_open),
+                        contentDescription = "Diccionario",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp),
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Diccionario",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = "Explora las palabras aprendidas",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.8f),
                         )

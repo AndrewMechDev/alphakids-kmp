@@ -46,7 +46,6 @@ import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_home
-import alphakids_kmp.sharedui.generated.resources.ic_book_open
 import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_trophy
@@ -57,6 +56,7 @@ fun AdventureHomeScreen(navController: NavController) {
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
+    var showDictionary by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedTab) {
         viewModel.refreshCoins()
@@ -124,26 +124,30 @@ fun AdventureHomeScreen(navController: NavController) {
                         popUpTo(Screen.AdventureHome.route) { inclusive = true }
                     }
                 },
+                onNavigateToDictionary = { showDictionary = true },
                 modifier = Modifier.padding(innerPadding),
             )
-            1 -> DictionaryScreen(
-                modifier = Modifier.padding(innerPadding),
-                onBack = { selectedTab = 0 },
-            )
-            2 -> StoreScreen(
+            1 -> StoreScreen(
                 coins = state.coins,
                 onSpendCoins = { amount -> viewModel.spendCoins(amount) },
                 childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
-            3 -> PetsScreen(
+            2 -> PetsScreen(
                 coins = state.coins,
                 onSpendCoins = { amount -> viewModel.spendCoins(amount) },
                 childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
-            4 -> AchievementsScreen(
+            3 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
+            )
+        }
+
+        if (showDictionary) {
+            DictionaryScreen(
+                modifier = Modifier.padding(innerPadding),
+                onBack = { showDictionary = false },
             )
         }
     }
@@ -156,10 +160,9 @@ private data class NavTab(
 
 private val navTabs = listOf(
     NavTab(label = "Inicio", index = 0),
-    NavTab(label = "Diccionario", index = 1),
-    NavTab(label = "Tienda", index = 2),
-    NavTab(label = "Mascotas", index = 3),
-    NavTab(label = "Logros", index = 4),
+    NavTab(label = "Tienda", index = 1),
+    NavTab(label = "Mascotas", index = 2),
+    NavTab(label = "Logros", index = 3),
 )
 
 @Composable
@@ -227,9 +230,8 @@ private fun GlassmorphicNavigationBar(
 @Composable
 private fun tabIcon(index: Int): Painter = when (index) {
     0 -> painterResource(Res.drawable.ic_home)
-    1 -> painterResource(Res.drawable.ic_book_open)
-    2 -> painterResource(Res.drawable.ic_shopping_cart)
-    3 -> painterResource(Res.drawable.ic_paw)
-    4 -> painterResource(Res.drawable.ic_trophy)
+    1 -> painterResource(Res.drawable.ic_shopping_cart)
+    2 -> painterResource(Res.drawable.ic_paw)
+    3 -> painterResource(Res.drawable.ic_trophy)
     else -> painterResource(Res.drawable.ic_home)
 }
