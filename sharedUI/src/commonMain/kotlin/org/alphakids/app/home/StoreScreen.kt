@@ -47,6 +47,7 @@ import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.isNightTime
 
 // ── Data Models ──
 
@@ -204,7 +205,7 @@ private fun InventoryOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)),
+            .circadianBackground(),
     ) {
         Column(
             modifier = Modifier
@@ -220,13 +221,13 @@ private fun InventoryOverlay(
                     text = "\uD83C\uDF92 Inventario",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
                     text = "\u2716",
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.7f),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onClose)
@@ -250,12 +251,12 @@ private fun InventoryOverlay(
                         Text(
                             text = "Aún no has comprado nada",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = Color.White,
                         )
                         Text(
                             text = "¡Visita la Tienda y gasta tus monedas!",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            color = Color.White.copy(alpha = 0.6f),
                         )
                     }
                 }
@@ -274,7 +275,7 @@ private fun InventoryOverlay(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                containerColor = glassCardColor(),
                             ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                         ) {
@@ -288,7 +289,7 @@ private fun InventoryOverlay(
                                     modifier = Modifier
                                         .size(56.dp)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                                        .background(Color.White.copy(alpha = 0.1f)),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Text(
@@ -304,12 +305,12 @@ private fun InventoryOverlay(
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = Color.White,
                                 )
                                 Text(
                                     text = item.category.displayName,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = Color.White.copy(alpha = 0.6f),
                                 )
                             }
                         }
@@ -342,7 +343,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+                .background(glassCardColor())
                 .clickable(onClick = onInventoryClick)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
         ) {
@@ -386,6 +387,7 @@ private fun CategoryTabs(
     selectedCategory: StoreCategory,
     onCategorySelected: (StoreCategory) -> Unit,
 ) {
+    val isNight = isNightTime()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -399,8 +401,10 @@ private fun CategoryTabs(
                     .weight(1f)
                     .clip(RoundedCornerShape(12.dp))
                     .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceVariant,
+                        color = if (isSelected) {
+                            if (isNight) Color.White.copy(alpha = 0.2f)
+                            else MaterialTheme.colorScheme.primary
+                        } else glassCardColor(),
                     )
                     .clickable { onCategorySelected(category) }
                     .padding(vertical = 10.dp),
@@ -410,8 +414,8 @@ private fun CategoryTabs(
                     text = category.displayName,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (isSelected) Color.White
+                    else Color.White.copy(alpha = 0.7f),
                 )
             }
         }
@@ -430,13 +434,14 @@ private fun ProductCard(
 ) {
     val isLocked = item.requiredLevel > childLevel
     val hasInsufficientCoins = !isPurchased && !isLocked && currentCoins < item.price
+    val isNight = isNightTime()
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().height(200.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isLocked) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            else MaterialTheme.colorScheme.surface,
+            containerColor = if (isLocked) glassCardColor().copy(alpha = 0.4f)
+            else glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isLocked) 0.dp else 2.dp,
@@ -444,18 +449,18 @@ private fun ProductCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            // Placeholder image using emoji in a box
             Box(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(
-                        if (isLocked) MaterialTheme.colorScheme.surfaceVariant
-                        else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        if (isLocked) Color.White.copy(alpha = 0.05f)
+                        else Color.White.copy(alpha = 0.1f),
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -467,13 +472,12 @@ private fun ProductCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Name
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = if (isLocked) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                else MaterialTheme.colorScheme.onSurface,
+                color = if (isLocked) Color.White.copy(alpha = 0.4f)
+                else Color.White,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -481,7 +485,6 @@ private fun ProductCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Status section
             when {
                 isPurchased -> {
                     Text(
@@ -495,22 +498,20 @@ private fun ProductCard(
                     Text(
                         text = "Nivel ${item.requiredLevel} requerido",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        color = Color.White.copy(alpha = 0.4f),
                         textAlign = TextAlign.Center,
                     )
                 }
                 else -> {
-                    // Price
                     Text(
                         text = "\uD83E\uDE99 ${item.price}",
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
-                        color = if (hasInsufficientCoins) ErrorRed else CoinGold.copy(alpha = 0.8f),
+                        color = if (hasInsufficientCoins) ErrorRed else CoinGold,
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // Action
                     if (hasInsufficientCoins) {
                         Text(
                             text = "Monedas insuficientes",
@@ -524,8 +525,8 @@ private fun ProductCard(
                             shape = RoundedCornerShape(10.dp),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                                contentColor = Color.White,
                             ),
                             modifier = Modifier.height(32.dp),
                         ) {
@@ -571,7 +572,7 @@ private fun PurchaseConfirmationDialog(
                     text = item.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -607,7 +608,7 @@ private fun PurchaseConfirmationDialog(
                 Text(
                     text = "Cancelar",
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.6f),
                 )
             }
         },
@@ -626,13 +627,13 @@ private fun HorizontalDetail(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.7f),
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = Color.White,
         )
     }
 }
