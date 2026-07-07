@@ -3,10 +3,12 @@ package org.alphakids.app.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,12 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,12 +44,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlin.math.roundToInt
 import org.alphakids.app.audio.AudioService
 import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.domain.model.DictionaryWord
@@ -123,11 +122,9 @@ private val filterChips = listOf(
 // ── Alphabet Wheel Constants ──
 
 private const val ALPHABET_SIZE = 26
-private const val WHEEL_REPEAT = 200
-private const val WHEEL_TOTAL = ALPHABET_SIZE * WHEEL_REPEAT
-private const val WHEEL_MIDDLE = (WHEEL_REPEAT / 2) * ALPHABET_SIZE
-private val WHEEL_ITEM_HEIGHT = 40.dp
-private val WHEEL_WIDTH = 48.dp
+private val WHEEL_ITEM_HEIGHT = 44.dp
+private val WHEEL_WIDTH = 52.dp
+private const val VISIBLE_SLOTS = 7
 
 // ── Public composable ──
 
@@ -243,6 +240,7 @@ fun DictionaryScreen(
         // ── Alphabet wheel picker ──
         AlphabetWheelPicker(
             activeLetter = activeLetter,
+            selectedWordLetter = selectedWord?.word?.firstOrNull()?.uppercaseChar(),
             availableLetters = availableLetters,
             onLetterSelected = { letter ->
                 val index = letterIndexMap[letter]
@@ -331,6 +329,7 @@ fun DictionaryScreen(
 @Composable
 private fun AlphabetWheelPicker(
     activeLetter: Char?,
+    selectedWordLetter: Char?,
     availableLetters: List<Char>,
     onLetterSelected: (Char) -> Unit,
     modifier: Modifier = Modifier,
@@ -338,171 +337,120 @@ private fun AlphabetWheelPicker(
     val alphabet = remember { ('A'..'Z').toList() }
     val isNight = isNightTime()
     val activeColor = Color(0xFFFFD54F)
-    val availableColor = if (isNight) Color.White else Color(0xFF4A5568)
-    val unavailableColor = if (isNight) Color.White.copy(alpha = 0.15f) else Color(0xFF4A5568).copy(alpha = 0.25f)
+    val availableColor = if (isNight) Color.White else Color(0xFF1A202C)
+    val unavailableColor = if (isNight) Color.White.copy(alpha = 0.35f) else Color(0xFF718096)
 
-    val activeAlphabetIndex = activeLetter?.let { alphabet.indexOf(it) }?.coerceAtLeast(0) ?: 0
-    val initialCenterIndex = WHEEL_MIDDLE + activeAlphabetIndex
+    val effectiveLetter = selectedWordLetter ?: activeLetter ?: 'A'
+    val halfVisible = VISIBLE_SLOTS / 2
 
+    // The center letter index (0-25), drives the entire wheel
+    var centerIndex by remember { mutableIntStateOf(alphabet.indexOf(effectiveLetter).coerceAtLeast(0)) }
+
+    // Sync from external: card tap or grid scroll
+    LaunchedEffect(effectiveLetter) {
+        val target = alphabet.indexOf(effectiveLetter)
+        if (target >= 0) centerIndex = target
+    }
+
+    // Drag support
     val density = LocalDensity.current
     val itemHeightPx = with(density) { WHEEL_ITEM_HEIGHT.toPx() }
+    var dragAccumulator by remember { mutableFloatStateOf(0f) }
 
-    val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = initialCenterIndex - 3,
-    )
-    val coroutineScope = rememberCoroutineScope()
-
-    // Track whether the user is actively scrolling the sidebar
-    var userScrolling by remember { mutableStateOf(false) }
-
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.isScrollInProgress }
-            .collect { scrolling ->
-                if (scrolling) {
-                    userScrolling = true
-                } else if (userScrolling) {
-                    userScrolling = false
-                    // Snap to nearest center item when scroll stops
-                    val layoutInfo = listState.layoutInfo
-                    val viewportCenter = layoutInfo.viewportSize.height / 2
-                    val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
-                        abs((it.offset + it.size / 2) - viewportCenter)
-                    }
-                    if (centerItem != null) {
-                        val letter = alphabet[centerItem.index % ALPHABET_SIZE]
-                        // Snap scroll
-                        listState.animateScrollToItem(
-                            centerItem.index - (layoutInfo.viewportSize.height / 2 / itemHeightPx).roundToInt(),
-                        )
-                        if (letter in availableLetters) {
-                            onLetterSelected(letter)
-                        }
-                    }
-                }
-            }
-    }
-
-    // Sync from grid: when activeLetter changes externally, scroll sidebar to match
-    LaunchedEffect(activeLetter) {
-        if (activeLetter != null && !userScrolling) {
-            val targetAlphaIndex = alphabet.indexOf(activeLetter)
-            if (targetAlphaIndex >= 0) {
-                val layoutInfo = listState.layoutInfo
-                val viewportCenter = layoutInfo.viewportSize.height / 2
-                val currentCenter = layoutInfo.visibleItemsInfo.minByOrNull {
-                    abs((it.offset + it.size / 2) - viewportCenter)
-                }?.index ?: initialCenterIndex
-
-                val currentMod = currentCenter % ALPHABET_SIZE
-                if (currentMod != targetAlphaIndex) {
-                    val currentBase = (currentCenter / ALPHABET_SIZE) * ALPHABET_SIZE
-                    val targetIndex = currentBase + targetAlphaIndex
-                    val visibleCount = (layoutInfo.viewportSize.height / itemHeightPx).roundToInt()
-                    listState.animateScrollToItem(targetIndex - visibleCount / 2)
-                }
+    val draggableState = rememberDraggableState { delta ->
+        dragAccumulator -= delta
+        val steps = (dragAccumulator / itemHeightPx).toInt()
+        if (steps != 0) {
+            dragAccumulator -= steps * itemHeightPx
+            val newIndex = ((centerIndex + steps) % ALPHABET_SIZE + ALPHABET_SIZE) % ALPHABET_SIZE
+            centerIndex = newIndex
+            val letter = alphabet[newIndex]
+            if (letter in availableLetters) {
+                onLetterSelected(letter)
             }
         }
     }
 
-    // Compute center index for visual effects
-    val centerVisualIndex by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val viewportCenter = layoutInfo.viewportSize.height / 2
-            val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
-                abs((it.offset + it.size / 2) - viewportCenter)
-            }
-            centerItem?.index ?: initialCenterIndex
-        }
-    }
-
-    BoxWithConstraints(
+    Column(
         modifier = modifier
             .width(WHEEL_WIDTH)
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .draggable(
+                state = draggableState,
+                orientation = Orientation.Vertical,
+                onDragStopped = { dragAccumulator = 0f },
+            ),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val verticalPadding = maxHeight / 2 - WHEEL_ITEM_HEIGHT / 2
+        for (offset in -halfVisible..halfVisible) {
+            val rawIdx = centerIndex + offset
+            val wrappedIdx = ((rawIdx % ALPHABET_SIZE) + ALPHABET_SIZE) % ALPHABET_SIZE
+            val letter = alphabet[wrappedIdx]
+            val isAvailable = letter in availableLetters
+            val dist = abs(offset).toFloat()
+            val isCenter = offset == 0
 
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = verticalPadding),
-        ) {
-            items(WHEEL_TOTAL) { index ->
-                val letter = alphabet[index % ALPHABET_SIZE]
-                val isAvailable = letter in availableLetters
-                val distFromCenter = abs(index - centerVisualIndex).toFloat()
+            val fontSize = when {
+                isCenter -> 24.sp
+                dist <= 1f -> 17.sp
+                dist <= 2f -> 14.sp
+                else -> 12.sp
+            }
 
-                val targetScale = smoothLerp(1.8f, 0.55f, distFromCenter / 3f)
-                val scale by animateFloatAsState(
-                    targetValue = targetScale,
-                    animationSpec = spring(
-                        dampingRatio = 0.6f,
-                        stiffness = Spring.StiffnessMediumLow,
-                    ),
-                    label = "wscale_$index",
-                )
+            val fontWeight = when {
+                isCenter -> FontWeight.ExtraBold
+                dist <= 1f -> FontWeight.Bold
+                dist <= 2f -> FontWeight.SemiBold
+                else -> FontWeight.Medium
+            }
 
-                val targetOpacity = if (isAvailable) {
-                    smoothLerp(1f, 0.2f, distFromCenter / 3f)
-                } else 0.12f
-                val opacity by animateFloatAsState(
-                    targetValue = targetOpacity,
-                    animationSpec = spring(
-                        dampingRatio = 0.6f,
-                        stiffness = Spring.StiffnessMediumLow,
-                    ),
-                    label = "wopacity_$index",
-                )
+            val textColor = when {
+                isCenter -> activeColor
+                isAvailable -> availableColor
+                else -> unavailableColor
+            }
 
-                val fontWeight = when {
-                    distFromCenter < 0.5f -> FontWeight.ExtraBold
-                    distFromCenter < 1.5f -> FontWeight.Bold
-                    distFromCenter < 2.5f -> FontWeight.Medium
-                    else -> FontWeight.Normal
-                }
+            val textAlpha = when {
+                isCenter -> 1f
+                isAvailable -> smoothLerp(0.85f, 0.4f, dist / halfVisible.toFloat())
+                else -> 0.25f
+            }
 
-                val textColor = when {
-                    distFromCenter < 0.5f -> activeColor
-                    isAvailable -> availableColor
-                    else -> unavailableColor
-                }
+            val scale = smoothLerp(1.3f, 0.75f, dist / halfVisible.toFloat())
 
-                val fontSize = when {
-                    distFromCenter < 0.5f -> 20.sp
-                    distFromCenter < 1.5f -> 14.sp
-                    distFromCenter < 2.5f -> 12.sp
-                    else -> 10.sp
-                }
-
-                Box(
-                    modifier = Modifier
-                        .height(WHEEL_ITEM_HEIGHT)
-                        .fillMaxWidth()
-                        .clickable(enabled = isAvailable) {
-                            coroutineScope.launch {
-                                val layoutInfo = listState.layoutInfo
-                                val visibleCount = (layoutInfo.viewportSize.height / itemHeightPx).roundToInt()
-                                listState.animateScrollToItem(index - visibleCount / 2)
-                            }
-                            onLetterSelected(letter)
-                        },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = letter.toString(),
-                        fontSize = fontSize,
-                        fontWeight = fontWeight,
-                        color = textColor,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                            alpha = opacity
-                        },
+            Box(
+                modifier = Modifier
+                    .height(WHEEL_ITEM_HEIGHT)
+                    .fillMaxWidth()
+                    .then(
+                        if (isCenter) Modifier
+                            .padding(horizontal = 4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                if (isNight) Color(0xFFFFD54F).copy(alpha = 0.15f)
+                                else Color(0xFFFFD54F).copy(alpha = 0.22f),
+                            )
+                        else Modifier
                     )
-                }
+                    .clickable(enabled = isAvailable) {
+                        centerIndex = wrappedIdx
+                        onLetterSelected(letter)
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = letter.toString(),
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = textAlpha
+                    },
+                )
             }
         }
     }
@@ -634,7 +582,7 @@ private fun DictionaryWordCard(
             }
             .then(
                 if (isSelected) Modifier.border(
-                    width = 2.dp,
+                    width = 2.5.dp,
                     color = selectedBorderColor.copy(alpha = borderAlpha),
                     shape = RoundedCornerShape(14.dp),
                 ) else Modifier
@@ -642,12 +590,12 @@ private fun DictionaryWordCard(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
-                if (isNight) Color(0xFF1E2030).copy(alpha = 0.92f)
-                else Color.White.copy(alpha = 0.95f)
+                if (isNight) Color(0xFF252845).copy(alpha = 0.95f)
+                else Color.White.copy(alpha = 0.97f)
             } else glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 6.dp else 2.dp,
+            defaultElevation = if (isSelected) 8.dp else 2.dp,
         ),
     ) {
         Row(
