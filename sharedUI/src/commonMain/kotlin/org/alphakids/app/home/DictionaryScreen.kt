@@ -70,6 +70,7 @@ import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.isNightTime
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -364,15 +365,16 @@ private fun AlphabetNavColumn(
         activeLetter?.let { alphabet.indexOf(it) } ?: -1
     }
 
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val outlineColor = MaterialTheme.colorScheme.outline
+    val isNight = isNightTime()
+    val activeColor = Color(0xFFFFD54F)
+    val availableColor = if (isNight) Color.White else Color(0xFF4A5568)
+    val unavailableColor = if (isNight) Color.White.copy(alpha = 0.2f) else Color(0xFF4A5568).copy(alpha = 0.3f)
 
     Column(
         modifier = modifier
             .width(ALPHABET_COLUMN_WIDTH)
             .fillMaxHeight()
-            .padding(vertical = 4.dp)
+            .padding(vertical = 8.dp)
             .pointerInput(availableLetters) {
                 detectTapGestures { offset ->
                     val cellHeight = size.height.toFloat() / alphabet.size
@@ -430,9 +432,9 @@ private fun AlphabetNavColumn(
             }
 
             val textColor = when {
-                rawDistance < 0.5f -> primaryColor
-                isAvailable -> onSurfaceColor
-                else -> outlineColor
+                rawDistance < 0.5f -> activeColor
+                isAvailable -> availableColor
+                else -> unavailableColor
             }
 
             Box(
@@ -469,6 +471,7 @@ private fun SearchBar(
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isNight = isNightTime()
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -476,7 +479,7 @@ private fun SearchBar(
             Text(
                 text = "Buscar palabra...",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.5f),
             )
         },
         leadingIcon = {
@@ -488,10 +491,13 @@ private fun SearchBar(
         singleLine = true,
         shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+            focusedContainerColor = glassCardColor(),
+            unfocusedContainerColor = glassCardColor(),
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            cursorColor = Color.White,
         ),
         textStyle = MaterialTheme.typography.bodyMedium,
         modifier = modifier,
@@ -506,26 +512,36 @@ private fun FilterChipsRow(
     onChipSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isNight = isNightTime()
     Row(
         modifier = modifier.horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         filterChips.forEach { chip ->
+            val isSelected = chip.index == selectedIndex
             FilterChip(
-                selected = chip.index == selectedIndex,
+                selected = isSelected,
                 onClick = { onChipSelected(chip.index) },
                 label = {
                     Text(
                         text = chip.label,
                         style = MaterialTheme.typography.labelMedium,
-                        fontWeight = if (chip.index == selectedIndex) FontWeight.SemiBold
-                        else FontWeight.Normal,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 },
                 shape = RoundedCornerShape(20.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.primary,
+                    selectedContainerColor = if (isNight) Color.White.copy(alpha = 0.2f)
+                        else MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = if (isNight) Color.White else MaterialTheme.colorScheme.primary,
+                    containerColor = glassCardColor(),
+                    labelColor = Color.White.copy(alpha = 0.8f),
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    borderColor = Color.White.copy(alpha = 0.3f),
+                    selectedBorderColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                    enabled = true,
+                    selected = isSelected,
                 ),
             )
         }
@@ -595,7 +611,7 @@ private fun DictionaryWordCard(
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -629,7 +645,7 @@ private fun DictionaryWordCard(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .background(glassCardColor())
                         .clickable {
                             audioService.playUrl(word.audioUrl)
                         },
@@ -701,7 +717,7 @@ private fun WordDetailCard(
                     text = word.word,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -734,7 +750,7 @@ private fun WordDetailCard(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .background(glassCardColor())
                                 .clickable { audioService.playUrl(word.audioUrl) },
                             contentAlignment = Alignment.Center,
                         ) {
@@ -761,7 +777,7 @@ private fun WordDetailCard(
             Text(
                 text = "\u2716",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(onClick = onClose)
@@ -836,13 +852,13 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         Text(
             text = "No se encontraron palabras",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White,
             fontWeight = FontWeight.Medium,
         )
         Text(
             text = "Intenta con otros filtros o búsqueda",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outline,
+            color = Color.White.copy(alpha = 0.6f),
         )
     }
 }
