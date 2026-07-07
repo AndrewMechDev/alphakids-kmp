@@ -19,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.AlphaShadows
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.RadiusFull
+import org.alphakids.app.theme.glassCardColor
 
 /**
  * Coin counter pill with optional add button.
@@ -37,7 +39,7 @@ fun CoinCounter(
         modifier = modifier,
         shape = RadiusFull,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = AlphaShadows.Soft),
     ) {
@@ -56,7 +58,7 @@ fun CoinCounter(
             Text(
                 text = amount.toString(),
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
             )
 
             if (onAddClick != null) {

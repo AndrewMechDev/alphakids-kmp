@@ -34,6 +34,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
 data class UiState(
     val isLoading: Boolean = false,
     val childName: String = "",
+    val childAvatarSeed: String = "",
     val childLevel: Int = 1,
     val childRank: String = "Semillita",
     val coins: Int = 50,
@@ -98,6 +99,7 @@ class HomeViewModel : ViewModel() {
         _state.update {
             it.copy(
                 childName = child?.name ?: "Valentina",
+                childAvatarSeed = child?.avatarSeed ?: "valentina",
                 childLevel = child?.level ?: 1,
                 childRank = child?.rank ?: "Semillita",
                 coins = GameProgressManager.coinsBalance,
