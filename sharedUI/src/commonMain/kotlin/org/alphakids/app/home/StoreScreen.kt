@@ -360,7 +360,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .background(
-                    color = CoinGold.copy(alpha = 0.15f),
+                    color = glassCardColor(),
                     shape = RoundedCornerShape(8.dp),
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -374,7 +374,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
                 text = "$coins",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
-                color = CoinGold.copy(alpha = 0.8f),
+                color = CoinGold,
             )
         }
     }

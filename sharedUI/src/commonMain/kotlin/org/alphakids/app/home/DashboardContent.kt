@@ -46,6 +46,7 @@ import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.circadianBackground
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_gamepad
 import alphakids_kmp.sharedui.generated.resources.ic_logout
 import alphakids_kmp.sharedui.generated.resources.ic_book_open
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
@@ -199,7 +200,12 @@ fun DashboardContent(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = "🎮", style = MaterialTheme.typography.headlineMedium)
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_gamepad),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp),
+                    )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
