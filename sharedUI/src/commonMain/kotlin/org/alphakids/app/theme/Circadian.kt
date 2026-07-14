@@ -68,6 +68,21 @@ fun glassCardColor(): Color =
     else Color.White.copy(alpha = 0.82f)
 
 /**
+ * Primary text color for content inside glass cards.
+ * Day: dark text on light glass card. Night: white text on dark glass card.
+ * Use instead of Color.White or MaterialTheme.colorScheme.onSurface inside glass cards.
+ */
+fun glassTextColor(): Color =
+    if (isNightTime()) Color.White else Color(0xFF1E2749)
+
+/**
+ * Secondary/subtle text color for content inside glass cards.
+ * Day: muted dark. Night: muted white.
+ */
+fun glassTextSecondary(): Color =
+    if (isNightTime()) Color.White.copy(alpha = 0.7f) else Color(0xFF4A5568)
+
+/**
  * Modifier that applies the circadian background based on the current time of day.
  */
 @Composable
