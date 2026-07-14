@@ -46,7 +46,6 @@ import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_home
-import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
@@ -127,19 +126,13 @@ fun AdventureHomeScreen(navController: NavController) {
                 onNavigateToDictionary = { showDictionary = true },
                 modifier = Modifier.padding(innerPadding),
             )
-            1 -> StoreScreen(
+            1 -> PetsScreen(
                 coins = state.coins,
                 onSpendCoins = { amount -> viewModel.spendCoins(amount) },
                 childLevel = state.childLevel,
                 modifier = Modifier.padding(innerPadding),
             )
-            2 -> PetsScreen(
-                coins = state.coins,
-                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
-                childLevel = state.childLevel,
-                modifier = Modifier.padding(innerPadding),
-            )
-            3 -> AchievementsScreen(
+            2 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
             )
         }
@@ -160,9 +153,8 @@ private data class NavTab(
 
 private val navTabs = listOf(
     NavTab(label = "Inicio", index = 0),
-    NavTab(label = "Tienda", index = 1),
-    NavTab(label = "Mascotas", index = 2),
-    NavTab(label = "Logros", index = 3),
+    NavTab(label = "Mascotas", index = 1),
+    NavTab(label = "Logros", index = 2),
 )
 
 @Composable
@@ -230,8 +222,7 @@ private fun GlassmorphicNavigationBar(
 @Composable
 private fun tabIcon(index: Int): Painter = when (index) {
     0 -> painterResource(Res.drawable.ic_home)
-    1 -> painterResource(Res.drawable.ic_shopping_cart)
-    2 -> painterResource(Res.drawable.ic_paw)
-    3 -> painterResource(Res.drawable.ic_trophy)
+    1 -> painterResource(Res.drawable.ic_paw)
+    2 -> painterResource(Res.drawable.ic_trophy)
     else -> painterResource(Res.drawable.ic_home)
 }
