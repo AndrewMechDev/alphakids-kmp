@@ -166,15 +166,15 @@ fun OCRResultScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_arrow_left),
                             contentDescription = "Volver",
-                            tint = Color.White,
+                            tint = glassTextColor(),
                             modifier = Modifier.size(24.dp),
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
+                    titleContentColor = glassTextColor(),
+                    navigationIconContentColor = glassTextColor(),
                 ),
             )
         },

@@ -48,6 +48,8 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /** Base URL for DiceBear avatar generation. */
 private const val DICEBEAR_BASE = "https://api.dicebear.com/9.x/adventurer/svg?seed="
@@ -90,7 +92,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                 text = "¿Quién va a usar AlphaKids?",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = glassTextColor(),
                 textAlign = TextAlign.Center,
             )
 
@@ -99,7 +101,7 @@ fun NetflixProfilesScreen(navController: NavController) {
             Text(
                 text = "Selecciona tu perfil para continuar",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.8f),
+                color = glassTextSecondary(),
                 textAlign = TextAlign.Center,
             )
 
@@ -155,6 +157,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                         ProfileItem(
                             initial = "+",
                             name = "Agregar",
+                            // circadian-exempt: translucent avatar-circle container background, not text/icon color
                             color = Color.White.copy(alpha = 0.3f),
                             isAddCard = true,
                             onClick = {
@@ -220,6 +223,7 @@ private fun ProfileItem(
                     text = emoji ?: initial,
                     fontSize = if (isAddCard) 32.sp else 36.sp,
                     fontWeight = FontWeight.Bold,
+                    // circadian-exempt: rendered on an opaque solid-color avatar circle, not the circadian gradient
                     color = if (isAddCard) Color.White.copy(alpha = 0.8f) else Color.White,
                 )
             }
@@ -231,7 +235,7 @@ private fun ProfileItem(
             text = name,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

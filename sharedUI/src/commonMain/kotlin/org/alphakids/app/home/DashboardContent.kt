@@ -44,6 +44,8 @@ import androidx.compose.material3.Icon
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_gamepad
@@ -114,14 +116,14 @@ fun DashboardContent(
                     text = state.childName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "Nivel ${state.childLevel} · ${state.childRank}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = glassTextSecondary(),
                 )
             }
             org.alphakids.app.components.CoinCounter(amount = state.coins)
@@ -139,7 +141,7 @@ fun DashboardContent(
                 Icon(
                     painter = painterResource(Res.drawable.ic_logout),
                     contentDescription = "Cambiar perfil",
-                    tint = Color.White.copy(alpha = 0.8f),
+                    tint = glassTextColor(),
                     modifier = Modifier.size(24.dp),
                 )
             }
@@ -152,7 +154,7 @@ fun DashboardContent(
             text = "¡Bienvenido de vuelta, ${state.childName.split(" ").first()}!",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = glassTextColor(),
         )
 
         // Alphi mascot — directly on background, bigger

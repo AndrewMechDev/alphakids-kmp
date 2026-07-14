@@ -29,6 +29,8 @@ import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * OTP verification screen — 6-digit code input with resend cooldown.
@@ -73,7 +75,7 @@ fun VerificationScreen(navController: NavController, email: String) {
         Text(
             text = "Verifica tu cuenta",
             style = MaterialTheme.typography.headlineSmall,
-            color = Color.White,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
         )
 
@@ -83,7 +85,7 @@ fun VerificationScreen(navController: NavController, email: String) {
         Text(
             text = "Ingresa el código de 6 dígitos enviado a $email",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.8f),
+            color = glassTextSecondary(),
             textAlign = TextAlign.Center,
         )
 
@@ -129,7 +131,7 @@ fun VerificationScreen(navController: NavController, email: String) {
             Text(
                 text = "Reenviar en ${state.resendCooldown}s",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
             )
         } else {
             AlphaTextButton(

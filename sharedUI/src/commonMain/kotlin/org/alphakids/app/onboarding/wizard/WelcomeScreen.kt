@@ -61,6 +61,9 @@ import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 private fun petImageResource(petId: String?) = when (petId) {
     "inti-sol" -> Res.drawable.mascota_inti_sol
@@ -136,7 +139,7 @@ fun WelcomeScreen(
         Text(
             text = "¡${data.childName}, tu aventura comienza ahora!",
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -149,7 +152,7 @@ fun WelcomeScreen(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)),
+                .background(glassCardColor()),
             contentAlignment = Alignment.Center,
         ) {
             if (dicebearUrl != null) {
@@ -187,13 +190,13 @@ fun WelcomeScreen(
                     Text(
                         text = data.petName,
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
+                        color = glassTextColor(),
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = "Tu compañero fiel",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = glassTextSecondary(),
                     )
                 }
             }
@@ -216,20 +219,21 @@ fun WelcomeScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     // Coins
+                    // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
                     StatRow(
                         emoji = "🪙",
                         label = "Monedas iniciales",
                         value = "50",
                         textColor = Color.White
                     )
-                    // Level
+                    // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
                     StatRow(
                         emoji = "⚡",
                         label = "Nivel",
                         value = "Nivel 1",
                         textColor = Color.White
                     )
-                    // Rank
+                    // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
                     StatRow(
                         emoji = "🌱",
                         label = "Rango",
@@ -254,7 +258,7 @@ fun WelcomeScreen(
         Text(
             text = "¡Todo listo para empezar!",
             style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )

@@ -45,6 +45,8 @@ import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
@@ -115,7 +117,7 @@ fun ChildDetailScreen(
                     Icon(
                         painter = painterResource(Res.drawable.ic_arrow_left),
                         contentDescription = "Volver",
-                        tint = Color.White,
+                        tint = glassTextColor(),
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -152,13 +154,13 @@ fun ChildDetailScreen(
                     text = child.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
 
                 Text(
                     text = "Nivel ${child.level} · ${child.rank}",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = glassTextSecondary(),
                 )
             }
         }

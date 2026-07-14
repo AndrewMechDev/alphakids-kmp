@@ -38,6 +38,9 @@ import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.FAQItem
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Support screen with FAQ accordion and contact form.
@@ -62,7 +65,7 @@ fun SupportScreen(
                 text = "\u2753 Soporte",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = glassTextColor(),
             )
         }
 
@@ -71,7 +74,7 @@ fun SupportScreen(
             Text(
                 text = "Encuentra respuestas a preguntas frecuentes o contáctanos directamente.",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.8f),
+                color = glassTextSecondary(),
             )
         }
 
@@ -81,7 +84,7 @@ fun SupportScreen(
                 text = "Preguntas frecuentes",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = glassTextColor(),
                 modifier = Modifier.padding(top = 8.dp),
             )
         }
@@ -110,7 +113,7 @@ fun SupportScreen(
                 text = "\u2709\uFE0F Contáctanos",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = glassTextColor(),
             )
         }
 
@@ -144,8 +147,13 @@ fun SupportScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = glassTextColor(),
+                    unfocusedTextColor = glassTextColor(),
+                    cursorColor = glassTextColor(),
+                    focusedPlaceholderColor = glassTextSecondary(),
+                    unfocusedPlaceholderColor = glassTextSecondary(),
+                    focusedBorderColor = glassInputBorder(),
+                    unfocusedBorderColor = glassInputBorder(),
                 ),
             )
         }
@@ -160,8 +168,13 @@ fun SupportScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = glassTextColor(),
+                    unfocusedTextColor = glassTextColor(),
+                    cursorColor = glassTextColor(),
+                    focusedPlaceholderColor = glassTextSecondary(),
+                    unfocusedPlaceholderColor = glassTextSecondary(),
+                    focusedBorderColor = glassInputBorder(),
+                    unfocusedBorderColor = glassInputBorder(),
                 ),
             )
         }
@@ -177,8 +190,13 @@ fun SupportScreen(
                     .height(120.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = glassTextColor(),
+                    unfocusedTextColor = glassTextColor(),
+                    cursorColor = glassTextColor(),
+                    focusedPlaceholderColor = glassTextSecondary(),
+                    unfocusedPlaceholderColor = glassTextSecondary(),
+                    focusedBorderColor = glassInputBorder(),
+                    unfocusedBorderColor = glassInputBorder(),
                 ),
             )
         }

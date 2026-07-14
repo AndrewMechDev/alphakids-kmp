@@ -35,6 +35,8 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Wizard header — screen header with optional subtitle, step indicator, back
@@ -61,7 +63,7 @@ fun AlphaHeader(
                     Icon(
                         painter = painterResource(Res.drawable.ic_arrow_left),
                         contentDescription = "Volver",
-                        tint = Color.White,
+                        tint = glassTextColor(),
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -72,7 +74,7 @@ fun AlphaHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
+                color = glassTextColor(),
                 modifier = Modifier.weight(1f),
             )
 
@@ -91,7 +93,7 @@ fun AlphaHeader(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.8f),
+                color = glassTextSecondary(),
                 modifier = Modifier.padding(start = if (onBack != null) 48.dp else 0.dp),
             )
         }
@@ -107,7 +109,7 @@ fun AlphaHeader(
                 Text(
                     text = "Paso $currentStep de $totalSteps",
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = glassTextSecondary(),
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))

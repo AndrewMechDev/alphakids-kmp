@@ -45,6 +45,10 @@ import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassChipUnselectedLabel
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Step 4 of 6 — Optional institution assignment screen.
@@ -104,7 +108,7 @@ fun AssignInstitutionScreen(
         Text(
             text = "¿Tu hijo asiste a un colegio?",
             style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
+            color = glassTextColor(),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -115,7 +119,7 @@ fun AssignInstitutionScreen(
         Text(
             text = "Elige el colegio al que asiste para que sus maestros puedan seguir su progreso",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.8f),
+            color = glassTextSecondary(),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -172,7 +176,7 @@ fun AssignInstitutionScreen(
                     Text(
                         text = "No hay colegios disponibles. Puedes omitir este paso.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     )
@@ -182,7 +186,7 @@ fun AssignInstitutionScreen(
                     Text(
                         text = "Selecciona un colegio",
                         style = MaterialTheme.typography.labelLarge,
-                        color = Color.White,
+                        color = glassTextColor(),
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     )
@@ -256,12 +260,12 @@ private fun ChipOption(
     val containerColor = if (selected) {
         MaterialTheme.colorScheme.primary
     } else {
-        MaterialTheme.colorScheme.surfaceVariant
+        glassCardColor()
     }
     val contentColor = if (selected) {
         MaterialTheme.colorScheme.onPrimary
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
+        glassChipUnselectedLabel()
     }
 
     Box(
@@ -311,7 +315,7 @@ private fun InstitutionCard(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
             } else {
-                MaterialTheme.colorScheme.surface
+                glassCardColor()
             },
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isExpanded) 4.dp else 1.dp),
@@ -320,7 +324,7 @@ private fun InstitutionCard(
             Text(
                 text = institution.name,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
                 fontWeight = FontWeight.Bold,
             )
 
@@ -331,7 +335,7 @@ private fun InstitutionCard(
                 Text(
                     text = "Grado (opcional)",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
 
@@ -340,7 +344,7 @@ private fun InstitutionCard(
                     val gradeBg = if (isGradeSelected) {
                         MaterialTheme.colorScheme.secondaryContainer
                     } else {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        glassCardColor()
                     }
 
                     Row(
@@ -358,7 +362,7 @@ private fun InstitutionCard(
                             color = if (isGradeSelected) {
                                 MaterialTheme.colorScheme.onSecondaryContainer
                             } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                                glassTextSecondary()
                             },
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.width(20.dp),
@@ -366,13 +370,13 @@ private fun InstitutionCard(
                         Text(
                             text = grade.name,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = glassTextColor(),
                         )
                         if (grade.sections.isNotEmpty()) {
                             Text(
                                 text = " (${grade.sections.size} secciones)",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = glassTextSecondary(),
                             )
                         }
                     }

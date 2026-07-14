@@ -28,6 +28,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
 import org.alphakids.app.theme.AlphaMotion
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Full-screen loading indicator with optional message and Alphi image.
@@ -86,6 +87,7 @@ fun AlphaLoadingIndicator(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyLarge,
+                    // circadian-exempt: rendered over its own 85%-opaque scrim (backgroundColor param), not directly on circadianBackground()
                     color = Color.White,
                 )
             }
@@ -127,7 +129,7 @@ fun AlphaInlineLoading(
         Spacer(modifier = Modifier.height(8.dp))
         CircularProgressIndicator(
             modifier = Modifier.size(24.dp),
-            color = Color.White.copy(alpha = 0.7f),
+            color = glassTextSecondary(),
             strokeWidth = 2.dp,
         )
         if (message != null) {
@@ -135,7 +137,7 @@ fun AlphaInlineLoading(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.8f),
+                color = glassTextSecondary(),
             )
         }
     }

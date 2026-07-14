@@ -48,6 +48,7 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
 
 /**
  * Registration screen with full name, email, phone, password, confirm password,
@@ -97,7 +98,7 @@ fun RegisterScreen(navController: NavController) {
             Icon(
                 painter = painterResource(Res.drawable.ic_arrow_left),
                 contentDescription = "Volver",
-                tint = Color.White,
+                tint = glassTextColor(),
                 modifier = Modifier.size(24.dp),
             )
         }
@@ -117,7 +118,7 @@ fun RegisterScreen(navController: NavController) {
         Text(
             text = "Crear cuenta",
             style = MaterialTheme.typography.headlineSmall,
-            color = Color.White,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
         )
 
@@ -200,7 +201,7 @@ fun RegisterScreen(navController: NavController) {
             Text(
                 text = "Acepto los términos y condiciones",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
+                color = glassTextColor(),
                 modifier = Modifier
                     .clickable(enabled = !state.isLoading) {
                         viewModel.onTermsChanged(!state.termsAccepted)

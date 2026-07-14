@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassNavIndicator
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -205,7 +206,7 @@ private fun GlassmorphicNavigationBar(
                         selectedTextColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
                         unselectedIconColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
                         unselectedTextColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
-                        indicatorColor = if (isNight) Color.White.copy(alpha = 0.1f) else Color.White.copy(alpha = 0.7f),
+                        indicatorColor = glassNavIndicator(),
                     ),
                 )
             }

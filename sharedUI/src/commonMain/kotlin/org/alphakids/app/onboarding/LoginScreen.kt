@@ -50,6 +50,8 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -106,7 +108,7 @@ fun LoginScreen(navController: NavController) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_arrow_left),
                     contentDescription = "Volver",
-                    tint = Color.White,
+                    tint = glassTextColor(),
                     modifier = Modifier.size(24.dp),
                 )
             }
@@ -124,7 +126,7 @@ fun LoginScreen(navController: NavController) {
             Text(
                 text = "¡Bienvenido a AlphaKids!",
                 style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
+                color = glassTextColor(),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
@@ -134,7 +136,7 @@ fun LoginScreen(navController: NavController) {
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = glassCardColor(),
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 modifier = Modifier.fillMaxWidth(),

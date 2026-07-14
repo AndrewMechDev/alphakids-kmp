@@ -48,6 +48,9 @@ import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassChipUnselectedLabel
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -225,13 +228,13 @@ private fun InventoryOverlay(
                     text = "\uD83C\uDF92 Inventario",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                     modifier = Modifier.weight(1f),
                 )
                 Text(
                     text = "\u2716",
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = glassTextSecondary(),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onClose)
@@ -255,12 +258,12 @@ private fun InventoryOverlay(
                         Text(
                             text = "Aún no has comprado nada",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White,
+                            color = glassTextColor(),
                         )
                         Text(
                             text = "¡Visita la Tienda y gasta tus monedas!",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.6f),
+                            color = glassTextSecondary(),
                         )
                     }
                 }
@@ -309,12 +312,12 @@ private fun InventoryOverlay(
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Center,
-                                    color = Color.White,
+                                    color = glassTextColor(),
                                 )
                                 Text(
                                     text = item.category.displayName,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White.copy(alpha = 0.6f),
+                                    color = glassTextSecondary(),
                                 )
                             }
                         }
@@ -342,7 +345,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
             Icon(
                 painter = painterResource(Res.drawable.ic_shopping_cart),
                 contentDescription = null,
-                tint = Color.White,
+                tint = glassTextColor(),
                 modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -350,7 +353,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
                 text = "Tienda",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = glassTextColor(),
             )
         }
 
@@ -429,8 +432,9 @@ private fun CategoryTabs(
                     text = category.displayName,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    // selected: on a solid/branched chip bg, white stays legible both cycles
                     color = if (isSelected) Color.White
-                    else Color.White.copy(alpha = 0.7f),
+                    else glassChipUnselectedLabel(),
                 )
             }
         }
@@ -491,8 +495,8 @@ private fun ProductCard(
                 text = item.name,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = if (isLocked) Color.White.copy(alpha = 0.4f)
-                else Color.White,
+                color = if (isLocked) glassTextSecondary()
+                else glassTextColor(),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -513,7 +517,7 @@ private fun ProductCard(
                     Text(
                         text = "Nivel ${item.requiredLevel} requerido",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.4f),
+                        color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -587,7 +591,7 @@ private fun PurchaseConfirmationDialog(
                     text = item.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                     textAlign = TextAlign.Center,
                 )
             }
@@ -623,7 +627,7 @@ private fun PurchaseConfirmationDialog(
                 Text(
                     text = "Cancelar",
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = glassTextSecondary(),
                 )
             }
         },
@@ -642,13 +646,13 @@ private fun HorizontalDetail(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = Color.White.copy(alpha = 0.7f),
+            color = glassTextSecondary(),
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White,
+            color = glassTextColor(),
         )
     }
 }

@@ -212,7 +212,7 @@ private fun RangosContent(achievementData: AchievementData) {
             text = "Todos los rangos",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = glassTextColor(),
             modifier = Modifier.padding(vertical = 8.dp),
         )
 
@@ -544,7 +544,7 @@ private fun HistorialContent(history: List<HistoryEntry>) {
                 text = "Actividad reciente",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = glassTextColor(),
                 modifier = Modifier.padding(vertical = 8.dp),
             )
         }

@@ -152,8 +152,8 @@ fun WordScannerChallenge(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
+                    titleContentColor = glassTextColor(),
+                    navigationIconContentColor = glassTextColor(),
                 ),
             )
         },
@@ -220,12 +220,12 @@ fun WordScannerChallenge(
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp,
-                        color = Color.White,
+                        color = glassTextColor(),
                     )
                     Text(
                         text = "Escaneando...",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = glassTextSecondary(),
                     )
                 }
             }

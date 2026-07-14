@@ -65,6 +65,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -120,14 +121,14 @@ fun ParentHomeScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_kid),
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = glassTextColor(),
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Modo niños",
                             style = MaterialTheme.typography.labelLarge,
-                            color = Color.White,
+                            color = glassTextColor(),
                             maxLines = 1,
                         )
                     }
@@ -141,7 +142,7 @@ fun ParentHomeScreen(
                             Icon(
                                 painter = painterResource(Res.drawable.ic_settings),
                                 contentDescription = "Configuración",
-                                tint = Color.White,
+                                tint = glassTextColor(),
                                 modifier = Modifier.size(24.dp),
                             )
                         }
@@ -185,8 +186,9 @@ fun ParentHomeScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White,
+                    titleContentColor = glassTextColor(),
+                    actionIconContentColor = glassTextColor(),
+                    navigationIconContentColor = glassTextColor(),
                 ),
             )
         },
@@ -277,7 +279,7 @@ private fun ChildrenListTab(
                     Text(
                         text = "No hay hijos registrados aún. ¡Agrega el primero!",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = glassTextColor(),
                         modifier = Modifier.padding(16.dp),
                     )
                 }
@@ -310,13 +312,13 @@ private fun ChildrenListTab(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    Text(text = "+", style = MaterialTheme.typography.titleLarge, color = Color.White)
+                    Text(text = "+", style = MaterialTheme.typography.titleLarge, color = glassTextColor())
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Agregar hijo",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = glassTextColor(),
                     )
                 }
             }
