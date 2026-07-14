@@ -44,6 +44,9 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -101,7 +104,7 @@ fun SplashScreen(navController: NavController) {
                         text = "AlphaKids",
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = glassTextColor(),
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -109,7 +112,7 @@ fun SplashScreen(navController: NavController) {
                     Text(
                         text = "Aprendiendo juntos,\ncreciendo siempre",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -133,7 +136,7 @@ fun SplashScreen(navController: NavController) {
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                    containerColor = glassCardColor(),
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,12 +153,12 @@ fun SplashScreen(navController: NavController) {
                             text = "Preparando tu aventura educativa...",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = glassTextColor(),
                         )
                         Text(
                             text = "Cargando tu mundo de aprendizaje",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = glassTextSecondary(),
                         )
                     }
                 }
@@ -165,7 +168,7 @@ fun SplashScreen(navController: NavController) {
 
             CircularProgressIndicator(
                 modifier = Modifier.size(24.dp),
-                color = Color.White.copy(alpha = 0.7f),
+                color = glassTextColor(),
                 strokeWidth = 2.dp,
             )
 

@@ -25,6 +25,7 @@ import org.alphakids.app.theme.AlphaShadows
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.RadiusFull
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
 
 /**
  * Coin counter pill with optional add button.
@@ -57,8 +58,9 @@ fun CoinCounter(
 
             Text(
                 text = amount.toString(),
+                // CoinCounter renders on glassCardColor() (translucent glass), not a solid chip — apply circadian helper.
                 style = MaterialTheme.typography.titleSmall,
-                color = Color.White,
+                color = glassTextColor(),
             )
 
             if (onAddClick != null) {

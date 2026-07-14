@@ -60,6 +60,7 @@ import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassChipUnselectedLabel
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
@@ -277,8 +278,9 @@ private fun SubTabBar(
                 if (isNight) Color.White.copy(alpha = 0.2f)
                 else MaterialTheme.colorScheme.primary
             } else glassCardColor()
+            // selected: on a solid/branched tab bg, white stays legible both cycles
             val contentColor = if (isSelected) Color.White
-            else Color.White.copy(alpha = 0.7f)
+            else glassChipUnselectedLabel()
 
             Box(
                 modifier = Modifier
@@ -438,7 +440,7 @@ private fun SectionHeader(text: String) {
         text = text,
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.Bold,
-        color = Color.White,
+        color = glassTextColor(),
     )
 }
 

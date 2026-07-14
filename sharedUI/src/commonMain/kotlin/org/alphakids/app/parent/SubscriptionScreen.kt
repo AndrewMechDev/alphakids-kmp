@@ -43,6 +43,7 @@ import org.alphakids.app.theme.StarGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGoldDetail
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
 
 /**
  * Subscription screen showing current plan, benefits, upgrade button, and payment history.
@@ -85,7 +86,7 @@ fun SubscriptionScreen(
                     text = "\uD83D\uDCB3 Suscripción",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
             }
 
@@ -164,7 +165,7 @@ fun SubscriptionScreen(
                     text = "Beneficios",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
             }
 
@@ -179,7 +180,7 @@ fun SubscriptionScreen(
                     text = "\uD83D\uDCC6 Historial de pagos",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                     modifier = Modifier.padding(top = 8.dp),
                 )
             }

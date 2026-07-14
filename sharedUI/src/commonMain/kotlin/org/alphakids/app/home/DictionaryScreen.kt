@@ -81,6 +81,10 @@ import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassChipUnselectedLabel
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -265,7 +269,7 @@ fun DictionaryScreen(
                     Icon(
                         painter = painterResource(Res.drawable.ic_arrow_left),
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = glassTextColor(),
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -475,7 +479,7 @@ private fun SearchBar(
             Text(
                 text = "Buscar palabra...",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.5f),
+                color = glassTextSecondary(),
             )
         },
         leadingIcon = {
@@ -488,12 +492,12 @@ private fun SearchBar(
         shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+            unfocusedBorderColor = glassInputBorder(),
             focusedContainerColor = glassCardColor(),
             unfocusedContainerColor = glassCardColor(),
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            cursorColor = Color.White,
+            focusedTextColor = glassTextColor(),
+            unfocusedTextColor = glassTextColor(),
+            cursorColor = glassTextColor(),
         ),
         textStyle = MaterialTheme.typography.bodyMedium,
         modifier = modifier,
@@ -531,7 +535,7 @@ private fun FilterChipsRow(
                         else MaterialTheme.colorScheme.primaryContainer,
                     selectedLabelColor = if (isNight) Color.White else MaterialTheme.colorScheme.primary,
                     containerColor = glassCardColor(),
-                    labelColor = Color.White.copy(alpha = 0.8f),
+                    labelColor = glassChipUnselectedLabel(),
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     borderColor = Color.White.copy(alpha = 0.3f),
@@ -638,7 +642,7 @@ private fun DictionaryWordCard(
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -771,13 +775,13 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         Text(
             text = "No se encontraron palabras",
             style = MaterialTheme.typography.bodyLarge,
-            color = Color.White,
+            color = glassTextColor(),
             fontWeight = FontWeight.Medium,
         )
         Text(
             text = "Intenta con otros filtros o búsqueda",
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.6f),
+            color = glassTextSecondary(),
         )
     }
 }

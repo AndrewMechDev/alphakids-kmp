@@ -49,6 +49,8 @@ import kotlinx.coroutines.launch
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -91,8 +93,8 @@ fun LearningAdventureHub(navController: NavController) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
+                    titleContentColor = glassTextColor(),
+                    navigationIconContentColor = glassTextColor(),
                 ),
             )
         },
@@ -126,14 +128,14 @@ fun LearningAdventureHub(navController: NavController) {
                     Text(
                         text = "¡Elige una actividad!",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White,
+                        color = glassTextColor(),
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Practica palabras nuevas y gana recompensas",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = glassTextSecondary(),
                     )
                 }
             }

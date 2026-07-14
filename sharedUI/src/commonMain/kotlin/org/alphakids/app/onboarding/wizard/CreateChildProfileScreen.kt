@@ -55,6 +55,10 @@ import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
@@ -113,7 +117,7 @@ fun CreateChildProfileScreen(
         Text(
             text = "¡Creemos el perfil de tu hijo!",
             style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
+            color = glassTextColor(),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -136,7 +140,7 @@ fun CreateChildProfileScreen(
         Text(
             text = "Edad",
             style = MaterialTheme.typography.labelLarge,
-            color = Color.White,
+            color = glassTextColor(),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -154,8 +158,10 @@ fun CreateChildProfileScreen(
                 modifier = Modifier.menuAnchor().fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = glassTextColor(),
+                    unfocusedTextColor = glassTextColor(),
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    unfocusedBorderColor = glassInputBorder(),
                 ),
             )
             ExposedDropdownMenu(
@@ -181,7 +187,7 @@ fun CreateChildProfileScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                containerColor = glassCardColor(),
             ),
         ) {
             Row(
@@ -209,13 +215,13 @@ fun CreateChildProfileScreen(
                         text = "Avatar",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = glassTextColor(),
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Personalizarás el avatar en el siguiente paso",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = glassTextSecondary(),
                     )
                 }
             }

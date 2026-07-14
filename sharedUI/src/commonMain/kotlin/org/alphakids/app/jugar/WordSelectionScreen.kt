@@ -57,6 +57,8 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 private val cardGradients = listOf(
     AlphaGradients.Nature,
@@ -130,7 +132,7 @@ fun WordSelectionScreen(
                     Icon(
                         painter = painterResource(Res.drawable.ic_arrow_left),
                         contentDescription = "Volver",
-                        tint = Color.White,
+                        tint = glassTextColor(),
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -138,7 +140,7 @@ fun WordSelectionScreen(
                     text = "Elige una palabra",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
             }
 
@@ -155,7 +157,7 @@ fun WordSelectionScreen(
                     Text(
                         text = "Palabras asignadas por tu profesor",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = glassTextColor(),
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -179,7 +181,7 @@ fun WordSelectionScreen(
                         Text(
                             text = error!!,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White,
+                            color = glassTextColor(),
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -192,7 +194,7 @@ fun WordSelectionScreen(
                         Text(
                             text = "No hay palabras disponibles por ahora",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = glassTextSecondary(),
                             textAlign = TextAlign.Center,
                         )
                     }

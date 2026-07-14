@@ -46,6 +46,9 @@ import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Child profile selector screen.
@@ -88,7 +91,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
             text = "\uD83D\uDC4B ¿Quién está listo para aprender hoy?",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = androidx.compose.ui.graphics.Color.White,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -98,7 +101,7 @@ fun ChildProfileSelectorScreen(navController: NavController) {
         Text(
             text = "Cada niño tiene su propio viaje, sus logros y su historia",
             style = MaterialTheme.typography.bodyLarge,
-            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.8f),
+            color = glassTextSecondary(),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         )
@@ -174,7 +177,7 @@ private fun ChildSelectorCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
@@ -211,19 +214,19 @@ private fun ChildSelectorCard(
                     text = child.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "Nivel ${child.level} · ${child.rank}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
                 Text(
                     text = "${child.wordsLearned} palabras aprendidas",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
 
@@ -237,7 +240,7 @@ private fun ChildSelectorCard(
                     text = "${child.stars}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
         }

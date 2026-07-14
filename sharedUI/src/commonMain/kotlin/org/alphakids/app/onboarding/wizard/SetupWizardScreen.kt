@@ -41,6 +41,9 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.bg_dia
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Step 1 of 5 — Wizard setup intro screen.
@@ -82,7 +85,7 @@ fun SetupWizardScreen(
             Text(
                 text = "¡Bienvenido a AlphaKids!",
                 style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
+                color = glassTextColor(),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             )
@@ -92,7 +95,7 @@ fun SetupWizardScreen(
             Text(
                 text = "Configura el perfil de tu hijo para comenzar su aventura educativa",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.9f),
+                color = glassTextSecondary(),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             )
@@ -131,7 +134,7 @@ fun SetupWizardScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    containerColor = glassCardColor(),
                 ),
             ) {
                 Column(
@@ -142,13 +145,13 @@ fun SetupWizardScreen(
                         text = "¿Qué aprenderá tu hijo?",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = glassTextColor(),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Lectoescritura • Matemáticas • Ciencias • Inglés • Creatividad • Valores",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -200,13 +203,13 @@ private fun BenefitCard(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
         }
