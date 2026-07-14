@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.home.AdventureHomeScreen
+import org.alphakids.app.home.DictionaryScreen
 import org.alphakids.app.jugar.LearningAdventureHub
 import org.alphakids.app.jugar.OCRResultScreen
 import org.alphakids.app.jugar.WordScannerChallenge
@@ -246,6 +247,16 @@ fun App() {
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 AdventureHomeScreen(navController = navController)
+            }
+
+            composable(
+                Screen.Dictionary.route,
+                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
+                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
+                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
+                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
+            ) {
+                DictionaryScreen(onBack = { navController.popBackStack() })
             }
 
             // ── Parent Dashboard Route ──

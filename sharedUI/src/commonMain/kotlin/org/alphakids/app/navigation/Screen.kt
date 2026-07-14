@@ -85,6 +85,9 @@ sealed class Screen(val route: String) {
             "ocr-result/$wordIndex/$attempts/$time/$wordText"
     }
 
+    /** Dictionary of learned words */
+    data object Dictionary : Screen("dictionary")
+
     companion object {
         /**
          * Resolves a route string back to a Screen.
@@ -113,6 +116,7 @@ sealed class Screen(val route: String) {
             route.startsWith("parent-child-detail/") -> ParentChildDetail
             route == ParentSubscription.route -> ParentSubscription
             route == ParentSupport.route -> ParentSupport
+            route == Dictionary.route -> Dictionary
             else -> null
         }
     }
