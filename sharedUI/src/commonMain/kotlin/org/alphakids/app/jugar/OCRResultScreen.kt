@@ -64,6 +64,8 @@ import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * OCR Result Screen showing celebration, rewards, and stats.
@@ -490,12 +492,12 @@ private fun StatItem(
             text = value,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = glassTextColor(),
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = glassTextSecondary(),
         )
     }
 }
