@@ -55,7 +55,6 @@ fun AdventureHomeScreen(navController: NavController) {
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
-    var showDictionary by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedTab) {
         viewModel.refreshCoins()
@@ -123,7 +122,9 @@ fun AdventureHomeScreen(navController: NavController) {
                         popUpTo(Screen.AdventureHome.route) { inclusive = true }
                     }
                 },
-                onNavigateToDictionary = { showDictionary = true },
+                onNavigateToDictionary = {
+                    navController.navigate(Screen.Dictionary.route)
+                },
                 modifier = Modifier.padding(innerPadding),
             )
             1 -> PetsScreen(
@@ -134,13 +135,6 @@ fun AdventureHomeScreen(navController: NavController) {
             )
             2 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
-            )
-        }
-
-        if (showDictionary) {
-            DictionaryScreen(
-                modifier = Modifier.padding(innerPadding),
-                onBack = { showDictionary = false },
             )
         }
     }
