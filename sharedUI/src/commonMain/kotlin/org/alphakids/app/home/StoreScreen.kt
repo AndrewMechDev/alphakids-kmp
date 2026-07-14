@@ -42,12 +42,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.parent.domain.model.GameProgressManager
+import androidx.compose.material3.Icon
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.isNightTime
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
 
 // ── Data Models ──
 
@@ -331,13 +335,24 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = "\uD83D\uDED2 Tienda",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f),
-        )
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_shopping_cart),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(24.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Tienda",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
+        }
 
         // Inventory button
         Box(
