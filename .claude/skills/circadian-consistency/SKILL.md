@@ -4,7 +4,7 @@ description: "Trigger: circadian, night mode, dark background, color lost, text 
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "1.0"
+  version: "2.0"
 ---
 
 ## Activation Contract
@@ -16,37 +16,55 @@ Activate when:
 
 ## Hard Rules
 
-- Import from `org.alphakids.app.theme`: `circadianBackground`, `glassCardColor`, `isNightTime`.
-- Text directly on circadian BG → `Color.White`. Never `onBackground` or `onSurface`.
-- Cards on circadian BG → `glassCardColor()` background. Never opaque `surface`.
-- Text inside glass cards → `Color.White`. Never `onSurface` or `onSurfaceVariant`.
-- Icons on circadian BG → `tint = Color.White`.
+- Import from `org.alphakids.app.theme`: `circadianBackground`, `glassCardColor`, `glassTextColor`, `glassTextSecondary`, `isNightTime`.
+- Text directly on circadian BG (no card) → `Color.White`. Never `onBackground` or `onSurface`.
+- Cards on circadian BG → `glassCardColor()` background. Never opaque `surface`, `surfaceVariant`, or `primaryContainer`.
+- Text inside glass cards → `glassTextColor()` (primary) or `glassTextSecondary()` (secondary/subtle). NEVER `Color.White` inside glass cards (white-on-white in day mode). NEVER `onSurface` or `onSurfaceVariant`.
+- Icons on circadian BG (no card) → `tint = Color.White`.
+- Icons inside glass cards → `tint = glassTextColor()` or `glassTextSecondary()`.
 - Exception: form fields (TextField) inside cards may use opaque surface for contrast.
-- Chips/filter buttons on circadian BG → use `glassCardColor()` background + `Color.White` text.
-- Badges (coins, level) → use `glassCardColor()` background + `Color.White` text. Never white/opaque backgrounds.
+- Chips/filter buttons on circadian BG → use `glassCardColor()` background + time-aware text via `isNightTime()`.
+- Badges (coins, level) → use `glassCardColor()` background + `glassTextColor()` text. Never white/opaque backgrounds.
 - Night-specific accent: `Color(0xFF9CB8FF)` for selected/highlighted elements.
+- Progress bar tracks inside cards → `Color.White.copy(alpha = 0.2f)`. Never `surfaceVariant`.
+- Tab bars on circadian BG: selected → `primary` bg + `onPrimary` text. Unselected → `glassCardColor()` bg + `glassTextSecondary()` text.
 - Test visibility in BOTH day and night modes before reporting done.
+
+## Forbidden Tokens on Circadian Screens
+
+These Material tokens MUST NOT be used on any screen with `circadianBackground()`:
+- `MaterialTheme.colorScheme.onSurface`
+- `MaterialTheme.colorScheme.onSurfaceVariant`
+- `MaterialTheme.colorScheme.surfaceVariant`
+- `MaterialTheme.colorScheme.primaryContainer`
+- `MaterialTheme.colorScheme.surface`
+- `MaterialTheme.colorScheme.onBackground`
+- `MaterialTheme.colorScheme.background`
 
 ## Decision Gates
 
 | Element | Day (Morning/Afternoon) | Night (Evening/Night) |
 |---|---|---|
 | Card background | `glassCardColor()` = White 82% | `glassCardColor()` = #1E2030 78% |
-| Text on BG | `Color.White` | `Color.White` |
-| Text in card | `Color.White` | `Color.White` |
-| Secondary text | `Color.White.copy(alpha = 0.8f)` | `Color.White.copy(alpha = 0.8f)` |
+| Text on BG (no card) | `Color.White` | `Color.White` |
+| Text in card (primary) | `glassTextColor()` = #1E2749 | `glassTextColor()` = White |
+| Text in card (secondary) | `glassTextSecondary()` = #4A5568 | `glassTextSecondary()` = White 70% |
 | Icon tint on BG | `Color.White` | `Color.White` |
+| Icon tint in card | `glassTextColor()` | `glassTextColor()` |
 | Selected accent | `colorScheme.primary` | `Color(0xFF9CB8FF)` |
-| Unselected items | `Color(0xFF4A5568)` | `Color.White.copy(alpha = 0.5f)` |
+| Unselected tab bg | `glassCardColor()` | `glassCardColor()` |
+| Unselected tab text | `glassTextSecondary()` | `glassTextSecondary()` |
+| Progress bar track | `Color.White.copy(alpha = 0.2f)` | `Color.White.copy(alpha = 0.2f)` |
 | Border on glass | `Color.White.copy(alpha = 0.4f)` | `Color.White.copy(alpha = 0.12f)` |
 
 ## Execution Steps
 
 1. Check if screen uses `circadianBackground()` — if yes, this skill applies.
-2. Audit all color references against the decision gate table.
-3. Replace any `onBackground`, `onSurface`, `onSurfaceVariant` with `Color.White` where on circadian BG.
-4. Replace any opaque `surface` card with `glassCardColor()`.
-5. Use `isNightTime()` for conditional accent colors when needed.
+2. Audit all color references against the decision gate table and forbidden tokens list.
+3. Replace any forbidden Material tokens with the correct circadian helper.
+4. Distinguish between "on background" (use `Color.White`) and "in card" (use `glassTextColor()`/`glassTextSecondary()`).
+5. Replace any opaque `surface`/`surfaceVariant`/`primaryContainer` card backgrounds with `glassCardColor()`.
+6. Use `isNightTime()` for conditional accent colors when needed.
 
 ## Output Contract
 
