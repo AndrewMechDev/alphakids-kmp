@@ -28,11 +28,12 @@ Activate when:
 - Night-specific accent: `Color(0xFF9CB8FF)` for selected/highlighted elements.
 - Progress bar tracks inside cards → `Color.White.copy(alpha = 0.2f)`. Never `surfaceVariant`.
 - Tab bars on circadian BG: selected → `primary` bg + `onPrimary` text. Unselected → `glassCardColor()` bg + `glassTextSecondary()` text.
+- Selected/active chips and filter buttons MAY use opaque Material tokens (`primaryContainer`, `primary`) when the element already branches by `isNightTime()` and the opaque color provides intentional contrast against the circadian background. The key requirement: both day AND night paths must be explicitly handled.
 - Test visibility in BOTH day and night modes before reporting done.
 
 ## Forbidden Tokens on Circadian Screens
 
-These Material tokens MUST NOT be used on any screen with `circadianBackground()`:
+These Material tokens MUST NOT be used on any screen with `circadianBackground()` EXCEPT in selected/active states that explicitly branch by `isNightTime()` (see rule above):
 - `MaterialTheme.colorScheme.onSurface`
 - `MaterialTheme.colorScheme.onSurfaceVariant`
 - `MaterialTheme.colorScheme.surfaceVariant`
