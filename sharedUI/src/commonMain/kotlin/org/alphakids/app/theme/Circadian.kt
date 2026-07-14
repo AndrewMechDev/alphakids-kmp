@@ -83,6 +83,27 @@ fun glassTextSecondary(): Color =
     if (isNightTime()) Color.White.copy(alpha = 0.7f) else Color(0xFF4A5568)
 
 /**
+ * Label color for unselected chips/filter buttons rendered on circadian BG.
+ * Higher contrast than [glassTextSecondary] because unselected chip labels
+ * sit directly on the gradient (no glass card) and easily become illegible in day mode.
+ */
+fun glassChipUnselectedLabel(): Color =
+    if (isNightTime()) Color.White.copy(alpha = 0.85f) else Color(0xFF4A5568)
+
+/**
+ * Border color for OutlinedTextField / inputs rendered on glass or circadian BG.
+ */
+fun glassInputBorder(): Color =
+    if (isNightTime()) Color.White.copy(alpha = 0.3f) else Color(0xFF9CA3AF).copy(alpha = 0.5f)
+
+/**
+ * Indicator (selection pill) background for NavigationBar / bottom bar on glass surface.
+ * Must remain visible in both cycles without washing out the selected label.
+ */
+fun glassNavIndicator(): Color =
+    if (isNightTime()) Color.White.copy(alpha = 0.1f) else Color(0xFF3B7DF6).copy(alpha = 0.15f)
+
+/**
  * Modifier that applies the circadian background based on the current time of day.
  */
 @Composable
