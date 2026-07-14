@@ -14,6 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.AlphaShadows
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Small summary card for a reward — icon, title, and subtitle.
@@ -29,7 +32,7 @@ fun RewardCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = AlphaShadows.Soft),
     ) {
@@ -49,7 +52,7 @@ fun RewardCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             )
 
@@ -58,7 +61,7 @@ fun RewardCard(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
             )
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +44,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_lock
+import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.components.AlphaInlineLoading
 import org.alphakids.app.components.EmptyStateView
 import org.alphakids.app.game.domain.model.AchievementData
@@ -57,6 +61,8 @@ import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.XpBarEnd
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 // ── Sub-tab definitions ──
 
@@ -161,7 +167,7 @@ private fun AchievementsSubTabBar(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceVariant,
+                        else glassCardColor(),
                     )
                     .clickable { onTabSelected(tab.index) }
                     .padding(vertical = 8.dp),
@@ -172,7 +178,7 @@ private fun AchievementsSubTabBar(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    else glassTextSecondary(),
                     maxLines = 1,
                 )
             }
@@ -251,7 +257,7 @@ private fun CurrentRankCard(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(glassCardColor()),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -266,13 +272,13 @@ private fun CurrentRankCard(
                 text = currentRank.name,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
             )
 
             Text(
                 text = "Nivel $level",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -285,7 +291,7 @@ private fun CurrentRankCard(
                     .height(14.dp)
                     .clip(RoundedCornerShape(7.dp)),
                 color = XpBarEnd,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                trackColor = Color.White.copy(alpha = 0.2f),
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -307,7 +313,7 @@ private fun RankCard(
     isCurrent: Boolean,
 ) {
     val bgColor = when {
-        isCurrent -> MaterialTheme.colorScheme.primaryContainer
+        isCurrent -> glassCardColor()
         isUnlocked -> glassCardColor()
         else -> glassCardColor().copy(alpha = 0.7f)
     }
@@ -339,16 +345,22 @@ private fun RankCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(
-                        if (isUnlocked) MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surfaceVariant,
-                    ),
+                    .background(glassCardColor()),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = if (isUnlocked) rank.emoji else "\uD83D\uDD12",
-                    style = MaterialTheme.typography.titleLarge,
-                )
+                if (isUnlocked) {
+                    Text(
+                        text = rank.emoji,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_lock),
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                        tint = glassTextSecondary(),
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -358,12 +370,12 @@ private fun RankCard(
                     text = rank.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    color = if (isUnlocked) glassTextColor() else glassTextSecondary().copy(alpha = 0.5f),
                 )
                 Text(
                     text = rank.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isUnlocked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    color = if (isUnlocked) glassTextSecondary() else glassTextSecondary().copy(alpha = 0.5f),
                 )
             }
 
@@ -390,6 +402,16 @@ private fun RankCard(
 
 @Composable
 private fun TrofeosContent(trophies: List<TrophyStatus>) {
+    if (trophies.isEmpty()) {
+        EmptyStateView(
+            emoji = "🏆",
+            title = "Aún no hay trofeos",
+            subtitle = "Sigue jugando para desbloquear trofeos",
+            modifier = Modifier.fillMaxSize(),
+        )
+        return
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = Modifier
@@ -476,7 +498,7 @@ private fun StatCard(stat: StatItem) {
                 text = stat.value,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -485,7 +507,7 @@ private fun StatCard(stat: StatItem) {
             Text(
                 text = stat.label,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
                 textAlign = TextAlign.Center,
             )
         }
@@ -592,12 +614,12 @@ private fun HistoryTimelineItem(entry: HistoryEntry) {
                         text = entry.description,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = glassTextColor(),
                     )
                     Text(
                         text = entry.date,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = glassTextSecondary(),
                     )
                 }
             }

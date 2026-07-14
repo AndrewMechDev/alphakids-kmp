@@ -60,6 +60,8 @@ import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
 
 // ── Data Model ──
@@ -481,7 +483,7 @@ private fun ActivePetCard(
                     text = pet.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 LevelBadge(level = pet.level)
@@ -578,7 +580,7 @@ private fun PetProfileCard(
                 Text(
                     text = "\u2716",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
+                    color = glassTextColor(),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onClose)
@@ -601,7 +603,7 @@ private fun PetProfileCard(
                     text = pet.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 LevelBadge(level = pet.level)
@@ -611,7 +613,7 @@ private fun PetProfileCard(
             Text(
                 text = pet.description,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.8f),
+                color = glassTextSecondary(),
                 modifier = Modifier.padding(top = 4.dp),
             )
 
@@ -737,7 +739,7 @@ private fun SmallPetCard(
                 text = pet.name,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = glassTextColor(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -797,7 +799,7 @@ private fun LockedPetCard(
                 text = pet.name,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White.copy(alpha = 0.6f),
+                color = glassTextSecondary(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -819,13 +821,13 @@ private fun LockedPetCard(
                         painter = painterResource(Res.drawable.ic_lock),
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = Color.White,
+                        tint = glassTextColor(),
                     )
                     Text(
                         text = "Nivel ${pet.unlockLevel}",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = glassTextColor(),
                     )
                 }
             }
@@ -847,7 +849,7 @@ private fun LevelBadge(level: Int) {
             text = "Nv.$level",
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = glassTextColor(),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
         )
     }
@@ -866,12 +868,12 @@ private fun XpProgressBar(
             Text(
                 text = "XP",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.7f),
+                color = glassTextSecondary(),
             )
             Text(
                 text = "$xp / $xpToNextLevel",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.7f),
+                color = glassTextSecondary(),
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -900,7 +902,7 @@ private fun PetStatBar(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White.copy(alpha = 0.7f),
+            color = glassTextSecondary(),
             modifier = Modifier.width(64.dp),
         )
         LinearProgressIndicator(
@@ -916,7 +918,7 @@ private fun PetStatBar(
         Text(
             text = "$value%",
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White.copy(alpha = 0.7f),
+            color = glassTextSecondary(),
             modifier = Modifier.width(34.dp),
             textAlign = TextAlign.End,
         )

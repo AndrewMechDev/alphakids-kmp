@@ -3,7 +3,6 @@ package org.alphakids.app.jugar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -62,7 +61,8 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_camera
 import org.alphakids.app.theme.glassCardColor
-import alphakids_kmp.sharedui.generated.resources.alphi_buscando
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 
@@ -349,13 +349,13 @@ private fun WordHintSection(word: ChallengeWord) {
                     text = word.hint,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = glassTextColor(),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${word.word.length} letras",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = glassTextSecondary(),
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -389,7 +389,7 @@ private fun LetterSlotsRow(
                     )
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.3f),
+                        color = glassTextSecondary().copy(alpha = 0.3f),
                         shape = RoundedCornerShape(10.dp),
                     ),
                 contentAlignment = Alignment.Center,
@@ -399,13 +399,13 @@ private fun LetterSlotsRow(
                         text = letter,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = glassTextColor(),
                     )
                 } else {
                     Text(
                         text = "_",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White.copy(alpha = 0.5f),
+                        color = glassTextSecondary(),
                     )
                 }
             }
@@ -414,32 +414,5 @@ private fun LetterSlotsRow(
                 Spacer(modifier = Modifier.width(4.dp))
             }
         }
-    }
-}
-
-@Composable
-private fun AlphiHint() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = glassCardColor(),
-                shape = RoundedCornerShape(14.dp),
-            )
-            .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            painter = painterResource(Res.drawable.alphi_buscando),
-            contentDescription = "Alphi hint",
-            modifier = Modifier.size(40.dp),
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(
-            text = "Busca las letras y ordénalas",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White,
-            modifier = Modifier.weight(1f),
-        )
     }
 }
