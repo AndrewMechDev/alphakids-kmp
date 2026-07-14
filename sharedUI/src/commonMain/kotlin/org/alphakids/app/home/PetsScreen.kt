@@ -49,13 +49,18 @@ import org.alphakids.app.theme.PetTitoGreen
 import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.XpBarStart
+import androidx.compose.material3.Icon
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_lock
+import alphakids_kmp.sharedui.generated.resources.ic_paw
+import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.isNightTime
 
 // ── Data Model ──
 
@@ -256,10 +261,7 @@ private fun SubTabBar(
     selectedIndex: Int,
     onTabSelected: (Int) -> Unit,
 ) {
-    val tabs = listOf(
-        "\uD83D\uDC3E Mis Mascotas",
-        "\uD83D\uDED2 Tienda",
-    )
+    val isNight = isNightTime()
 
     Row(
         modifier = Modifier
@@ -267,29 +269,46 @@ private fun SubTabBar(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        tabs.forEachIndexed { index, label ->
+        listOf(0, 1).forEach { index ->
             val isSelected = index == selectedIndex
+            val bgColor = if (isSelected) {
+                if (isNight) Color.White.copy(alpha = 0.2f)
+                else MaterialTheme.colorScheme.primary
+            } else glassCardColor()
+            val contentColor = if (isSelected) Color.White
+            else Color.White.copy(alpha = 0.7f)
+
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceVariant,
-                    )
+                    .background(color = bgColor)
                     .clickable { onTabSelected(index) }
                     .padding(vertical = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            if (index == 0) Res.drawable.ic_paw
+                            else Res.drawable.ic_shopping_cart,
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = contentColor,
+                    )
+                    Text(
+                        text = if (index == 0) "Mis Mascotas" else "Tienda",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        color = contentColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
@@ -462,7 +481,7 @@ private fun ActivePetCard(
                     text = pet.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 LevelBadge(level = pet.level)
@@ -559,7 +578,7 @@ private fun PetProfileCard(
                 Text(
                     text = "\u2716",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White,
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onClose)
@@ -582,7 +601,7 @@ private fun PetProfileCard(
                     text = pet.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 LevelBadge(level = pet.level)
@@ -592,7 +611,7 @@ private fun PetProfileCard(
             Text(
                 text = pet.description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier.padding(top = 4.dp),
             )
 
@@ -718,7 +737,7 @@ private fun SmallPetCard(
                 text = pet.name,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -749,7 +768,7 @@ private fun LockedPetCard(
         modifier = Modifier.width(150.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            containerColor = glassCardColor().copy(alpha = 0.5f),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
@@ -759,7 +778,6 @@ private fun LockedPetCard(
                 .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Greyed-out image
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -775,12 +793,11 @@ private fun LockedPetCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Greyed name
             Text(
                 text = pet.name,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                color = Color.White.copy(alpha = 0.6f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
@@ -788,19 +805,29 @@ private fun LockedPetCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Lock indicator + level requirement
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                    .background(glassCardColor())
                     .padding(horizontal = 10.dp, vertical = 5.dp),
             ) {
-                Text(
-                    text = "\uD83D\uDD12 Nivel ${pet.unlockLevel}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_lock),
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.White,
+                    )
+                    Text(
+                        text = "Nivel ${pet.unlockLevel}",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                    )
+                }
             }
         }
     }
@@ -813,14 +840,14 @@ private fun LevelBadge(level: Int) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer),
+            .background(glassCardColor()),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = "Nv.$level",
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+            color = Color.White,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
         )
     }
@@ -839,12 +866,12 @@ private fun XpProgressBar(
             Text(
                 text = "XP",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.7f),
             )
             Text(
                 text = "$xp / $xpToNextLevel",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.7f),
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -854,7 +881,7 @@ private fun XpProgressBar(
                 .fillMaxWidth()
                 .height(8.dp),
             color = XpBarStart,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = Color.White.copy(alpha = 0.2f),
             strokeCap = StrokeCap.Round,
         )
     }
@@ -873,7 +900,7 @@ private fun PetStatBar(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.7f),
             modifier = Modifier.width(64.dp),
         )
         LinearProgressIndicator(
@@ -882,14 +909,14 @@ private fun PetStatBar(
                 .weight(1f)
                 .height(10.dp),
             color = color,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = Color.White.copy(alpha = 0.2f),
             strokeCap = StrokeCap.Round,
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = "$value%",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.7f),
             modifier = Modifier.width(34.dp),
             textAlign = TextAlign.End,
         )
@@ -909,7 +936,7 @@ private fun PetActionButton(
         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            contentColor = Color.White,
         ),
         modifier = modifier.height(36.dp),
     ) {
