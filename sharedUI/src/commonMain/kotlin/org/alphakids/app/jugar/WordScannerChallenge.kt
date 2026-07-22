@@ -60,6 +60,7 @@ import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_camera
+import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
@@ -258,11 +259,22 @@ fun WordScannerChallenge(
                             contentColor = Color.White,
                         ),
                     ) {
-                        Text(
-                            text = "¡Completada! Ver resultado",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_celebration_spark),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Unspecified,
+                            )
+                            Text(
+                                text = "¡Completada! Ver resultado",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
                     }
                 } else {
                     Button(
