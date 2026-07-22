@@ -13,6 +13,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -83,9 +85,16 @@ actual fun CameraView(
     } else {
         // CameraX preview
         AndroidView(
-            modifier = modifier,
+            modifier = modifier.clip(RoundedCornerShape(20.dp)),
             factory = { ctx ->
                 PreviewView(ctx).apply {
+                    // SurfaceView (the PERFORMANCE default) composites in a
+                    // separate hardware layer outside Compose's normal view
+                    // ordering/clipping, which lets the live preview visually
+                    // overlap sibling composables (e.g. the letter slots row)
+                    // while it resizes. COMPATIBLE forces a TextureView,
+                    // which respects Compose layout order and clipping.
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                     val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                     cameraProviderFuture.addListener({
                         val cameraProvider = cameraProviderFuture.get()
