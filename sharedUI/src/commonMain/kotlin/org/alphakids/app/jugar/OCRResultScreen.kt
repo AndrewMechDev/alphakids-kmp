@@ -54,13 +54,20 @@ import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.theme.AlphaGradients
-import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
+import alphakids_kmp.sharedui.generated.resources.ic_clock
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import alphakids_kmp.sharedui.generated.resources.ic_gamepad
+import alphakids_kmp.sharedui.generated.resources.ic_retry
+import alphakids_kmp.sharedui.generated.resources.ic_star
+import alphakids_kmp.sharedui.generated.resources.ic_target
+import alphakids_kmp.sharedui.generated.resources.ic_zap
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
@@ -229,7 +236,8 @@ fun OCRResultScreen(
             val isApiWord = GameSessionState.currentWordText.isNotBlank()
 
             org.alphakids.app.components.AlphaPrimaryButton(
-                text = "🎮 Seguir jugando",
+                text = "Seguir jugando",
+                icon = Res.drawable.ic_gamepad,
                 onClick = {
                     if (isApiWord) {
                         GameSessionState.clear()
@@ -253,7 +261,8 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             org.alphakids.app.components.AlphaSecondaryButton(
-                text = "🔄 Repetir",
+                text = "Repetir",
+                icon = Res.drawable.ic_retry,
                 onClick = {
                     // Re-set state before navigating so App.kt composable
                     // reads the correct word regardless of route params
@@ -304,11 +313,11 @@ private fun CelebrationSection() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Text(
-            text = "\uD83C\uDF89",
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontSize = 64.sp,
-            ),
+        Icon(
+            painter = painterResource(Res.drawable.ic_celebration_spark),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(80.dp),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -405,7 +414,7 @@ private fun RewardsCard(
                 text = "Recompensas",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = CoinGold.copy(alpha = 0.8f),
+                color = org.alphakids.app.theme.glassAccentColor(),
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -415,19 +424,19 @@ private fun RewardsCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 org.alphakids.app.components.RewardCard(
-                    icon = "\uD83E\uDE99",
+                    icon = Res.drawable.ic_coin,
                     title = "+$coins",
                     subtitle = "Monedas",
                     modifier = Modifier.weight(1f),
                 )
                 org.alphakids.app.components.RewardCard(
-                    icon = "\u26A1",
+                    icon = Res.drawable.ic_zap,
                     title = "+$xp",
                     subtitle = "XP",
                     modifier = Modifier.weight(1f),
                 )
                 org.alphakids.app.components.RewardCard(
-                    icon = "\u2B50",
+                    icon = Res.drawable.ic_star,
                     title = "+$stars",
                     subtitle = "Estrellas",
                     modifier = Modifier.weight(1f),
@@ -462,17 +471,17 @@ private fun StatsCard(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             StatItem(
-                emoji = "\uD83D\uDD04",
+                icon = Res.drawable.ic_retry,
                 label = "Intentos",
                 value = "$attempts",
             )
             StatItem(
-                emoji = "\u23F1\uFE0F",
+                icon = Res.drawable.ic_clock,
                 label = "Tiempo",
                 value = formatTime(timeSpent),
             )
             StatItem(
-                emoji = "\uD83C\uDFAF",
+                icon = Res.drawable.ic_target,
                 label = "Precisi\u00f3n",
                 value = accuracy,
             )
@@ -482,12 +491,17 @@ private fun StatsCard(
 
 @Composable
 private fun StatItem(
-    emoji: String,
+    icon: org.jetbrains.compose.resources.DrawableResource,
     label: String,
     value: String,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = emoji, style = MaterialTheme.typography.titleMedium)
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = glassTextColor(),
+            modifier = Modifier.size(20.dp),
+        )
         Text(
             text = value,
             style = MaterialTheme.typography.titleSmall,
