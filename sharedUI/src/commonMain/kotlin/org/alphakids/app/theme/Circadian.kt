@@ -83,6 +83,15 @@ fun glassTextSecondary(): Color =
     if (isNightTime()) Color.White.copy(alpha = 0.7f) else Color(0xFF4A5568)
 
 /**
+ * Branded accent color for headings that want a warm highlight (e.g. "Recompensas").
+ * Night: [CoinGold] — reads as festive gold against the dark circadian sky.
+ * Day: same dark navy as [glassTextColor] — a light gold at day-mode alpha loses
+ * contrast against the pastel morning/afternoon background.
+ */
+fun glassAccentColor(): Color =
+    if (isNightTime()) CoinGold else Color(0xFF1E2749)
+
+/**
  * Label color for unselected chips/filter buttons rendered on circadian BG.
  * Higher contrast than [glassTextSecondary] because unselected chip labels
  * sit directly on the gradient (no glass card) and easily become illegible in day mode.

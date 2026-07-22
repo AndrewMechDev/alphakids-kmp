@@ -4,7 +4,7 @@ description: "Trigger: circadian, night mode, dark background, color lost, text 
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "3.0"
+  version: "3.1"
 ---
 
 ## Activation Contract
@@ -23,7 +23,8 @@ v3.0 rule: **the circadian background is variable in both hue AND lightness acro
 
 ## Hard Rules
 
-- Import from `org.alphakids.app.theme`: `circadianBackground`, `glassCardColor`, `glassTextColor`, `glassTextSecondary`, `glassChipUnselectedLabel`, `glassInputBorder`, `glassNavIndicator`, `isNightTime`.
+- Import from `org.alphakids.app.theme`: `circadianBackground`, `glassCardColor`, `glassTextColor`, `glassTextSecondary`, `glassChipUnselectedLabel`, `glassInputBorder`, `glassNavIndicator`, `glassAccentColor`, `isNightTime`.
+- Branded/warm heading accents (e.g. a "Recompensas" title that should pop) → `glassAccentColor()`. Never a hardcoded brand color like `CoinGold.copy(alpha = 0.8f)` directly on text — a light gold at reduced alpha loses contrast against pastel day backgrounds.
 - ANY `Text` on a screen with `circadianBackground()` → `color = glassTextColor()` (primary) or `glassTextSecondary()` (secondary). Applies whether it sits directly on the gradient or inside a glass card.
 - ANY `Icon` tint on a circadian screen → `tint = glassTextColor()` (or `glassTextSecondary()` for muted). Never hardcoded `Color.White`.
 - Cards on circadian BG → `containerColor = glassCardColor()`. Never opaque `surface`, `surfaceVariant`, `primaryContainer`.
@@ -61,6 +62,7 @@ These MUST NOT appear inside any screen with `circadianBackground()` (or any com
 | Card background | `glassCardColor()` = White 82% | `glassCardColor()` = #1E2030 78% |
 | Text on BG or in card (primary) | `glassTextColor()` = #1E2749 | `glassTextColor()` = White |
 | Text on BG or in card (secondary) | `glassTextSecondary()` = #4A5568 | `glassTextSecondary()` = White 70% |
+| Branded accent heading (e.g. "Recompensas") | `glassAccentColor()` = #1E2749 | `glassAccentColor()` = CoinGold #FFC93C |
 | Icon tint on BG or in card | `glassTextColor()` | `glassTextColor()` |
 | TextField input text | `glassTextColor()` | `glassTextColor()` |
 | TextField placeholder | `glassTextSecondary()` | `glassTextSecondary()` |
@@ -70,6 +72,28 @@ These MUST NOT appear inside any screen with `circadianBackground()` (or any com
 | NavigationBar indicator | `glassNavIndicator()` = Primary 15% | `glassNavIndicator()` = White 10% |
 | Progress bar track | `Color.White.copy(alpha = 0.2f)` | `Color.White.copy(alpha = 0.2f)` |
 | Border on glass element | `Color.White.copy(alpha = 0.4f)` | `Color.White.copy(alpha = 0.12f)` |
+
+## Button Hierarchy (AlphaButton.kt)
+
+Use these three components — never a raw `Button`/`OutlinedButton`/`TextButton`
+on a circadian screen — and never mix their color sources, or sibling buttons
+in the same action stack read as unrelated, disconnected styles:
+
+| Tier | Component | Fill | Border/Content |
+|---|---|---|---|
+| Primary CTA | `AlphaPrimaryButton` | `AlphaGradients.Adventure` brand gradient | `Color.White` (`// circadian-exempt`: solid gradient button, not the circadian BG) |
+| Secondary | `AlphaSecondaryButton` | `MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)` | `MaterialTheme.colorScheme.primary` border + text |
+| Tertiary | `AlphaTextButton` | none (link-style, by design) | `glassTextColor()` |
+
+`MaterialTheme.colorScheme.primary` is safe here (not a forbidden pattern) because
+`Theme.kt` already swaps `LightColorScheme`/`DarkColorScheme` on `isNightTime()` —
+it is itself a circadian-aware token, unlike `onSurface`/`surface` which assume a
+real Material `Surface` the circadian gradient doesn't have. Anchoring Secondary
+to `colorScheme.primary` keeps it in the same brand-blue family as Primary's
+gradient in both cycles. Do **not** fall back to `glassCardColor()` for a
+Secondary button's fill — that reads as an unrelated dark/black button next to
+Primary's colorful gradient, which is exactly the inconsistency this rule exists
+to prevent.
 
 ## Shared Component Rule
 

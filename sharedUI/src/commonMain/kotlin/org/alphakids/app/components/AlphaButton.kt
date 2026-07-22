@@ -2,7 +2,9 @@ package org.alphakids.app.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -18,16 +20,21 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import org.alphakids.app.theme.AlphaMotion
 import org.alphakids.app.theme.RadiusFull
+import org.alphakids.app.theme.glassTextColor
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * Primary button — filled, pill-shaped.
@@ -42,6 +49,7 @@ fun AlphaPrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isLoading: Boolean = false,
+    icon: DrawableResource? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -76,6 +84,8 @@ fun AlphaPrimaryButton(
         ),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent, // Let the background modifier show through
+            // circadian-exempt: fixed white text/icon on a solid brand gradient button,
+            // not the circadian gradient itself — always legible regardless of time of day.
             contentColor = Color.White,
             disabledContainerColor = MaterialTheme.colorScheme.outline,
             disabledContentColor = Color.White.copy(alpha = 0.6f),
@@ -88,17 +98,36 @@ fun AlphaPrimaryButton(
                 strokeWidth = 2.dp,
             )
         } else {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge,
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (icon != null) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }
 
 /**
- * Secondary button — outlined, large, rounded.
- * Use for secondary actions like "Iniciar sesión".
+ * Secondary button — outlined, large, rounded, glass-tinted.
+ * Use for secondary actions like "Iniciar sesión" or "Repetir".
+ *
+ * `MaterialTheme.colorScheme.primary` itself swaps between [LightColorScheme]
+ * and [DarkColorScheme] on [isNightTime] (see Theme.kt), so anchoring border,
+ * text, and icon to it keeps this button in the same brand-blue family as
+ * [AlphaPrimaryButton]'s gradient in both cycles — a generic dark glass fill
+ * reads as a disconnected, unrelated black button next to it.
  */
 @Composable
 fun AlphaSecondaryButton(
@@ -106,21 +135,40 @@ fun AlphaSecondaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    icon: DrawableResource? = null,
 ) {
+    val brandColor = MaterialTheme.colorScheme.primary
+
     OutlinedButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
         shape = MaterialTheme.shapes.large,
         contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp),
+        border = BorderStroke(2.dp, brandColor),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary,
+            containerColor = brandColor.copy(alpha = 0.12f),
+            contentColor = brandColor,
+            disabledContentColor = brandColor.copy(alpha = 0.4f),
         ),
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (icon != null) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = brandColor,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
     }
 }
 
@@ -134,7 +182,7 @@ fun AlphaTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    color: Color = MaterialTheme.colorScheme.primary,
+    color: Color = glassTextColor(),
 ) {
     TextButton(
         onClick = onClick,
@@ -144,7 +192,7 @@ fun AlphaTextButton(
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
-            color = if (enabled) color else MaterialTheme.colorScheme.outline,
+            color = if (enabled) color else color.copy(alpha = 0.4f),
         )
     }
 }
