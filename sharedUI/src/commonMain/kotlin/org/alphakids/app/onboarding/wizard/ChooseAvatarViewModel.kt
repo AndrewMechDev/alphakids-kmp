@@ -64,10 +64,14 @@ class ChooseAvatarViewModel(
             val variants: List<String>,
         )
 
+        // DiceBear has no style that draws literal animal faces — every style
+        // is a stylized person or creature. "big-smile" is the least
+        // person-like option available, so the category is labeled
+        // "Personajes" instead of "Animales" to match what's actually shown.
         private val categoriesConfig = listOf(
             AvatarStyleConfig(
-                name = "Animales",
-                style = "adventurer-neutral",
+                name = "Personajes",
+                style = "big-smile",
                 variants = listOf("Kitty", "Puppy", "Bunny", "Bear", "Fox", "Panda", "Owl", "Raccoon"),
             ),
             AvatarStyleConfig(
@@ -84,20 +88,21 @@ class ChooseAvatarViewModel(
     }
 
     /**
-     * Initialize avatar categories with DiceBear URLs based on the child's name.
+     * Initialize avatar categories with fixed, static DiceBear URLs.
+     *
+     * Seeds are the variant name alone (not derived from the child's name) so
+     * every option always renders the same static illustration — selecting
+     * "Kitty" shows the same avatar regardless of which child is being set up
+     * or how many times the profile is edited.
      */
     fun initialize() {
-        val childName = wizardViewModel.state.value.data.childName
-        val seed = childName.ifBlank { "Alphi" }
-
         val categories = categoriesConfig.map { config ->
             val options = config.variants.map { variant ->
-                val fullSeed = "$seed-$variant"
                 AvatarOption(
                     id = "${config.style}:$variant",
                     style = config.style,
-                    seed = fullSeed,
-                    url = getAvatarUrl(config.style, fullSeed),
+                    seed = variant,
+                    url = getAvatarUrl(config.style, variant),
                 )
             }
             AvatarCategory(name = config.name, style = config.style, options = options)

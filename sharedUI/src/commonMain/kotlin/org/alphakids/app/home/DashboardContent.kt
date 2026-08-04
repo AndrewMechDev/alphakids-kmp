@@ -42,6 +42,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
@@ -51,9 +52,6 @@ import alphakids_kmp.sharedui.generated.resources.ic_gamepad
 import alphakids_kmp.sharedui.generated.resources.ic_logout
 import alphakids_kmp.sharedui.generated.resources.ic_book_open
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
-
-/** Base URL for DiceBear avatar generation. */
-private const val DICEBEAR_BASE = "https://api.dicebear.com/9.x/adventurer/svg?seed="
 
 private val avatarColors = listOf(
     Color(0xFF6C63FF),
@@ -74,7 +72,9 @@ fun DashboardContent(
 ) {
     val audioService = rememberAudioService()
     val avatarColor = avatarColors[state.childName.hashCode().mod(avatarColors.size).let { if (it < 0) it + avatarColors.size else it }]
-    val avatarSeed = state.childAvatarSeed.ifEmpty { state.childName.lowercase().replace(" ", "") }
+    val avatarUrl = resolveAvatarUrl(
+        state.childAvatarSeed.ifEmpty { state.childName.lowercase().replace(" ", "") }
+    )
 
     Column(
         modifier = modifier
@@ -102,7 +102,7 @@ fun DashboardContent(
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
-                    model = "$DICEBEAR_BASE$avatarSeed",
+                    model = avatarUrl,
                     contentDescription = state.childName,
                     modifier = Modifier
                         .size(52.dp)

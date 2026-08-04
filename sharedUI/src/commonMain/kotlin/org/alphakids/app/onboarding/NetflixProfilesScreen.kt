@@ -50,12 +50,10 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_user
+import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
-
-/** Base URL for DiceBear avatar generation. */
-private const val DICEBEAR_BASE = "https://api.dicebear.com/9.x/adventurer/svg?seed="
 
 private val avatarColors = listOf(
     Color(0xFF6C63FF),
@@ -215,7 +213,7 @@ private fun ProfileItem(
         ) {
             if (avatarSeed != null && !isAddCard) {
                 AsyncImage(
-                    model = "$DICEBEAR_BASE$avatarSeed",
+                    model = resolveAvatarUrl(avatarSeed),
                     contentDescription = name,
                     modifier = Modifier
                         .size(88.dp)

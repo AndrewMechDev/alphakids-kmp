@@ -341,7 +341,7 @@ fun WelcomeScreen(
                             val childSummary = ChildSummary(
                                 id = result.id,
                                 name = fullName,
-                                avatarSeed = d.avatarSeed,
+                                avatarSeed = avatarUrl ?: "",
                                 level = 1,
                                 rank = "Semillita 🌱",
                                 lastActivity = "Recién creado",
