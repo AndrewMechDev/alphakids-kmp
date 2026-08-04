@@ -9,6 +9,8 @@ data class ChildSummary(
     val lastActivity: String,
     val wordsLearned: Int,
     val stars: Int,
+    val institutionId: String? = null,
+    val institutionName: String? = null,
 )
 
 data class ChildStats(

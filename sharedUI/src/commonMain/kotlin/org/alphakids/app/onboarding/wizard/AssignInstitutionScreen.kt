@@ -46,6 +46,7 @@ import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_school
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassAccentColor
 import org.alphakids.app.theme.glassCardColor
@@ -203,6 +204,7 @@ fun AssignInstitutionScreen(
                             isExpanded = uiState.expandedInstitutionId == institution.id,
                             selectedGrade = if (uiState.selectedInstitution?.id == institution.id)
                                 uiState.selectedGrade else null,
+                            siblingName = uiState.siblingInstitutions[institution.id],
                             onSelect = { assignViewModel.selectInstitution(institution) },
                             onSelectGrade = { assignViewModel.selectGrade(it) },
                         )
@@ -295,6 +297,7 @@ private fun InstitutionCard(
     isSelected: Boolean,
     isExpanded: Boolean,
     selectedGrade: Grade?,
+    siblingName: String?,
     onSelect: () -> Unit,
     onSelectGrade: (Grade) -> Unit,
 ) {
@@ -331,6 +334,24 @@ private fun InstitutionCard(
                 color = glassTextColor(),
                 fontWeight = FontWeight.Bold,
             )
+
+            if (siblingName != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_check_circle),
+                        contentDescription = null,
+                        tint = glassAccentColor(),
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Ya usado con $siblingName",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = glassAccentColor(),
+                    )
+                }
+            }
 
             // Show grade picker when expanded
             if (isExpanded && institution.grades.isNotEmpty()) {

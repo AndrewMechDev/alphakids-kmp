@@ -23,6 +23,8 @@ data class AssignInstitutionUiState(
     val selectedInstitution: Institution? = null,
     val selectedGrade: Grade? = null,
     val expandedInstitutionId: String? = null,
+    /** institutionId -> name of the sibling already enrolled there, for the "already used" badge. */
+    val siblingInstitutions: Map<String, String> = emptyMap(),
 )
 
 /**
@@ -54,6 +56,22 @@ class AssignInstitutionViewModel(
                     } else null,
                 )
             }
+        }
+
+        loadSiblingInstitutions()
+    }
+
+    /**
+     * Cross-references the parent's other children so the list can flag
+     * institutions already used by a sibling — purely visual, no new
+     * institution field required.
+     */
+    private fun loadSiblingInstitutions() {
+        scope.launch {
+            val siblings = parentRepository.getChildren()
+                .filter { it.institutionId != null && it.institutionName != null }
+                .associate { it.institutionId!! to it.name }
+            _uiState.update { it.copy(siblingInstitutions = siblings) }
         }
     }
 
