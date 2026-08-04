@@ -55,6 +55,12 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_lock
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
+import alphakids_kmp.sharedui.generated.resources.ic_bone
+import alphakids_kmp.sharedui.generated.resources.ic_football
+import alphakids_kmp.sharedui.generated.resources.ic_handshake
+import alphakids_kmp.sharedui.generated.resources.ic_close
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
+import org.jetbrains.compose.resources.DrawableResource
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
@@ -525,19 +531,22 @@ private fun ActivePetCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 PetActionButton(
-                    text = "\uD83C\uDF55 Alimentar",
+                    text = "Alimentar",
+                    icon = Res.drawable.ic_bone,
                     onClick = onFeed,
                     containerColor = PetLunaOrange,
                     modifier = Modifier.weight(1f),
                 )
                 PetActionButton(
-                    text = "\u26BD Jugar",
+                    text = "Jugar",
+                    icon = Res.drawable.ic_football,
                     onClick = onPlay,
                     containerColor = PetDrakoCyan,
                     modifier = Modifier.weight(1f),
                 )
                 PetActionButton(
-                    text = "\uD83D\uDC4B Interactuar",
+                    text = "Interactuar",
+                    icon = Res.drawable.ic_handshake,
                     onClick = onInteract,
                     containerColor = PetTitoGreen,
                     modifier = Modifier.weight(1f),
@@ -579,14 +588,15 @@ private fun PetProfileCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
             ) {
-                Text(
-                    text = "\u2716",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = glassTextColor(),
+                Icon(
+                    painter = painterResource(Res.drawable.ic_close),
+                    contentDescription = "Cerrar",
+                    tint = glassTextColor(),
                     modifier = Modifier
+                        .size(20.dp)
                         .clip(CircleShape)
                         .clickable(onClick = onClose)
-                        .padding(6.dp),
+                        .padding(2.dp),
                 )
             }
 
@@ -653,19 +663,22 @@ private fun PetProfileCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 PetActionButton(
-                    text = "\uD83C\uDF55 Alimentar",
+                    text = "Alimentar",
+                    icon = Res.drawable.ic_bone,
                     onClick = onFeed,
                     containerColor = PetLunaOrange,
                     modifier = Modifier.weight(1f),
                 )
                 PetActionButton(
-                    text = "\u26BD Jugar",
+                    text = "Jugar",
+                    icon = Res.drawable.ic_football,
                     onClick = onPlay,
                     containerColor = PetDrakoCyan,
                     modifier = Modifier.weight(1f),
                 )
                 PetActionButton(
-                    text = "\uD83D\uDC4B Interactuar",
+                    text = "Interactuar",
+                    icon = Res.drawable.ic_handshake,
                     onClick = onInteract,
                     containerColor = PetTitoGreen,
                     modifier = Modifier.weight(1f),
@@ -676,12 +689,21 @@ private fun PetProfileCard(
 
             // "Set as active" button
             if (isActive) {
-                Text(
-                    text = "\u2714\uFE0F Mascota principal",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = SuccessGreen,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_check_circle),
+                        contentDescription = null,
+                        tint = SuccessGreen,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Mascota principal",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = SuccessGreen,
+                    )
+                }
             } else {
                 Button(
                     onClick = onSetActive,
@@ -930,6 +952,7 @@ private fun PetStatBar(
 @Composable
 private fun PetActionButton(
     text: String,
+    icon: DrawableResource,
     onClick: () -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier,
@@ -940,10 +963,17 @@ private fun PetActionButton(
         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
+            // circadian-exempt: white on a solid per-action brand color, not the circadian BG.
             contentColor = Color.White,
         ),
         modifier = modifier.height(36.dp),
     ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+        )
+        Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall,
