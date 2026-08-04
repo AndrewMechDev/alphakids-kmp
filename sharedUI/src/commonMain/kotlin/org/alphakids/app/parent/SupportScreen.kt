@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -34,10 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Icon
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_help
+import alphakids_kmp.sharedui.generated.resources.ic_mail
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.FAQItem
+import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassInputBorder
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
@@ -61,12 +70,21 @@ fun SupportScreen(
     ) {
         // Title
         item(key = "title") {
-            Text(
-                text = "\u2753 Soporte",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = glassTextColor(),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_help),
+                    contentDescription = null,
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Soporte",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = glassTextColor(),
+                )
+            }
         }
 
         // Description
@@ -109,12 +127,21 @@ fun SupportScreen(
 
         // Contact form title
         item(key = "form-title") {
-            Text(
-                text = "\u2709\uFE0F Contáctanos",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = glassTextColor(),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_mail),
+                    contentDescription = null,
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Contáctanos",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = glassTextColor(),
+                )
+            }
         }
 
         // Success message
@@ -124,15 +151,26 @@ fun SupportScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        containerColor = SuccessGreen.copy(alpha = 0.15f),
                     ),
                 ) {
-                    Text(
-                        text = "\u2705 Mensaje enviado con éxito. Te responderemos pronto.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    Row(
                         modifier = Modifier.padding(16.dp),
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_check_circle),
+                            contentDescription = null,
+                            tint = SuccessGreen,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Mensaje enviado con éxito. Te responderemos pronto.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = glassTextColor(),
+                        )
+                    }
                 }
             }
         }
@@ -244,7 +282,7 @@ private fun FAQItemCard(
             .fillMaxWidth()
             .clickable(onClick = onToggle),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isExpanded) 2.dp else 0.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -258,13 +296,13 @@ private fun FAQItemCard(
                     text = faq.question,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                     modifier = Modifier.weight(1f),
                 )
                 Text(
                     text = if (isExpanded) "\u25B2" else "\u25BC",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
 
@@ -276,7 +314,7 @@ private fun FAQItemCard(
                 Text(
                     text = faq.answer,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 )
             }

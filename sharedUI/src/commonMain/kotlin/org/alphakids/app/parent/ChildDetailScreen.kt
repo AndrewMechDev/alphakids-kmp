@@ -45,11 +45,23 @@ import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import alphakids_kmp.sharedui.generated.resources.ic_book_open
+import alphakids_kmp.sharedui.generated.resources.ic_camera
+import alphakids_kmp.sharedui.generated.resources.ic_microphone
+import alphakids_kmp.sharedui.generated.resources.ic_clock
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import alphakids_kmp.sharedui.generated.resources.ic_star
+import alphakids_kmp.sharedui.generated.resources.ic_calendar
+import alphakids_kmp.sharedui.generated.resources.ic_check
+import alphakids_kmp.sharedui.generated.resources.ic_paw
+import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
 /**
  * Child detail screen showing full profile, stats, weekly progress, pets, and achievements.
@@ -135,7 +147,7 @@ fun ChildDetailScreen(
                     modifier = Modifier
                         .size(96.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(glassCardColor()),
                     contentAlignment = Alignment.Center,
                 ) {
                     AsyncImage(
@@ -170,12 +182,12 @@ fun ChildDetailScreen(
             val stats = state.stats ?: return@item
 
             val statItems = listOf(
-                StatItem("\uD83D\uDCD6", "Palabras", "${stats.wordsLearned}"),
-                StatItem("\uD83D\uDCF7", "OCR", "${stats.ocrCompleted}"),
-                StatItem("\u270D\uFE0F", "Deletreo", "${stats.spellingCompleted}"),
-                StatItem("\u23F1\uFE0F", "Tiempo", "${stats.timePlayedMinutes} min"),
-                StatItem("\uD83E\uDE99", "Monedas", "${stats.coinsEarned}"),
-                StatItem("\u2B50", "Estrellas", "${stats.starsEarned}"),
+                StatItem(Res.drawable.ic_book_open, "Palabras", "${stats.wordsLearned}"),
+                StatItem(Res.drawable.ic_camera, "OCR", "${stats.ocrCompleted}"),
+                StatItem(Res.drawable.ic_microphone, "Deletreo", "${stats.spellingCompleted}"),
+                StatItem(Res.drawable.ic_clock, "Tiempo", "${stats.timePlayedMinutes} min"),
+                StatItem(Res.drawable.ic_coin, "Monedas", "${stats.coinsEarned}"),
+                StatItem(Res.drawable.ic_star, "Estrellas", "${stats.starsEarned}"),
             )
 
             LazyVerticalGrid(
@@ -203,7 +215,7 @@ fun ChildDetailScreen(
         // Pets section (placeholder)
         item(key = "pets") {
             SectionPlaceholder(
-                emoji = "\uD83D\uDC3E",
+                icon = Res.drawable.ic_paw,
                 title = "Mascotas",
                 message = "Próximamente podrás ver las mascotas de ${child.name} aquí.",
             )
@@ -212,7 +224,7 @@ fun ChildDetailScreen(
         // Achievements section (placeholder)
         item(key = "achievements") {
             SectionPlaceholder(
-                emoji = "\uD83C\uDFC6",
+                icon = Res.drawable.ic_trophy,
                 title = "Logros",
                 message = "Próximamente podrás ver los logros de ${child.name} aquí.",
             )
@@ -226,7 +238,7 @@ fun ChildDetailScreen(
 }
 
 private data class StatItem(
-    val emoji: String,
+    val icon: DrawableResource,
     val label: String,
     val value: String,
 )
@@ -236,7 +248,7 @@ private fun StatCard(item: StatItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
@@ -245,19 +257,24 @@ private fun StatCard(item: StatItem) {
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = item.emoji, style = MaterialTheme.typography.titleLarge)
+            Icon(
+                painter = painterResource(item.icon),
+                contentDescription = null,
+                tint = glassTextColor(),
+                modifier = Modifier.size(22.dp),
+            )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = item.label,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = item.value,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
                 textAlign = TextAlign.Center,
             )
         }
@@ -272,16 +289,25 @@ private fun WeeklyProgressSection(weeklyProgress: List<Boolean>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "\uD83D\uDCC5 Progreso semanal",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_calendar),
+                    contentDescription = null,
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Progreso semanal",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = glassTextColor(),
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -297,22 +323,25 @@ private fun WeeklyProgressSection(weeklyProgress: List<Boolean>) {
                                 .clip(CircleShape)
                                 .background(
                                     if (active) SuccessGreen
-                                    else MaterialTheme.colorScheme.surfaceVariant,
+                                    else glassCardColor(),
                                 ),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = if (active) "\u2713" else "",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                            )
+                            if (active) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_check),
+                                    contentDescription = null,
+                                    // circadian-exempt: white check on a solid SuccessGreen circle.
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = dayLabels.getOrElse(index) { "" },
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = glassTextSecondary(),
                         )
                     }
                 }
@@ -323,14 +352,14 @@ private fun WeeklyProgressSection(weeklyProgress: List<Boolean>) {
 
 @Composable
 private fun SectionPlaceholder(
-    emoji: String,
+    icon: DrawableResource,
     title: String,
     message: String,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
@@ -339,20 +368,25 @@ private fun SectionPlaceholder(
                 .padding(16.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = emoji, style = MaterialTheme.typography.titleMedium)
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(20.dp),
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
             )
         }
     }
