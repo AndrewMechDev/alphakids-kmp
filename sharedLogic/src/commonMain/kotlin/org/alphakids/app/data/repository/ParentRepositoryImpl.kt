@@ -218,6 +218,8 @@ class ParentRepositoryImpl(
             lastActivity = "",
             wordsLearned = progress?.wordsCompleted ?: 0,
             stars = progress?.totalStars ?: 0,
+            institutionId = institutionId,
+            institutionName = institution?.name,
         )
     }
 
