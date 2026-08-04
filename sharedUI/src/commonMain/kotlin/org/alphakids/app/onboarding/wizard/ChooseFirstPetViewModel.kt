@@ -45,8 +45,7 @@ class ChooseFirstPetViewModel(
 
     fun onConfirmClick() {
         _uiState.update {
-            val petName = it.pets.find { p -> p.id == it.selectedPetId }?.name ?: ""
-            it.copy(showNamingModal = true, petName = petName)
+            it.copy(showNamingModal = true, petName = "")
         }
     }
 
