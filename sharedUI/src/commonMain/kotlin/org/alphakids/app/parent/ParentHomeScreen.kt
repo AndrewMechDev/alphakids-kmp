@@ -66,6 +66,8 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
+import org.alphakids.app.theme.glassNavIndicator
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
@@ -73,6 +75,10 @@ import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
 import alphakids_kmp.sharedui.generated.resources.ic_credit_card
 import alphakids_kmp.sharedui.generated.resources.ic_kid
 import alphakids_kmp.sharedui.generated.resources.ic_settings
+import alphakids_kmp.sharedui.generated.resources.ic_help
+import alphakids_kmp.sharedui.generated.resources.ic_file_text
+import alphakids_kmp.sharedui.generated.resources.ic_logout
+import alphakids_kmp.sharedui.generated.resources.ic_star
 
 private data class ParentNavTab(
     val label: String,
@@ -151,14 +157,20 @@ fun ParentHomeScreen(
                             onDismissRequest = { showMenu = false },
                         ) {
                             DropdownMenuItem(
-                                text = { Text("❓ Soporte") },
+                                text = { Text("Soporte") },
+                                leadingIcon = {
+                                    Icon(painter = painterResource(Res.drawable.ic_help), contentDescription = null)
+                                },
                                 onClick = {
                                     showMenu = false
                                     selectedTab = 3
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text("📋 Términos y condiciones") },
+                                text = { Text("Términos y condiciones") },
+                                leadingIcon = {
+                                    Icon(painter = painterResource(Res.drawable.ic_file_text), contentDescription = null)
+                                },
                                 onClick = {
                                     showMenu = false
                                 },
@@ -166,8 +178,15 @@ fun ParentHomeScreen(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        "🚪 Cerrar sesión",
+                                        "Cerrar sesión",
                                         color = MaterialTheme.colorScheme.error,
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_logout),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
                                     )
                                 },
                                 onClick = {
@@ -263,7 +282,7 @@ private fun ChildrenListTab(
                 text = "Administrar hijos",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
             )
         }
 
@@ -340,7 +359,7 @@ private fun ChildAdminCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
@@ -354,7 +373,7 @@ private fun ChildAdminCard(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(glassCardColor()),
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
@@ -374,28 +393,42 @@ private fun ChildAdminCard(
                     text = child.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "Nivel ${child.level} · ${child.rank}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
                 Text(
                     text = "Última actividad: ${child.lastActivity}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text(
-                    text = "${child.wordsLearned} palabras · ⭐ ${child.stars}",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "${child.wordsLearned} palabras · ",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_star),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Text(
+                        text = " ${child.stars}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
     }
@@ -455,7 +488,7 @@ private fun ParentGlassmorphicNavigationBar(
                         selectedTextColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
                         unselectedIconColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
                         unselectedTextColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
-                        indicatorColor = if (isNight) Color.White.copy(alpha = 0.1f) else Color.White.copy(alpha = 0.7f),
+                        indicatorColor = glassNavIndicator(),
                     ),
                 )
             }

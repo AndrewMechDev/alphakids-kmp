@@ -34,6 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Icon
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_credit_card
+import alphakids_kmp.sharedui.generated.resources.ic_crown
+import alphakids_kmp.sharedui.generated.resources.ic_gift
+import alphakids_kmp.sharedui.generated.resources.ic_rocket
+import alphakids_kmp.sharedui.generated.resources.ic_calendar
+import alphakids_kmp.sharedui.generated.resources.ic_check
+import alphakids_kmp.sharedui.generated.resources.ic_lock
 import org.alphakids.app.components.AlphaPrimaryButton
 
 import org.alphakids.app.koinInject
@@ -43,7 +53,9 @@ import org.alphakids.app.theme.StarGold
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.TrophyGoldDetail
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Subscription screen showing current plan, benefits, upgrade button, and payment history.
@@ -82,12 +94,21 @@ fun SubscriptionScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item(key = "title") {
-                Text(
-                    text = "\uD83D\uDCB3 Suscripción",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = glassTextColor(),
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_credit_card),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Suscripción",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = glassTextColor(),
+                    )
+                }
             }
 
             // Current plan card
@@ -102,7 +123,7 @@ fun SubscriptionScreen(
                         containerColor = if (isPremium)
                             StarGold.copy(alpha = 0.15f)
                         else
-                            MaterialTheme.colorScheme.surface,
+                            glassCardColor(),
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 ) {
@@ -114,9 +135,11 @@ fun SubscriptionScreen(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = if (isPremium) "\uD83D\uDC51" else "\uD83C\uDF81",
-                                style = MaterialTheme.typography.titleLarge,
+                            Icon(
+                                painter = painterResource(if (isPremium) Res.drawable.ic_crown else Res.drawable.ic_gift),
+                                contentDescription = null,
+                                tint = if (isPremium) TrophyGoldDetail else glassTextSecondary(),
+                                modifier = Modifier.size(28.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
@@ -124,14 +147,14 @@ fun SubscriptionScreen(
                                     text = sub.planName,
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = glassTextColor(),
                                 )
                                 Text(
                                     text = if (isPremium) "Premium activo"
                                     else "Plan gratuito",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = if (isPremium) TrophyGoldDetail
-                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    else glassTextSecondary(),
                                 )
                             }
                         }
@@ -141,7 +164,7 @@ fun SubscriptionScreen(
                             Text(
                                 text = "Renovación: ${sub.renewalDate}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = glassTextSecondary(),
                             )
                         }
                     }
@@ -152,7 +175,8 @@ fun SubscriptionScreen(
             if (state.subscription?.planType == PlanType.FREE) {
                 item(key = "upgrade") {
                     AlphaPrimaryButton(
-                        text = "\uD83D\uDE80 Mejorar plan",
+                        text = "Mejorar plan",
+                        icon = Res.drawable.ic_rocket,
                         onClick = viewModel::onUpgradeClick,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -176,13 +200,24 @@ fun SubscriptionScreen(
 
             // Payment history (mock)
             item(key = "payment-title") {
-                Text(
-                    text = "\uD83D\uDCC6 Historial de pagos",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = glassTextColor(),
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 8.dp),
-                )
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_calendar),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Historial de pagos",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = glassTextColor(),
+                    )
+                }
             }
 
             // Mock payment history items
@@ -196,7 +231,7 @@ fun SubscriptionScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
+                        containerColor = glassCardColor(),
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 ) {
@@ -212,12 +247,12 @@ fun SubscriptionScreen(
                                 text = desc,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = glassTextColor(),
                             )
                             Text(
                                 text = date,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = glassTextSecondary(),
                             )
                         }
                         Text(
@@ -252,19 +287,20 @@ private fun BenefitRow(benefit: PlanBenefit) {
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = if (benefit.included) "\u2713" else "\uD83D\uDD12",
-            style = MaterialTheme.typography.titleMedium,
-            color = if (benefit.included) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+        Icon(
+            painter = painterResource(if (benefit.included) Res.drawable.ic_check else Res.drawable.ic_lock),
+            contentDescription = null,
+            tint = if (benefit.included) SuccessGreen else glassTextSecondary(),
+            modifier = Modifier.size(20.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = benefit.name,
             style = MaterialTheme.typography.bodyMedium,
             color = if (benefit.included)
-                MaterialTheme.colorScheme.onSurface
+                glassTextColor()
             else
-                MaterialTheme.colorScheme.onSurfaceVariant,
+                glassTextSecondary(),
             modifier = Modifier.weight(1f),
         )
         if (benefit.isPremium && !benefit.included) {

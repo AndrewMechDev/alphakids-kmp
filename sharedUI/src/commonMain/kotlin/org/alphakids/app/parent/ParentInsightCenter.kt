@@ -42,8 +42,21 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import androidx.compose.material3.Icon
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_kid
+import alphakids_kmp.sharedui.generated.resources.ic_book_open
+import alphakids_kmp.sharedui.generated.resources.ic_clock
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import alphakids_kmp.sharedui.generated.resources.ic_star
+import alphakids_kmp.sharedui.generated.resources.ic_camera
+import alphakids_kmp.sharedui.generated.resources.ic_microphone
+import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.parent.domain.model.ChildSummary
 
 @Composable
@@ -90,14 +103,14 @@ fun ParentInsightCenter(
         item(key = "kpi-grid") {
             val agg = state.aggregated
             val kpis = listOf(
-                KpiItem("👶", "Hijos", "${agg.totalChildren}"),
-                KpiItem("📖", "Palabras", "${agg.totalWords}"),
-                KpiItem("⏱️", "Tiempo", "${agg.totalTime} min"),
-                KpiItem("🪙", "Monedas", "${agg.totalCoins}"),
-                KpiItem("⭐", "Estrellas", "${agg.totalStars}"),
-                KpiItem("📷", "OCR", "${agg.totalOcr}"),
-                KpiItem("✍️", "Deletreo", "${agg.totalSpelling}"),
-                KpiItem("📊", "Nivel prom.", "${agg.avgLevel}"),
+                KpiItem(Res.drawable.ic_kid, "Hijos", "${agg.totalChildren}"),
+                KpiItem(Res.drawable.ic_book_open, "Palabras", "${agg.totalWords}"),
+                KpiItem(Res.drawable.ic_clock, "Tiempo", "${agg.totalTime} min"),
+                KpiItem(Res.drawable.ic_coin, "Monedas", "${agg.totalCoins}"),
+                KpiItem(Res.drawable.ic_star, "Estrellas", "${agg.totalStars}"),
+                KpiItem(Res.drawable.ic_camera, "OCR", "${agg.totalOcr}"),
+                KpiItem(Res.drawable.ic_microphone, "Deletreo", "${agg.totalSpelling}"),
+                KpiItem(Res.drawable.ic_chart_bar, "Nivel prom.", "${agg.avgLevel}"),
             )
 
             LazyVerticalGrid(
@@ -195,13 +208,13 @@ fun ParentInsightCenter(
     }
 }
 
-private data class KpiItem(val emoji: String, val label: String, val value: String)
+private data class KpiItem(val icon: DrawableResource, val label: String, val value: String)
 
 @Composable
 private fun KpiCard(item: KpiItem) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(
@@ -210,19 +223,24 @@ private fun KpiCard(item: KpiItem) {
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = item.emoji, style = MaterialTheme.typography.titleMedium)
+            Icon(
+                painter = painterResource(item.icon),
+                contentDescription = null,
+                tint = glassTextColor(),
+                modifier = Modifier.size(20.dp),
+            )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = item.value,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = item.label,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -241,7 +259,7 @@ private fun ChildCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
@@ -255,7 +273,7 @@ private fun ChildCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(glassCardColor()),
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
@@ -275,24 +293,29 @@ private fun ChildCard(
                     text = child.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "Nivel ${child.level} · ${child.rank}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "⭐", style = MaterialTheme.typography.titleMedium)
+                Icon(
+                    painter = painterResource(Res.drawable.ic_star),
+                    contentDescription = null,
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(20.dp),
+                )
                 Text(
                     text = "${child.stars}",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
         }
@@ -306,7 +329,7 @@ private fun ActivityTimelineItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(
@@ -330,7 +353,7 @@ private fun ActivityTimelineItem(
                     text = activity.description,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Row(
@@ -340,7 +363,7 @@ private fun ActivityTimelineItem(
                     Text(
                         text = activity.date,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = glassTextSecondary(),
                     )
                     Text(
                         text = activity.detail,
