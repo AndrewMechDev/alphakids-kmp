@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_lock
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.components.AlphaInlineLoading
 import org.alphakids.app.components.EmptyStateView
@@ -58,6 +59,7 @@ import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.theme.PrimaryIndigo
+import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.XpBarEnd
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
@@ -123,7 +125,6 @@ fun AchievementsScreen(modifier: Modifier = Modifier) {
 
                 is AchievementsUiState.Error -> {
                     EmptyStateView(
-                        emoji = "\uD83D\uDCDD",
                         title = currentState.message,
                         subtitle = "\u00BFQuieres intentarlo de nuevo?",
                         modifier = Modifier.fillMaxSize(),
@@ -387,9 +388,11 @@ private fun RankCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                isUnlocked -> Text(
-                    text = "\u2705",
-                    style = MaterialTheme.typography.labelLarge,
+                isUnlocked -> Icon(
+                    painter = painterResource(Res.drawable.ic_check_circle),
+                    contentDescription = "Desbloqueado",
+                    tint = SuccessGreen,
+                    modifier = Modifier.size(20.dp),
                 )
             }
         }
@@ -404,7 +407,6 @@ private fun RankCard(
 private fun TrofeosContent(trophies: List<TrophyStatus>) {
     if (trophies.isEmpty()) {
         EmptyStateView(
-            emoji = "🏆",
             title = "Aún no hay trofeos",
             subtitle = "Sigue jugando para desbloquear trofeos",
             modifier = Modifier.fillMaxSize(),
@@ -445,7 +447,6 @@ private fun TrofeosContent(trophies: List<TrophyStatus>) {
 private fun EstadisticasContent(stats: List<StatItem>) {
     if (stats.isEmpty()) {
         EmptyStateView(
-            emoji = "\uD83D\uDCCA",
             title = "A\u00FAn no hay estad\u00EDsticas",
             subtitle = "Completa actividades para ver tus estad\u00EDsticas",
             modifier = Modifier.fillMaxSize(),
@@ -530,7 +531,6 @@ private fun HistorialContent(history: List<HistoryEntry>) {
         if (history.isEmpty()) {
             item {
                 EmptyStateView(
-                    emoji = "\uD83D\uDD51",
                     title = "A\u00FAn no hay actividad",
                     subtitle = "Tus logros aparecer\u00E1n aqu\u00ED a medida que juegues",
                     modifier = Modifier.fillMaxSize(),
