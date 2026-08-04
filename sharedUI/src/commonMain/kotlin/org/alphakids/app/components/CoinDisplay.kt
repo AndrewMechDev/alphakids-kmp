@@ -1,5 +1,7 @@
 package org.alphakids.app.components
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,11 +18,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.theme.AlphaMotion
 import org.alphakids.app.theme.AlphaShadows
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.RadiusFull
@@ -29,6 +39,9 @@ import org.alphakids.app.theme.glassTextColor
 
 /**
  * Coin counter pill with optional add button.
+ *
+ * Bumps in scale whenever [amount] increases so the balance feels like it's
+ * actually accumulating, not just silently swapping a number.
  */
 @Composable
 fun CoinCounter(
@@ -36,8 +49,25 @@ fun CoinCounter(
     onAddClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
+    var previousAmount by remember { mutableIntStateOf(amount) }
+    var bumped by remember { mutableStateOf(false) }
+
+    LaunchedEffect(amount) {
+        if (amount > previousAmount) {
+            bumped = true
+        }
+        previousAmount = amount
+    }
+
+    val scale by animateFloatAsState(
+        targetValue = if (bumped) 1.25f else 1f,
+        animationSpec = tween(durationMillis = AlphaMotion.Fast),
+        label = "coinCounterBump",
+        finishedListener = { if (it > 1f) bumped = false },
+    )
+
     Card(
-        modifier = modifier,
+        modifier = modifier.graphicsLayer(scaleX = scale, scaleY = scale),
         shape = RadiusFull,
         colors = CardDefaults.cardColors(
             containerColor = glassCardColor(),

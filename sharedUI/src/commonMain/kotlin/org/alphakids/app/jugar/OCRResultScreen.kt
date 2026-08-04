@@ -425,19 +425,19 @@ private fun RewardsCard(
             ) {
                 org.alphakids.app.components.RewardCard(
                     icon = Res.drawable.ic_coin,
-                    title = "+$coins",
+                    value = coins,
                     subtitle = "Monedas",
                     modifier = Modifier.weight(1f),
                 )
                 org.alphakids.app.components.RewardCard(
                     icon = Res.drawable.ic_zap,
-                    title = "+$xp",
+                    value = xp,
                     subtitle = "XP",
                     modifier = Modifier.weight(1f),
                 )
                 org.alphakids.app.components.RewardCard(
                     icon = Res.drawable.ic_star,
-                    title = "+$stars",
+                    value = stars,
                     subtitle = "Estrellas",
                     modifier = Modifier.weight(1f),
                 )

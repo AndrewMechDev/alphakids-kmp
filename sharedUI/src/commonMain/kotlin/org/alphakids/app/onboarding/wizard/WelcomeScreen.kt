@@ -114,8 +114,20 @@ fun WelcomeScreen(
     var creationError by remember { mutableStateOf<String?>(null) }
     var pendingVerification by remember { mutableStateOf(false) }
 
+    var animatedInitialCoins by remember { mutableStateOf(0) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
         isVisible = true
+    }
+    androidx.compose.runtime.LaunchedEffect(isVisible) {
+        if (isVisible) {
+            val target = 50
+            val steps = 20
+            for (i in 1..steps) {
+                animatedInitialCoins = target * i / steps
+                kotlinx.coroutines.delay(30L)
+            }
+            animatedInitialCoins = target
+        }
     }
 
     Column(
@@ -226,7 +238,7 @@ fun WelcomeScreen(
                     StatRow(
                         icon = Res.drawable.ic_coin,
                         label = "Monedas iniciales",
-                        value = "50",
+                        value = "$animatedInitialCoins",
                         textColor = Color.White
                     )
                     // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
