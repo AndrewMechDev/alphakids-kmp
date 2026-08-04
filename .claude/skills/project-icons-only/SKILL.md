@@ -4,7 +4,7 @@ description: "Trigger: icon, emoji, SVG, drawable, UI element with graphic. Enfo
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "1.0"
+  version: "1.1"
 ---
 
 ## Activation Contract
@@ -40,19 +40,32 @@ Activate when:
    - DO NOT proceed with an emoji placeholder
    - DO NOT use Material Icons (`Icons.Default.*`, `Icons.Rounded.*`)
 
-## Available Icons (as of v1.0)
+## Available Icons (as of v1.1)
+
+**This list drifts fast — before trusting it, verify against reality:**
+```
+ls sharedUI/src/commonMain/composeResources/drawable/ic_*.xml   # converted
+ls iconos/*.svg                                                  # not yet converted
+```
 
 ### Converted (ready to use via `Res.drawable.ic_*`):
 arrow_left, book_open, camera, chart_bar, check_circle, coin, credit_card,
 gamepad, graduation, home, kid, lock, logout, microphone, paw, school,
-settings, shopping_cart, sparkles, star, trophy
+settings, shopping_cart, sparkles, star, trophy, celebration_spark, clock,
+retry, target, zap, close, search, speaker, mail, notification, bone,
+football, handshake
 
 ### Source SVGs (in `iconos/`, not yet converted):
 accessories, add, apple, bar-chart-level, bear, bonfire-flame, brain, cake,
-calendar, cat, celebration-spark, check, clock, coins, crown, dashboard-1,
-dashboard-2, dragon, file-text, fish, fox, gift, hat, help, leaf, owl,
-paper-and-feather, pets, rocket, scarf, seedling, tree-decidious, user,
-wave-left, zap
+calendar, cat, check, check-circle, coins, crown, dashboard-1, dashboard-2,
+dragon, file-text, fish, fox, gift, hat, help, leaf, owl, paper-and-feather,
+pets, rocket, scarf, seedling, tree-decidious, user, wave-left
+
+### Naming note
+Converted filenames don't always match the source SVG's literal filename —
+pick the name that reads clearly at the call site (e.g. `x.svg` → `ic_close.xml`,
+not `ic_x.xml`). When in doubt, name it after what the icon *means* in the UI,
+not the filename the source came with.
 
 ## Icon Usage Pattern
 
