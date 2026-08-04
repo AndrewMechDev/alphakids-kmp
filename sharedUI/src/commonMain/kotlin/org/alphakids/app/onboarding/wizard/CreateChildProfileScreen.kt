@@ -55,6 +55,7 @@ import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassAccentColor
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassInputBorder
 import org.alphakids.app.theme.glassTextColor
@@ -199,13 +200,13 @@ fun CreateChildProfileScreen(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(glassCardColor()),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = name.firstOrNull()?.uppercase() ?: "?",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = glassAccentColor(),
                         fontWeight = FontWeight.Bold,
                     )
                 }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +48,9 @@ import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import coil3.compose.AsyncImage
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_user
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
@@ -123,7 +127,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                             initial = "P",
                             name = "Padre",
                             color = Color(0xFF7C4DFF),
-                            emoji = "👤",
+                            icon = Res.drawable.ic_user,
                             onClick = {
                                 navController.navigate(Screen.ParentDashboard.route) {
                                     popUpTo(Screen.NetflixProfiles.route) { inclusive = true }
@@ -180,7 +184,7 @@ private fun ProfileItem(
     color: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    emoji: String? = null,
+    icon: org.jetbrains.compose.resources.DrawableResource? = null,
     isAddCard: Boolean = false,
     avatarSeed: String? = null,
 ) {
@@ -218,9 +222,17 @@ private fun ProfileItem(
                         .size(88.dp)
                         .clip(CircleShape),
                 )
+            } else if (icon != null) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    // circadian-exempt: rendered on an opaque solid-color avatar circle, not the circadian gradient
+                    tint = Color.White,
+                    modifier = Modifier.size(36.dp),
+                )
             } else {
                 Text(
-                    text = emoji ?: initial,
+                    text = initial,
                     fontSize = if (isAddCard) 32.sp else 36.sp,
                     fontWeight = FontWeight.Bold,
                     // circadian-exempt: rendered on an opaque solid-color avatar circle, not the circadian gradient

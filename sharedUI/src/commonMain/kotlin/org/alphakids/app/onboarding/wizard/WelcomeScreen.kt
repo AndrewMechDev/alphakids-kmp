@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,6 +61,9 @@ import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import alphakids_kmp.sharedui.generated.resources.ic_zap
+import alphakids_kmp.sharedui.generated.resources.ic_seedling
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -221,21 +225,21 @@ fun WelcomeScreen(
                     // Coins
                     // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
                     StatRow(
-                        emoji = "🪙",
+                        icon = Res.drawable.ic_coin,
                         label = "Monedas iniciales",
                         value = "50",
                         textColor = Color.White
                     )
                     // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
                     StatRow(
-                        emoji = "⚡",
+                        icon = Res.drawable.ic_zap,
                         label = "Nivel",
                         value = "Nivel 1",
                         textColor = Color.White
                     )
                     // circadian-exempt: rendered on the opaque AlphaGradients.Magic gradient card, not the circadian gradient
                     StatRow(
-                        emoji = "🌱",
+                        icon = Res.drawable.ic_seedling,
                         label = "Rango",
                         value = "Semillita",
                         textColor = Color.White
@@ -423,16 +427,21 @@ fun WelcomeScreen(
 
 @Composable
 private fun StatRow(
-    emoji: String,
+    icon: org.jetbrains.compose.resources.DrawableResource,
     label: String,
     value: String,
-    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    textColor: Color = glassTextSecondary()
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = emoji, style = MaterialTheme.typography.titleLarge)
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = textColor,
+            modifier = Modifier.size(24.dp),
+        )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = label,

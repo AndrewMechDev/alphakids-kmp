@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +41,10 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.bg_dia
+import alphakids_kmp.sharedui.generated.resources.ic_gamepad
+import alphakids_kmp.sharedui.generated.resources.ic_paw
+import alphakids_kmp.sharedui.generated.resources.ic_star
+import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -104,25 +109,25 @@ fun SetupWizardScreen(
 
             // Benefit cards
             BenefitCard(
-                emoji = "🎮",
+                icon = Res.drawable.ic_gamepad,
                 title = "Juegos educativos",
                 description = "Aprende jugando con actividades interactivas de matemáticas, lectura y más",
             )
             Spacer(modifier = Modifier.height(8.dp))
             BenefitCard(
-                emoji = "🐾",
+                icon = Res.drawable.ic_paw,
                 title = "Cuidado de mascotas",
                 description = "Adopta y cuida a tu mascota virtual mientras aprendes responsabilidad",
             )
             Spacer(modifier = Modifier.height(8.dp))
             BenefitCard(
-                emoji = "⭐",
+                icon = Res.drawable.ic_star,
                 title = "Recompensas y logros",
                 description = "Gana monedas y desbloquea logros completando actividades diarias",
             )
             Spacer(modifier = Modifier.height(8.dp))
             BenefitCard(
-                emoji = "📊",
+                icon = Res.drawable.ic_chart_bar,
                 title = "Progreso personalizado",
                 description = "Sigue tu avance con estadísticas y desafíos adaptados a tu nivel",
             )
@@ -176,7 +181,7 @@ fun SetupWizardScreen(
 
 @Composable
 private fun BenefitCard(
-    emoji: String,
+    icon: org.jetbrains.compose.resources.DrawableResource,
     title: String,
     description: String,
 ) {
@@ -184,7 +189,7 @@ private fun BenefitCard(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -192,10 +197,11 @@ private fun BenefitCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = emoji,
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.size(48.dp),
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = glassTextColor(),
+                modifier = Modifier.size(32.dp),
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
