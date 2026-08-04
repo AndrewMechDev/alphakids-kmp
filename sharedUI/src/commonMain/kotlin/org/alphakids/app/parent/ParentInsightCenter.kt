@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import org.alphakids.app.components.AlphaInlineLoading
+import org.alphakids.app.components.resolveAvatarUrl
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -267,7 +268,7 @@ private fun ChildCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            val avatarUrl = "https://api.dicebear.com/10.x/adventurer-neutral/svg?seed=${child.avatarSeed}"
+            val avatarUrl = resolveAvatarUrl(child.avatarSeed)
             Box(
                 modifier = Modifier
                     .size(48.dp)

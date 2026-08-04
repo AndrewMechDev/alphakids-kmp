@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.SessionManager
@@ -203,8 +204,7 @@ private fun ChildSelectorCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // DiceBear avatar
-            val avatarUrl =
-                "https://api.dicebear.com/10.x/adventurer-neutral/svg?seed=${child.avatarSeed}"
+            val avatarUrl = resolveAvatarUrl(child.avatarSeed)
             Box(
                 modifier = Modifier
                     .size(60.dp)

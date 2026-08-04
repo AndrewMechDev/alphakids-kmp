@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
@@ -368,7 +369,7 @@ private fun ChildAdminCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            val avatarUrl = "https://api.dicebear.com/10.x/adventurer-neutral/svg?seed=${child.avatarSeed}"
+            val avatarUrl = resolveAvatarUrl(child.avatarSeed)
             Box(
                 modifier = Modifier
                     .size(56.dp)
