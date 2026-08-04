@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -134,7 +133,7 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Card(
-                shape = RoundedCornerShape(20.dp),
+                shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = glassCardColor(),
                 ),

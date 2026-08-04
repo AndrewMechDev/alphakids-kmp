@@ -436,7 +436,7 @@ private fun AlphabetWheelPicker(
                     .then(
                         if (isCenter) Modifier
                             .padding(horizontal = 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(MaterialTheme.shapes.extraSmall)
                             .background(
                                 if (isNight) Color(0xFFFFD54F).copy(alpha = 0.15f)
                                 else Color(0xFFFFD54F).copy(alpha = 0.22f),
@@ -537,7 +537,7 @@ private fun FilterChipsRow(
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 },
-                shape = RoundedCornerShape(20.dp),
+                shape = MaterialTheme.shapes.large,
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = if (isNight) Color.White.copy(alpha = 0.2f)
                         else MaterialTheme.colorScheme.primaryContainer,
@@ -619,7 +619,7 @@ private fun DictionaryWordCard(
             Box(
                 modifier = Modifier
                     .size(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(MaterialTheme.shapes.small)
                     .background(accent.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -629,7 +629,7 @@ private fun DictionaryWordCard(
                         contentDescription = word.word,
                         modifier = Modifier
                             .size(56.dp)
-                            .clip(RoundedCornerShape(12.dp)),
+                            .clip(MaterialTheme.shapes.small),
                     )
                 } else {
                     Text(

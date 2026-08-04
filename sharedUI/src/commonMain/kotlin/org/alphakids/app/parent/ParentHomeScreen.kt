@@ -290,7 +290,7 @@ private fun ChildrenListTab(
             item(key = "empty") {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.small,
                     colors = CardDefaults.cardColors(
                         containerColor = glassCardColor(),
                     ),
@@ -319,7 +319,7 @@ private fun ChildrenListTab(
                     .clickable {
                         navController.navigate(Screen.SetupWizard.route)
                     },
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.small,
                 colors = CardDefaults.cardColors(
                     containerColor = glassCardColor(),
                 ),
@@ -358,7 +358,7 @@ private fun ChildAdminCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {

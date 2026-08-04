@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -192,7 +191,7 @@ private fun GameCard(
         enabled = enabled,
         interactionSource = interactionSource,
         modifier = Modifier.fillMaxWidth().graphicsLayer(scaleX = scale, scaleY = scale),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -203,7 +202,7 @@ private fun GameCard(
                     brush = AlphaGradients.angled(
                         if (enabled) gradient else gradient.map { it.copy(alpha = 0.4f) }
                     ),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = MaterialTheme.shapes.large,
                 )
                 .padding(24.dp),
         ) {
@@ -214,7 +213,7 @@ private fun GameCard(
                 Box(
                     modifier = Modifier
                         .size(72.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(MaterialTheme.shapes.medium)
                         .background(Color.White.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center,
                 ) {

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import org.alphakids.app.components.AlphaInlineLoading
@@ -118,7 +117,7 @@ fun SubscriptionScreen(
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = CardDefaults.cardColors(
                         containerColor = if (isPremium)
                             StarGold.copy(alpha = 0.15f)
@@ -229,7 +228,7 @@ fun SubscriptionScreen(
             items(mockPayments, key = { it.first }) { (date, desc, amount) ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = MaterialTheme.shapes.extraSmall,
                     colors = CardDefaults.cardColors(
                         containerColor = glassCardColor(),
                     ),
