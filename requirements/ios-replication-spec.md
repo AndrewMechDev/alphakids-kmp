@@ -762,7 +762,7 @@ let heroShadow = Color.black.opacity(0.15)        // 0 12px 32px
 | `/pets/:studentId` | GET | — | `[StudentPetDto]` | Mascotas del estudiante |
 | `/pets/:petId/feed` | POST | `FeedPetRequestDto` | `FeedPetResponseDto` | Alimentar mascota |
 
-**Base URL**: `https://api.alphakids.org.pe`
+**Base URL**: `https://alphakids-back.onrender.com`
 
 ### 6.2 DTOs Clave desde sharedLogic (accesibles desde Swift)
 
