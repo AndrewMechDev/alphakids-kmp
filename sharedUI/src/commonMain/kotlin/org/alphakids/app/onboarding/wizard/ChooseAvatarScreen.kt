@@ -54,6 +54,8 @@ import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Step 3 of 5 — DiceBear avatar selection screen.
@@ -101,7 +103,7 @@ fun ChooseAvatarScreen(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .background(glassCardColor())
                 .then(
                     if (state.selectedAvatarUrl != null) {
                         Modifier.border(3.dp, MaterialTheme.colorScheme.primary, CircleShape)
@@ -120,7 +122,7 @@ fun ChooseAvatarScreen(
                 Text(
                     text = "?",
                     style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
         }
@@ -206,7 +208,7 @@ private fun AvatarGridItem(
             .clickable { onSelect() },
         shape = CircleShape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 1.dp),
     ) {

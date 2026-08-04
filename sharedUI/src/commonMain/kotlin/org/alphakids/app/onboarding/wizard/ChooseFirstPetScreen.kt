@@ -46,6 +46,7 @@ import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
 import alphakids_kmp.sharedui.generated.resources.alphi_estudiando
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Maps a pet ID to its corresponding Compose resource drawable.
@@ -174,7 +175,7 @@ private fun NamePetModal(
                 Text(
                     text = "Elige un nombre especial para tu nuevo amigo",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                     textAlign = TextAlign.Center,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -200,7 +201,7 @@ private fun NamePetModal(
                 Text(
                     text = "Cancelar",
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
         },

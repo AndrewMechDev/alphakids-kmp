@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -36,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
@@ -44,11 +44,16 @@ import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_school
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassAccentColor
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassChipUnselectedLabel
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
+import org.alphakids.app.theme.isNightTime
 
 /**
  * Step 4 of 6 — Optional institution assignment screen.
@@ -95,12 +100,12 @@ fun AssignInstitutionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // School icon — uses emoji for safety across all platforms
-        Text(
-            text = "\uD83C\uDFEB",
-            fontSize = 64.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.size(80.dp),
+        // School icon
+        Icon(
+            painter = painterResource(Res.drawable.ic_school),
+            contentDescription = null,
+            tint = glassTextColor(),
+            modifier = Modifier.size(64.dp),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -313,7 +318,7 @@ private fun InstitutionCard(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                glassAccentColor().copy(alpha = if (isNightTime()) 0.25f else 0.12f)
             } else {
                 glassCardColor()
             },

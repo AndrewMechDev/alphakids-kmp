@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +44,7 @@ import org.alphakids.app.koinInject
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
+import alphakids_kmp.sharedui.generated.resources.ic_sparkles
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -146,7 +148,12 @@ fun SplashScreen(navController: NavController) {
                     modifier = Modifier.padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = "✨", style = MaterialTheme.typography.titleLarge)
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_sparkles),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(24.dp),
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(

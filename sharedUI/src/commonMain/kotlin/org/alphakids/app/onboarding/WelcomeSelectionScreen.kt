@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +34,8 @@ import org.alphakids.app.theme.PrimaryBlue
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
+import alphakids_kmp.sharedui.generated.resources.ic_user
+import alphakids_kmp.sharedui.generated.resources.ic_sparkles
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -113,9 +116,11 @@ fun WelcomeSelectionScreen(navController: NavController) {
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = "👤",
-                        style = MaterialTheme.typography.displayMedium,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_user),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(40.dp),
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -174,9 +179,11 @@ fun WelcomeSelectionScreen(navController: NavController) {
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = "✨",
-                        style = MaterialTheme.typography.displayMedium,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_sparkles),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(40.dp),
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(

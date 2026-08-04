@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import org.alphakids.app.components.AlphaInlineLoading
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +46,10 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.repository.ParentRepository
+import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_wave
+import alphakids_kmp.sharedui.generated.resources.ic_star
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -87,14 +92,26 @@ fun ChildProfileSelectorScreen(navController: NavController) {
         // Header
         Spacer(modifier = Modifier.height(48.dp))
 
-        Text(
-            text = "\uD83D\uDC4B ¿Quién está listo para aprender hoy?",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = glassTextColor(),
-            textAlign = TextAlign.Center,
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-        )
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_wave),
+                contentDescription = null,
+                tint = glassTextColor(),
+                modifier = Modifier.size(24.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "¿Quién está listo para aprender hoy?",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = glassTextColor(),
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -193,7 +210,7 @@ private fun ChildSelectorCard(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(glassCardColor()),
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
@@ -232,9 +249,11 @@ private fun ChildSelectorCard(
 
             // Stars
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "\u2B50",
-                    style = MaterialTheme.typography.titleLarge,
+                Icon(
+                    painter = painterResource(Res.drawable.ic_star),
+                    contentDescription = null,
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(24.dp),
                 )
                 Text(
                     text = "${child.stars}",
