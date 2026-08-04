@@ -42,7 +42,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.koinInject
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
-import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
 import alphakids_kmp.sharedui.generated.resources.ic_sparkles
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
@@ -83,24 +82,15 @@ fun SplashScreen(navController: NavController) {
             .fillMaxSize(),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            Spacer(modifier = Modifier.height(80.dp))
-
             AnimatedVisibility(
                 visible = contentVisible,
                 enter = fadeIn() + scaleIn(initialScale = 0.8f),
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(
-                        painter = painterResource(Res.drawable.logo_alphi_principal),
-                        contentDescription = "AlphaKids Logo",
-                        modifier = Modifier.size(120.dp),
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     Text(
                         text = "AlphaKids",
                         style = MaterialTheme.typography.displaySmall,
@@ -119,7 +109,7 @@ fun SplashScreen(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
             AnimatedVisibility(
                 visible = contentVisible,
@@ -132,16 +122,14 @@ fun SplashScreen(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Card(
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = glassCardColor(),
                 ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
