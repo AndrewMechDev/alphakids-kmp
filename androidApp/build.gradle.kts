@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.sharedUI)
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.koin.android)
 
     implementation(libs.compose.ui)

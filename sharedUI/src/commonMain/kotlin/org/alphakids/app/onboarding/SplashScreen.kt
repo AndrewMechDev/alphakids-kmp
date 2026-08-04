@@ -58,7 +58,7 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) { contentVisible = true }
 
     LaunchedEffect(Unit) {
-        delay(2500L)
+        delay(4000L)
         if (authRepository.isLoggedIn()) {
             val children = parentRepository.getChildren()
             if (children.isNotEmpty()) {
@@ -111,7 +111,7 @@ fun SplashScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Aprendiendo juntos,\ncreciendo siempre",
+                        text = "Aprende a leer, escribir y a mejorar\ntu vocabulario con AlphaKids",
                         style = MaterialTheme.typography.bodyLarge,
                         color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
