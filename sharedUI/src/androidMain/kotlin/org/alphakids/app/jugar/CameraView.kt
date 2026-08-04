@@ -14,8 +14,6 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -31,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import java.util.concurrent.Executors
+import org.alphakids.app.components.AlphaPrimaryButton
 
 /**
  * Android implementation of CameraView using CameraX + ML Kit OCR.
@@ -76,11 +75,10 @@ actual fun CameraView(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            Button(
+            AlphaPrimaryButton(
+                text = "Permitir cámara",
                 onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
-            ) {
-                Text("Permitir cámara")
-            }
+            )
         }
     } else {
         // CameraX preview

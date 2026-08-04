@@ -197,6 +197,7 @@ fun WordScannerChallenge(
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
+                    // circadian-exempt: white on the solid brand-primary capture FAB, not the circadian BG.
                     contentColor = Color.White,
                 ),
             ) {
@@ -256,6 +257,7 @@ fun WordScannerChallenge(
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SuccessGreen,
+                            // circadian-exempt: white on the solid success-green card, not the circadian BG.
                             contentColor = Color.White,
                         ),
                     ) {
@@ -293,6 +295,7 @@ fun WordScannerChallenge(
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = ErrorRed,
+                            // circadian-exempt: white on the solid error-red card, not the circadian BG.
                             contentColor = Color.White,
                         ),
                     ) {
