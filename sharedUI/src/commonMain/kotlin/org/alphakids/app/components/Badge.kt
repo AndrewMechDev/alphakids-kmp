@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,8 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_check
+import alphakids_kmp.sharedui.generated.resources.ic_star
+import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.theme.RadiusFull
 import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Pill-shaped rank badge with a star icon.
@@ -43,7 +46,7 @@ fun RankBadge(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Icon(
-            imageVector = Icons.Rounded.Star,
+            painter = painterResource(Res.drawable.ic_star),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.size(16.dp),
@@ -84,7 +87,7 @@ fun StreakBadge(
                             } else {
                                 Modifier.border(
                                     width = 1.dp,
-                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    color = glassInputBorder(),
                                     shape = CircleShape,
                                 )
                             },
@@ -93,8 +96,9 @@ fun StreakBadge(
                 ) {
                     if (isCompleted) {
                         Icon(
-                            imageVector = Icons.Rounded.Check,
+                            painter = painterResource(Res.drawable.ic_check),
                             contentDescription = null,
+                            // circadian-exempt: white check on a solid SuccessGreen circle.
                             tint = Color.White,
                             modifier = Modifier.size(10.dp),
                         )
@@ -108,7 +112,7 @@ fun StreakBadge(
         Text(
             text = "$currentStreak días",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = glassTextSecondary(),
         )
     }
 }

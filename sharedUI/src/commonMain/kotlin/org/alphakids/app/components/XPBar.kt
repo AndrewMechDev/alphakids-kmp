@@ -14,9 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.RadiusFull
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Circular level badge with the current level number.
@@ -49,7 +51,7 @@ fun LevelBadge(
         Text(
             text = "Nivel $level",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = glassTextSecondary(),
         )
     }
 }
@@ -71,7 +73,7 @@ fun XPProgressBar(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RadiusFull)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(Color.White.copy(alpha = 0.2f)),
         ) {
             Box(
                 modifier = Modifier
@@ -87,7 +89,7 @@ fun XPProgressBar(
         Text(
             text = "$currentXP / $maxXP XP",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = glassTextSecondary(),
         )
     }
 }

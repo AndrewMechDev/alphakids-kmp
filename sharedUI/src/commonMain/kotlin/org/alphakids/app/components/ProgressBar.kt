@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.RadiusFull
 import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.glassTextSecondary
 
 enum class ProgressBarStyle { XP, SUCCESS, GOAL }
 
@@ -40,7 +41,7 @@ fun AlphaProgressBar(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RadiusFull)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(Color.White.copy(alpha = 0.2f)),
         ) {
             Box(
                 modifier = Modifier
@@ -57,7 +58,7 @@ fun AlphaProgressBar(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = glassTextSecondary(),
             )
         }
     }

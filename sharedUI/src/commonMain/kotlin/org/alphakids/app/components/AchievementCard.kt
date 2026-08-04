@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -18,7 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_lock
+import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.theme.AlphaShadows
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Achievement card with icon, title, description, and optional progress bar.
@@ -36,7 +40,7 @@ fun AchievementCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = AlphaShadows.Soft),
     ) {
@@ -57,7 +61,7 @@ fun AchievementCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -65,7 +69,7 @@ fun AchievementCard(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
 
                 if (progress != null) {
@@ -80,9 +84,9 @@ fun AchievementCard(
 
             if (!isUnlocked) {
                 Icon(
-                    imageVector = Icons.Rounded.Lock,
+                    painter = painterResource(Res.drawable.ic_lock),
                     contentDescription = "Bloqueado",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = glassTextSecondary(),
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .size(18.dp),

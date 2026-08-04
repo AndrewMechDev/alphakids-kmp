@@ -30,6 +30,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
 
 /**
  * 6-digit OTP input with individual digit boxes, auto-advance, and backspace handling.
@@ -62,7 +64,7 @@ fun OTPInputField(
                 targetValue = when {
                     isFocused -> MaterialTheme.colorScheme.primary
                     isFilled -> MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                    else -> MaterialTheme.colorScheme.outline
+                    else -> glassInputBorder()
                 },
                 animationSpec = tween(durationMillis = 200),
                 label = "otpBorder",
@@ -102,7 +104,7 @@ fun OTPInputField(
                 textStyle = LocalTextStyle.current.copy(
                     textAlign = TextAlign.Center,
                     fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                 ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -119,8 +121,8 @@ fun OTPInputField(
                     focusedBorderColor = borderColor,
                     unfocusedBorderColor = borderColor,
                     cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
                 ),
             )
         }

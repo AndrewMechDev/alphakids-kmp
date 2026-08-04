@@ -13,10 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Notifications
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +31,12 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import alphakids_kmp.sharedui.generated.resources.ic_kid
+import alphakids_kmp.sharedui.generated.resources.ic_user
+import alphakids_kmp.sharedui.generated.resources.ic_notification
+import alphakids_kmp.sharedui.generated.resources.ic_settings
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 
@@ -117,7 +119,7 @@ fun AlphaHeader(
                 progress = { currentStep.toFloat() / totalSteps.toFloat() },
                 modifier = Modifier.fillMaxWidth().height(6.dp),
                 color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                trackColor = Color.White.copy(alpha = 0.2f),
                 strokeCap = StrokeCap.Round,
             )
         }
@@ -141,7 +143,7 @@ fun AlphaHomeHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(glassCardColor())
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -149,7 +151,7 @@ fun AlphaHomeHeader(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(glassCardColor()),
             contentAlignment = Alignment.Center,
         ) {
             if (avatarUrl != null) {
@@ -160,9 +162,9 @@ fun AlphaHomeHeader(
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Rounded.AccountCircle,
+                    painter = painterResource(Res.drawable.ic_kid),
                     contentDescription = "Avatar de $childName",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = glassTextSecondary(),
                     modifier = Modifier.size(40.dp),
                 )
             }
@@ -174,27 +176,34 @@ fun AlphaHomeHeader(
             Text(
                 text = "¡Hola, $childName!",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = glassTextColor(),
             )
             if (rankTitle != null) {
                 Text(
                     text = rankTitle,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
             }
         }
 
         Spacer(modifier = Modifier.width(8.dp))
 
+        Icon(
+            painter = painterResource(Res.drawable.ic_coin),
+            contentDescription = null,
+            tint = org.alphakids.app.theme.CoinGold,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = "🪙 $coins",
+            text = coins.toString(),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = glassTextColor(),
         )
 
         AlphaIconButton(
-            icon = Icons.Rounded.Notifications,
+            icon = Res.drawable.ic_notification,
             onClick = onNotificationClick,
             contentDescription = "Notificaciones",
             modifier = Modifier.padding(start = 8.dp),
@@ -215,7 +224,7 @@ fun AlphaSelectorHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(glassCardColor())
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -223,13 +232,13 @@ fun AlphaSelectorHeader(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(glassCardColor()),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = Icons.Rounded.AccountCircle,
+                painter = painterResource(Res.drawable.ic_user),
                 contentDescription = "Perfil de tutor",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = glassTextSecondary(),
                 modifier = Modifier.size(40.dp),
             )
         }
@@ -239,12 +248,12 @@ fun AlphaSelectorHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = glassTextColor(),
             modifier = Modifier.weight(1f),
         )
 
         AlphaIconButton(
-            icon = Icons.Rounded.Settings,
+            icon = Res.drawable.ic_settings,
             onClick = onSettingsClick,
             contentDescription = "Configuración",
         )

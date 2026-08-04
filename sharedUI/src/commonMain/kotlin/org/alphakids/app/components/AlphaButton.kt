@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -32,6 +31,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import org.alphakids.app.theme.AlphaMotion
 import org.alphakids.app.theme.RadiusFull
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -203,7 +203,7 @@ fun AlphaTextButton(
  */
 @Composable
 fun AlphaIconButton(
-    icon: ImageVector,
+    icon: org.jetbrains.compose.resources.DrawableResource,
     onClick: () -> Unit,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -212,12 +212,12 @@ fun AlphaIconButton(
         onClick = onClick,
         modifier = modifier.size(40.dp),
         colors = IconButtonDefaults.iconButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-            contentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = glassCardColor(),
+            contentColor = glassTextColor(),
         ),
     ) {
         Icon(
-            imageVector = icon,
+            painter = org.jetbrains.compose.resources.painterResource(icon),
             contentDescription = contentDescription,
             modifier = Modifier.size(24.dp),
         )
