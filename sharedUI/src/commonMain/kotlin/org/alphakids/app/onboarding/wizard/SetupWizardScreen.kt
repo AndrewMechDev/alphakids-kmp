@@ -43,7 +43,6 @@ import alphakids_kmp.sharedui.generated.resources.bg_dia
 import alphakids_kmp.sharedui.generated.resources.ic_gamepad
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_star
-import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -110,25 +109,25 @@ fun SetupWizardScreen(
             BenefitCard(
                 icon = Res.drawable.ic_gamepad,
                 title = "Juegos educativos",
-                description = "Aprende jugando con actividades interactivas de matemáticas, lectura y más",
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            BenefitCard(
-                icon = Res.drawable.ic_paw,
-                title = "Cuidado de mascotas",
-                description = "Adopta y cuida a tu mascota virtual mientras aprendes responsabilidad",
+                description = "Aprende a formar palabras con actividades interactivas",
             )
             Spacer(modifier = Modifier.height(8.dp))
             BenefitCard(
                 icon = Res.drawable.ic_star,
                 title = "Recompensas y logros",
-                description = "Gana monedas y desbloquea logros completando actividades diarias",
+                description = "Mientras tu hijo va utilizando AlphaKids, gana monedas",
             )
             Spacer(modifier = Modifier.height(8.dp))
             BenefitCard(
-                icon = Res.drawable.ic_chart_bar,
-                title = "Progreso personalizado",
-                description = "Sigue tu avance con estadísticas y desafíos adaptados a tu nivel",
+                icon = Res.drawable.ic_paw,
+                title = "Cuidado de mascotas",
+                description = "Selecciona una mascota que acompañará a tu hijo en el proceso",
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            BenefitCard(
+                icon = Res.drawable.ic_paw,
+                title = "Cuidado de mascotas",
+                description = "Tu hijo obtendrá recompensas mientras la usa para cuidar a su mascota",
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -146,14 +145,14 @@ fun SetupWizardScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "¿Qué aprenderá tu hijo?",
+                        text = "¿Qué encontrará tu hijo?",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = glassTextColor(),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Lectoescritura • Matemáticas • Ciencias • Inglés • Creatividad • Valores",
+                        text = "Escaneo de letras con la cámara • Diccionario de palabras aprendidas",
                         style = MaterialTheme.typography.bodyMedium,
                         color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
