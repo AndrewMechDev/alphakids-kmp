@@ -53,13 +53,13 @@ arrow_left, book_open, calendar, camera, chart_bar, check, check_circle,
 coin, credit_card, crown, file_text, gamepad, gift, graduation, help, home,
 kid, lock, logout, microphone, paw, rocket, school, settings, shopping_cart,
 sparkles, star, trophy, user, celebration_spark, clock, retry, target, zap,
-close, search, speaker, mail, notification, bone, football, handshake
+close, search, speaker, mail, notification, bone, football, handshake,
+seedling, wave
 
 ### Source SVGs (in `iconos/`, not yet converted):
 accessories, add, apple, bar-chart-level, bear, bonfire-flame, brain, cake,
 cat, check-circle, coins, dashboard-1, dashboard-2, dragon, fish, fox, hat,
-leaf, owl, paper-and-feather, pets, scarf, seedling, tree-decidious,
-wave-left
+leaf, owl, paper-and-feather, pets, scarf, tree-decidious
 
 ### Naming note
 Converted filenames don't always match the source SVG's literal filename —
