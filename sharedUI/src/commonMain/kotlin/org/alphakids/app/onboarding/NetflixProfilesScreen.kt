@@ -50,6 +50,7 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_user
+import alphakids_kmp.sharedui.generated.resources.ic_user_add
 import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
@@ -158,6 +159,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                         ProfileItem(
                             initial = "+",
                             name = "Agregar",
+                            icon = Res.drawable.ic_user_add,
                             // circadian-exempt: translucent avatar-circle container background, not text/icon color
                             color = Color.White.copy(alpha = 0.3f),
                             isAddCard = true,

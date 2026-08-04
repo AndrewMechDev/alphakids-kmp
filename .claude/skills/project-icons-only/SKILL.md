@@ -54,7 +54,7 @@ coin, credit_card, crown, file_text, gamepad, gift, graduation, help, home,
 kid, lock, logout, microphone, paw, rocket, school, settings, shopping_cart,
 sparkles, star, trophy, user, celebration_spark, clock, retry, target, zap,
 close, search, speaker, mail, notification, bone, football, handshake,
-seedling, wave
+seedling, wave, user_add
 
 ### Source SVGs (in `iconos/`, not yet converted):
 accessories, add, apple, bar-chart-level, bear, bonfire-flame, brain, cake,
