@@ -334,13 +334,13 @@ private fun CelebrationSection() {
 private fun WordDisplay(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Box(modifier = Modifier.background(
             brush = AlphaGradients.angled(AlphaGradients.Reward),
-            shape = RoundedCornerShape(20.dp),
+            shape = MaterialTheme.shapes.large,
         )) {
             Row(
                 modifier = Modifier
@@ -356,13 +356,13 @@ private fun WordDisplay(word: ChallengeWord) {
                         contentDescription = word.word,
                         modifier = Modifier
                             .size(64.dp)
-                            .clip(RoundedCornerShape(16.dp)),
+                            .clip(MaterialTheme.shapes.medium),
                     )
                 } else {
                     Box(
                         modifier = Modifier
                             .size(64.dp)
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(MaterialTheme.shapes.medium)
                             .background(Color.White.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -398,7 +398,7 @@ private fun RewardsCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = glassCardColor(),
         ),

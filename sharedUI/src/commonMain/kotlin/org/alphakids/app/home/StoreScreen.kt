@@ -298,7 +298,7 @@ private fun InventoryOverlay(
                     ) { item ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = MaterialTheme.shapes.medium,
                             colors = CardDefaults.cardColors(
                                 containerColor = glassCardColor(),
                             ),
@@ -313,7 +313,7 @@ private fun InventoryOverlay(
                                 Box(
                                     modifier = Modifier
                                         .size(56.dp)
-                                        .clip(RoundedCornerShape(12.dp))
+                                        .clip(MaterialTheme.shapes.small)
                                         .background(Color.White.copy(alpha = 0.1f)),
                                     contentAlignment = Alignment.Center,
                                 ) {
@@ -399,7 +399,7 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
             modifier = Modifier
                 .background(
                     color = glassCardColor(),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = MaterialTheme.shapes.extraSmall,
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
         ) {
@@ -439,7 +439,7 @@ private fun CategoryTabs(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(MaterialTheme.shapes.small)
                     .background(
                         color = if (isSelected) {
                             if (isNight) Color.White.copy(alpha = 0.2f)
@@ -479,7 +479,7 @@ private fun ProductCard(
 
     Card(
         modifier = Modifier.fillMaxWidth().height(200.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = if (isLocked) glassCardColor().copy(alpha = 0.4f)
             else glassCardColor(),
@@ -498,7 +498,7 @@ private fun ProductCard(
             Box(
                 modifier = Modifier
                     .size(64.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(MaterialTheme.shapes.small)
                     .background(
                         if (isLocked) Color.White.copy(alpha = 0.05f)
                         else Color.White.copy(alpha = 0.1f),

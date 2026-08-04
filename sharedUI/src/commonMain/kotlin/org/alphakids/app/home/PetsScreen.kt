@@ -292,7 +292,7 @@ private fun SubTabBar(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(MaterialTheme.shapes.small)
                     .background(color = bgColor)
                     .clickable { onTabSelected(index) }
                     .padding(vertical = 12.dp),
@@ -466,7 +466,7 @@ private fun ActivePetCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
     ) {
@@ -574,7 +574,7 @@ private fun PetProfileCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
@@ -730,7 +730,7 @@ private fun SmallPetCard(
         modifier = Modifier
             .width(140.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -783,7 +783,7 @@ private fun LockedPetCard(
 ) {
     Card(
         modifier = Modifier.width(150.dp),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = glassCardColor().copy(alpha = 0.5f),
         ),
@@ -856,7 +856,7 @@ private fun LockedPetCard(
 private fun LevelBadge(level: Int) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.extraSmall)
             .background(glassCardColor()),
         contentAlignment = Alignment.Center,
     ) {

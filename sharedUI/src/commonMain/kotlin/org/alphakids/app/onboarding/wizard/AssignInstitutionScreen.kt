@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -172,7 +171,7 @@ fun AssignInstitutionScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedButton(
                         onClick = { assignViewModel.loadInstitutions() },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.small,
                     ) {
                         Text("Reintentar")
                     }
@@ -230,7 +229,7 @@ fun AssignInstitutionScreen(
                     }
                 },
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.small,
             ) {
                 Text("Omitir")
             }
@@ -275,7 +274,7 @@ private fun ChipOption(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(MaterialTheme.shapes.small)
             .background(containerColor)
             .clickable(onClick = onClick)
             .padding(vertical = 14.dp),
@@ -312,10 +311,10 @@ private fun InstitutionCard(
             .border(
                 width = if (isSelected) 2.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.small,
             )
             .clickable(onClick = onSelect),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
                 glassAccentColor().copy(alpha = if (isNightTime()) 0.25f else 0.12f)
@@ -355,7 +354,7 @@ private fun InstitutionCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(MaterialTheme.shapes.extraSmall)
                             .background(gradeBg)
                             .clickable { onSelectGrade(grade) }
                             .padding(horizontal = 12.dp, vertical = 10.dp),

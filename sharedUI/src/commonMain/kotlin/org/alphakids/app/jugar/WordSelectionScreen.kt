@@ -248,7 +248,7 @@ private fun WordCard(
         onClick = onClick,
         interactionSource = interactionSource,
         modifier = Modifier.fillMaxWidth().graphicsLayer(scaleX = scale, scaleY = scale),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
@@ -257,7 +257,7 @@ private fun WordCard(
                 .fillMaxWidth()
                 .background(
                     brush = AlphaGradients.angled(gradient),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = MaterialTheme.shapes.large,
                 )
                 .padding(16.dp),
             contentAlignment = Alignment.Center,
@@ -273,13 +273,13 @@ private fun WordCard(
                         contentDescription = word.text,
                         modifier = Modifier
                             .size(72.dp)
-                            .clip(RoundedCornerShape(16.dp)),
+                            .clip(MaterialTheme.shapes.medium),
                     )
                 } else {
                     Box(
                         modifier = Modifier
                             .size(72.dp)
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(MaterialTheme.shapes.medium)
                             .background(Color.White.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center,
                     ) {

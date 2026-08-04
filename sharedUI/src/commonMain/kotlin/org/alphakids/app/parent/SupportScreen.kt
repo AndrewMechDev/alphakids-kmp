@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -149,7 +148,7 @@ fun SupportScreen(
             item(key = "success") {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.small,
                     colors = CardDefaults.cardColors(
                         containerColor = SuccessGreen.copy(alpha = 0.15f),
                     ),
@@ -183,7 +182,7 @@ fun SupportScreen(
                 label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                shape = RoundedCornerShape(8.dp),
+                shape = MaterialTheme.shapes.extraSmall,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = glassTextColor(),
                     unfocusedTextColor = glassTextColor(),
@@ -204,7 +203,7 @@ fun SupportScreen(
                 label = { Text("Correo electrónico") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                shape = RoundedCornerShape(8.dp),
+                shape = MaterialTheme.shapes.extraSmall,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = glassTextColor(),
                     unfocusedTextColor = glassTextColor(),
@@ -226,7 +225,7 @@ fun SupportScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = MaterialTheme.shapes.extraSmall,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = glassTextColor(),
                     unfocusedTextColor = glassTextColor(),
@@ -281,7 +280,7 @@ private fun FAQItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggle),
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.extraSmall,
         colors = CardDefaults.cardColors(containerColor = glassCardColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isExpanded) 2.dp else 0.dp),
     ) {

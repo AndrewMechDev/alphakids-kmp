@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -186,7 +185,7 @@ fun DashboardContent(
             interactionSource = playInteraction,
             modifier = Modifier.fillMaxWidth().height(cardHeight)
                 .graphicsLayer(scaleX = playScale, scaleY = playScale),
-            shape = RoundedCornerShape(20.dp),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
@@ -195,7 +194,7 @@ fun DashboardContent(
                     .fillMaxSize()
                     .background(
                         brush = AlphaGradients.angled(AlphaGradients.Nature),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = MaterialTheme.shapes.large,
                     ),
             ) {
                 Row(
@@ -240,7 +239,7 @@ fun DashboardContent(
             interactionSource = dictInteraction,
             modifier = Modifier.fillMaxWidth().height(cardHeight)
                 .graphicsLayer(scaleX = dictScale, scaleY = dictScale),
-            shape = RoundedCornerShape(20.dp),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
@@ -249,7 +248,7 @@ fun DashboardContent(
                     .fillMaxSize()
                     .background(
                         brush = AlphaGradients.angled(AlphaGradients.Adventure),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = MaterialTheme.shapes.large,
                     ),
             ) {
                 Row(

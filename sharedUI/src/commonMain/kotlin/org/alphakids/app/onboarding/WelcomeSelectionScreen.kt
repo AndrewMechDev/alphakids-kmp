@@ -106,7 +106,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(containerColor = glassCardColor()),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
@@ -167,7 +167,7 @@ fun WelcomeSelectionScreen(navController: NavController) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = glassCardColor(),
                 ),

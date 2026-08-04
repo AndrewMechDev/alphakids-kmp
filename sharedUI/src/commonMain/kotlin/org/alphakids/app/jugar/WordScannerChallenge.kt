@@ -254,7 +254,7 @@ fun WordScannerChallenge(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = MaterialTheme.shapes.medium,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SuccessGreen,
                             // circadian-exempt: white on the solid success-green card, not the circadian BG.
@@ -292,7 +292,7 @@ fun WordScannerChallenge(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = MaterialTheme.shapes.medium,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = ErrorRed,
                             // circadian-exempt: white on the solid error-red card, not the circadian BG.
@@ -317,7 +317,7 @@ fun WordScannerChallenge(
 private fun WordHintSection(word: ChallengeWord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = glassCardColor(),
         ),
