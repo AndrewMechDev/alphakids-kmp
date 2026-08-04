@@ -121,10 +121,11 @@ private data class FilterChipOption(val label: String, val index: Int)
 
 private val filterChips = listOf(
     FilterChipOption("Todas", 0),
-    FilterChipOption("Aprendidas", 1),
-    FilterChipOption("Pendientes", 2),
-    FilterChipOption("Fáciles", 3),
-    FilterChipOption("Difíciles", 4),
+    FilterChipOption("Asignadas", 1),
+    FilterChipOption("Aprendidas", 2),
+    FilterChipOption("Pendientes", 3),
+    FilterChipOption("Fáciles", 4),
+    FilterChipOption("Difíciles", 5),
 )
 
 // ── Alphabet Wheel Constants ──
@@ -152,13 +153,16 @@ fun DictionaryScreen(
         try {
             if (childId != null) {
                 val playableResult = gameRepo.getPlayableWords(childId)
+                // "ASSIGNED" means these came from a teacher's pending WordAssignment;
+                // "CATALOG" is the generic fallback shown when nothing is assigned.
+                val playableCategory = if (playableResult?.flow == "ASSIGNED") "Asignada" else "Catálogo"
                 val playableWords = playableResult?.words?.map { dto ->
                     DictionaryWord(
                         word = dto.text,
                         imageName = "",
                         imageUrl = dto.imageUrl ?: "",
                         audioUrl = dto.audioUrl ?: "",
-                        category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
+                        category = playableCategory,
                         difficulty = dto.difficultyLabel.ifBlank { "media" },
                         stars = 0,
                         learned = false,
@@ -173,7 +177,10 @@ fun DictionaryScreen(
                             imageName = "",
                             imageUrl = dto.imageUrl ?: "",
                             audioUrl = dto.audioUrl ?: "",
-                            category = if (dto.difficultyLabel.isNotBlank()) "Asignada" else "Catálogo",
+                            // The dictionary endpoint doesn't say whether a learned word
+                            // originally came from a teacher assignment, so it can't be
+                            // reliably tagged "Asignada" here — defaults to "Catálogo".
+                            category = "Catálogo",
                             difficulty = dto.difficultyLabel.ifBlank { "media" },
                             stars = 0,
                             learned = true,
@@ -201,10 +208,11 @@ fun DictionaryScreen(
             fetchedWords.filter { word ->
                 val matchesSearch = q.isEmpty() || word.word.lowercase().contains(q)
                 val matchesFilter = when (selectedFilterIndex) {
-                    1 -> word.learned
-                    2 -> !word.learned
-                    3 -> word.difficulty == "fácil"
-                    4 -> word.difficulty == "difícil"
+                    1 -> word.category == "Asignada"
+                    2 -> word.learned
+                    3 -> !word.learned
+                    4 -> word.difficulty == "fácil"
+                    5 -> word.difficulty == "difícil"
                     else -> true
                 }
                 matchesSearch && matchesFilter
