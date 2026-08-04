@@ -49,17 +49,17 @@ ls iconos/*.svg                                                  # not yet conve
 ```
 
 ### Converted (ready to use via `Res.drawable.ic_*`):
-arrow_left, book_open, camera, chart_bar, check_circle, coin, credit_card,
-gamepad, graduation, home, kid, lock, logout, microphone, paw, school,
-settings, shopping_cart, sparkles, star, trophy, celebration_spark, clock,
-retry, target, zap, close, search, speaker, mail, notification, bone,
-football, handshake
+arrow_left, book_open, camera, chart_bar, check, check_circle, coin,
+credit_card, gamepad, graduation, home, kid, lock, logout, microphone, paw,
+school, settings, shopping_cart, sparkles, star, trophy, user,
+celebration_spark, clock, retry, target, zap, close, search, speaker, mail,
+notification, bone, football, handshake
 
 ### Source SVGs (in `iconos/`, not yet converted):
 accessories, add, apple, bar-chart-level, bear, bonfire-flame, brain, cake,
-calendar, cat, check, check-circle, coins, crown, dashboard-1, dashboard-2,
-dragon, file-text, fish, fox, gift, hat, help, leaf, owl, paper-and-feather,
-pets, rocket, scarf, seedling, tree-decidious, user, wave-left
+calendar, cat, check-circle, coins, crown, dashboard-1, dashboard-2, dragon,
+file-text, fish, fox, gift, hat, help, leaf, owl, paper-and-feather, pets,
+rocket, scarf, seedling, tree-decidious, wave-left
 
 ### Naming note
 Converted filenames don't always match the source SVG's literal filename —
