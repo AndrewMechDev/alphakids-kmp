@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -27,8 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_check
 import org.alphakids.app.theme.AlphaShadows
 import org.alphakids.app.theme.RadiusFull
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -50,14 +54,14 @@ fun PetCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         border = BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
             color = if (isSelected) {
                 MaterialTheme.colorScheme.primary
             } else {
-                MaterialTheme.colorScheme.outlineVariant
+                glassInputBorder()
             },
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = AlphaShadows.Soft),
@@ -79,7 +83,7 @@ fun PetCard(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -87,7 +91,7 @@ fun PetCard(
                 Text(
                     text = trait,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = glassTextSecondary(),
                 )
 
                 if (tags.isNotEmpty()) {
@@ -113,8 +117,10 @@ fun PetCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Check,
+                        painter = painterResource(Res.drawable.ic_check),
                         contentDescription = null,
+                        // circadian-exempt: white check on a solid MaterialTheme.colorScheme.primary
+                        // badge circle, not the circadian gradient itself.
                         tint = Color.White,
                         modifier = Modifier.size(14.dp),
                     )

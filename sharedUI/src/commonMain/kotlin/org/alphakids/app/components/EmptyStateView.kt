@@ -18,6 +18,8 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Empty state placeholder with Alphi mascot, title, optional subtitle, and an
@@ -61,7 +63,7 @@ fun EmptyStateView(
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = glassTextColor(),
             textAlign = TextAlign.Center,
         )
 
@@ -70,7 +72,7 @@ fun EmptyStateView(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                color = glassTextSecondary(),
                 textAlign = TextAlign.Center,
             )
         }

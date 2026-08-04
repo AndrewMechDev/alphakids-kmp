@@ -28,6 +28,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.SuccessGreen
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
+import androidx.compose.ui.graphics.Color
 
 /**
  * Password strength levels shown by [AlphaTextField] via a strength bar
@@ -93,19 +97,19 @@ fun AlphaTextField(
             enabled = enabled,
             shape = MaterialTheme.shapes.small,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                focusedTextColor = glassTextColor(),
+                unfocusedTextColor = glassTextColor(),
+                disabledTextColor = glassTextColor().copy(alpha = 0.38f),
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                unfocusedBorderColor = glassInputBorder(),
                 errorBorderColor = MaterialTheme.colorScheme.error,
-                cursorColor = MaterialTheme.colorScheme.primary,
+                cursorColor = glassTextColor(),
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                unfocusedLabelColor = glassTextSecondary(),
+                focusedPlaceholderColor = glassTextSecondary(),
+                unfocusedPlaceholderColor = glassTextSecondary(),
             ),
             modifier = Modifier.fillMaxWidth(),
         )
@@ -139,7 +143,7 @@ private fun PasswordStrengthBar(strength: PasswordStrength) {
                 .fillMaxWidth()
                 .height(4.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = Color.White.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(2.dp),
                 ),
         ) {

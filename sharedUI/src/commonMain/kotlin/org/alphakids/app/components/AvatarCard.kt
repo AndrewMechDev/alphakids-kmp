@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,7 +22,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_check
 import org.alphakids.app.theme.AlphaShadows
+import org.alphakids.app.theme.glassCardColor
+import org.alphakids.app.theme.glassInputBorder
+import org.alphakids.app.theme.glassTextColor
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -44,14 +47,14 @@ fun AvatarCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = glassCardColor(),
         ),
         border = BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
             color = if (isSelected) {
                 MaterialTheme.colorScheme.primary
             } else {
-                MaterialTheme.colorScheme.outlineVariant
+                glassInputBorder()
             },
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = AlphaShadows.Soft),
@@ -73,7 +76,7 @@ fun AvatarCard(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = glassTextColor(),
                     textAlign = TextAlign.Center,
                 )
             }
@@ -88,8 +91,9 @@ fun AvatarCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Check,
+                        painter = painterResource(Res.drawable.ic_check),
                         contentDescription = null,
+                        // circadian-exempt: white check on a solid primary badge circle.
                         tint = Color.White,
                         modifier = Modifier.size(14.dp),
                     )

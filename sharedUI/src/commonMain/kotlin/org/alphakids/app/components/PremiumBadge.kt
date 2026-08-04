@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_star
+import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.RadiusFull
 
@@ -35,8 +36,9 @@ fun PremiumBadge(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Icon(
-            imageVector = Icons.Rounded.Star,
+            painter = painterResource(Res.drawable.ic_star),
             contentDescription = null,
+            // circadian-exempt: white on the solid Premium gradient pill, not the circadian BG.
             tint = Color.White,
             modifier = Modifier.size(16.dp),
         )
