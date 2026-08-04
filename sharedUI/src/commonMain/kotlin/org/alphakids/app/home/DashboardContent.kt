@@ -202,6 +202,7 @@ fun DashboardContent(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    // circadian-exempt: white on the solid Nature gradient card, not the circadian BG.
                     Icon(
                         painter = painterResource(Res.drawable.ic_gamepad),
                         contentDescription = null,
@@ -255,6 +256,7 @@ fun DashboardContent(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    // circadian-exempt: white on the solid Adventure gradient card, not the circadian BG.
                     Icon(
                         painter = painterResource(Res.drawable.ic_book_open),
                         contentDescription = "Diccionario",

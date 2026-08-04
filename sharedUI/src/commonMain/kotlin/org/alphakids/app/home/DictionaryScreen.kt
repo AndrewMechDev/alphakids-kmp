@@ -89,6 +89,10 @@ import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
+import alphakids_kmp.sharedui.generated.resources.ic_search
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
+import alphakids_kmp.sharedui.generated.resources.ic_speaker
+import alphakids_kmp.sharedui.generated.resources.ic_star
 
 // ── Category colour palette ──
 
@@ -340,6 +344,8 @@ private fun AlphabetWheelPicker(
 ) {
     val alphabet = remember { ('A'..'Z').toList() }
     val isNight = isNightTime()
+    // circadian-exempt: solid gold accent for the centered/active letter, saturated
+    // enough to stay legible against both the light and dark circadian gradient.
     val activeColor = Color(0xFFFFD54F)
     val availableColor = if (isNight) Color.White else Color(0xFF1A202C)
     val unavailableColor = if (isNight) Color.White.copy(alpha = 0.35f) else Color(0xFF718096)
@@ -483,9 +489,11 @@ private fun SearchBar(
             )
         },
         leadingIcon = {
-            Text(
-                text = "🔍",
-                style = MaterialTheme.typography.titleMedium,
+            Icon(
+                painter = painterResource(Res.drawable.ic_search),
+                contentDescription = null,
+                tint = glassTextSecondary(),
+                modifier = Modifier.size(20.dp),
             )
         },
         singleLine = true,
@@ -538,7 +546,7 @@ private fun FilterChipsRow(
                     labelColor = glassChipUnselectedLabel(),
                 ),
                 border = FilterChipDefaults.filterChipBorder(
-                    borderColor = Color.White.copy(alpha = 0.3f),
+                    borderColor = if (isNight) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.4f),
                     selectedBorderColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
                     enabled = true,
                     selected = isSelected,
@@ -652,7 +660,12 @@ private fun DictionaryWordCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     if (word.learned) {
-                        Text(text = "✅", style = MaterialTheme.typography.labelSmall)
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_check_circle),
+                            contentDescription = null,
+                            tint = SuccessGreen,
+                            modifier = Modifier.size(14.dp),
+                        )
                     }
                     Surface(
                         shape = RoundedCornerShape(6.dp),
@@ -680,12 +693,21 @@ private fun DictionaryWordCard(
                     }
                     if (word.learned && word.dateLearned != null) {
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "✅ Aprendida el ${word.dateLearned}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = SuccessGreen,
-                            fontWeight = FontWeight.Medium,
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_check_circle),
+                                contentDescription = null,
+                                tint = SuccessGreen,
+                                modifier = Modifier.size(12.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Aprendida el ${word.dateLearned}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = SuccessGreen,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
                     }
                 }
             }
@@ -700,9 +722,11 @@ private fun DictionaryWordCard(
                         .clickable { audioService.playUrl(word.audioUrl) },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = "🔊",
-                        style = MaterialTheme.typography.titleMedium,
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_speaker),
+                        contentDescription = "Escuchar",
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
@@ -750,9 +774,11 @@ private fun DifficultyLabel(difficulty: String) {
 private fun StarRating(stars: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         for (i in 0 until 3) {
-            Text(
-                text = if (i < stars) "⭐" else "☆",
-                style = MaterialTheme.typography.labelSmall,
+            Icon(
+                painter = painterResource(Res.drawable.ic_star),
+                contentDescription = null,
+                tint = if (i < stars) CoinGold else glassTextSecondary().copy(alpha = 0.4f),
+                modifier = Modifier.size(12.dp),
             )
         }
     }
@@ -767,9 +793,11 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "🔍",
-            style = MaterialTheme.typography.displayMedium,
+        Icon(
+            painter = painterResource(Res.drawable.ic_search),
+            contentDescription = null,
+            tint = glassTextSecondary(),
+            modifier = Modifier.size(40.dp),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
