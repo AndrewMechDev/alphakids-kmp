@@ -105,9 +105,9 @@ fun ChooseFirstPetScreen(
             val isSelected = pet.id == state.selectedPetId
             org.alphakids.app.components.PetCard(
                 imageRes = petImageResource(pet.id),
-                name = pet.name,
-                trait = pet.personality,
-                tags = listOf(pet.description),
+                name = pet.personality,
+                trait = pet.description,
+                tags = emptyList(),
                 isSelected = isSelected,
                 onClick = { choosePetViewModel.onPetSelected(pet.id) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
