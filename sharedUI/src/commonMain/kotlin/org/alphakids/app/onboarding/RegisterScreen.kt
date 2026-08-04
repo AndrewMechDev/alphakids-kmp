@@ -49,6 +49,7 @@ import alphakids_kmp.sharedui.generated.resources.alphi_padre
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
+import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Registration screen with full name, email, phone, password, confirm password,
@@ -120,6 +121,17 @@ fun RegisterScreen(navController: NavController) {
             style = MaterialTheme.typography.headlineSmall,
             color = glassTextColor(),
             textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Regístrate como papá para que tu hijo empiece a leer, " +
+                "escribir y mejorar su vocabulario con AlphaKids",
+            style = MaterialTheme.typography.bodyMedium,
+            color = glassTextSecondary(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(modifier = Modifier.height(24.dp))
