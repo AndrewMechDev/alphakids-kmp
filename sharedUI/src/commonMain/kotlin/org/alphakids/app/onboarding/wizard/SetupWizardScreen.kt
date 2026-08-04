@@ -40,6 +40,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.bg_dia
+import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
 import alphakids_kmp.sharedui.generated.resources.ic_gamepad
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_star
@@ -121,13 +122,13 @@ fun SetupWizardScreen(
             BenefitCard(
                 icon = Res.drawable.ic_paw,
                 title = "Cuidado de mascotas",
-                description = "Selecciona una mascota que acompañará a tu hijo en el proceso",
+                description = "Elige una mascota que acompañe a tu hijo y le dé recompensas mientras la cuida",
             )
             Spacer(modifier = Modifier.height(8.dp))
             BenefitCard(
-                icon = Res.drawable.ic_paw,
-                title = "Cuidado de mascotas",
-                description = "Tu hijo obtendrá recompensas mientras la usa para cuidar a su mascota",
+                icon = Res.drawable.ic_chart_bar,
+                title = "Progreso personalizado",
+                description = "Sigue el avance y los logros de tu hijo en cada actividad",
             )
 
             Spacer(modifier = Modifier.height(24.dp))
