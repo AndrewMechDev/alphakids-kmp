@@ -55,6 +55,11 @@ import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
+import alphakids_kmp.sharedui.generated.resources.ic_close
+import alphakids_kmp.sharedui.generated.resources.ic_gift
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import alphakids_kmp.sharedui.generated.resources.ic_lock
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 
 // ── Data Models ──
 
@@ -224,21 +229,30 @@ private fun InventoryOverlay(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "\uD83C\uDF92 Inventario",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = glassTextColor(),
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text = "\u2716",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = glassTextSecondary(),
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_gift),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(22.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Inventario",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = glassTextColor(),
+                    )
+                }
+                Icon(
+                    painter = painterResource(Res.drawable.ic_close),
+                    contentDescription = "Cerrar",
+                    tint = glassTextSecondary(),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onClose)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .size(20.dp),
                 )
             }
 
@@ -250,9 +264,11 @@ private fun InventoryOverlay(
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "\uD83C\uDF81",
-                            style = MaterialTheme.typography.displayLarge,
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_gift),
+                            contentDescription = null,
+                            tint = glassTextSecondary(),
+                            modifier = Modifier.size(56.dp),
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
@@ -365,9 +381,11 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
                 .clickable(onClick = onInventoryClick)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
         ) {
-            Text(
-                text = "\uD83C\uDF92",
-                style = MaterialTheme.typography.labelLarge,
+            Icon(
+                painter = painterResource(Res.drawable.ic_gift),
+                contentDescription = "Inventario",
+                tint = glassTextColor(),
+                modifier = Modifier.size(18.dp),
             )
         }
 
@@ -383,9 +401,11 @@ private fun StoreHeader(coins: Int, onInventoryClick: () -> Unit = {}) {
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
         ) {
-            Text(
-                text = "\uD83E\uDE99",
-                style = MaterialTheme.typography.labelLarge,
+            Icon(
+                painter = painterResource(Res.drawable.ic_coin),
+                contentDescription = null,
+                tint = CoinGold,
+                modifier = Modifier.size(18.dp),
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
@@ -483,10 +503,19 @@ private fun ProductCard(
                     ),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = if (isLocked) "\uD83D\uDD12" else item.emoji,
-                    style = MaterialTheme.typography.displaySmall,
-                )
+                if (isLocked) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_lock),
+                        contentDescription = null,
+                        tint = glassTextSecondary(),
+                        modifier = Modifier.size(28.dp),
+                    )
+                } else {
+                    Text(
+                        text = item.emoji,
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -506,12 +535,21 @@ private fun ProductCard(
 
             when {
                 isPurchased -> {
-                    Text(
-                        text = "\u2705 \u00A1Comprado!",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = SuccessGreen,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_check_circle),
+                            contentDescription = null,
+                            tint = SuccessGreen,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "¡Comprado!",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = SuccessGreen,
+                        )
+                    }
                 }
                 isLocked -> {
                     Text(
@@ -522,12 +560,21 @@ private fun ProductCard(
                     )
                 }
                 else -> {
-                    Text(
-                        text = "\uD83E\uDE99 ${item.price}",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = if (hasInsufficientCoins) ErrorRed else CoinGold,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_coin),
+                            contentDescription = null,
+                            tint = if (hasInsufficientCoins) ErrorRed else CoinGold,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${item.price}",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (hasInsufficientCoins) ErrorRed else CoinGold,
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(6.dp))
 
@@ -601,9 +648,9 @@ private fun PurchaseConfirmationDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                HorizontalDetail(label = "Costo", value = "\uD83E\uDE99 ${item.price}")
+                HorizontalDetail(label = "Costo", value = "${item.price}")
                 Spacer(modifier = Modifier.height(4.dp))
-                HorizontalDetail(label = "Tendr\u00E1s", value = "\uD83E\uDE99 $remainingCoins")
+                HorizontalDetail(label = "Tendrás", value = "$remainingCoins")
             }
         },
         confirmButton = {
@@ -642,17 +689,27 @@ private fun HorizontalDetail(
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             color = glassTextSecondary(),
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = glassTextColor(),
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_coin),
+                contentDescription = null,
+                tint = CoinGold,
+                modifier = Modifier.size(16.dp),
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = glassTextColor(),
+            )
+        }
     }
 }
