@@ -43,6 +43,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import androidx.compose.material3.Icon
+import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
@@ -654,29 +656,13 @@ private fun PurchaseConfirmationDialog(
             }
         },
         confirmButton = {
-            Button(
+            AlphaPrimaryButton(
+                text = "\u00A1Comprar!",
                 onClick = onConfirm,
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-            ) {
-                Text(
-                    text = "\u00A1Comprar!",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = "Cancelar",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = glassTextSecondary(),
-                )
-            }
+            AlphaTextButton(text = "Cancelar", onClick = onDismiss)
         },
     )
 }

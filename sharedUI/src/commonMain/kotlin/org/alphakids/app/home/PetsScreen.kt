@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.theme.PetDrakoCyan
 import org.alphakids.app.theme.PetLunaOrange
 import org.alphakids.app.theme.PetTitoGreen
@@ -705,21 +706,11 @@ private fun PetProfileCard(
                     )
                 }
             } else {
-                Button(
+                AlphaPrimaryButton(
+                    text = "Seleccionar como principal",
                     onClick = onSetActive,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        text = "Seleccionar como principal",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+                )
             }
         }
     }
