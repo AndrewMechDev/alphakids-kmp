@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#3B7DF6</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/alphakids_icon_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_none</item>
         <item name="postSplashScreenTheme">@android:style/Theme.Material.Light.NoActionBar</item>
     </style>
 </resources>
