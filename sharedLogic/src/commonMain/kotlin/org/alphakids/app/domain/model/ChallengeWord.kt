@@ -8,7 +8,9 @@ package org.alphakids.app.domain.model
  * @param imageName Local resource name (legacy, for WordBank).
  * @param imageUrl  Cloudinary image URL from the teacher's word assignment.
  * @param category  Category tag — "naturaleza", "animales", "alimentos", "objetos".
- * @param difficulty Difficulty level — "fácil", "media", "difícil".
+ * @param difficulty Difficulty level from the API — "INICIAL", "BASICO",
+ *   "INTERMEDIO", "AVANZADO", or "EXPERTO". [WordBank] entries use "fácil"/
+ *   "media" as legacy local-only labels, not shown anywhere difficulty-aware.
  */
 data class ChallengeWord(
     val word: String,

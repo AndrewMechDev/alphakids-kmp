@@ -22,13 +22,15 @@ class ChooseFirstPetViewModelTest {
     }
 
     @Test
-    fun `naming modal shows after confirm`() {
+    fun `naming modal shows after confirm with a blank name field`() {
         val viewModel = ChooseFirstPetViewModel(MockPetsRepository(), WizardViewModel())
         viewModel.onPetSelected("inti-sol")
         viewModel.onConfirmClick()
 
         assertTrue(viewModel.uiState.value.showNamingModal)
-        assertEquals("Inti Sol", viewModel.uiState.value.petName)
+        // The field starts blank so the child picks their own name — it must
+        // not be pre-filled with the pet's internal reference name.
+        assertEquals("", viewModel.uiState.value.petName)
     }
 
     @Test

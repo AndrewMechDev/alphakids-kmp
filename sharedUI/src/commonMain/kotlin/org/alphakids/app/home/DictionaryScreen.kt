@@ -29,6 +29,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -108,10 +110,27 @@ private val categoryColors = mapOf(
 private fun categoryColor(category: String): Color =
     categoryColors[category] ?: PrimaryBlue
 
+/**
+ * The 5 difficulty levels as stored by the backend (Word.difficultyLabel,
+ * free-text but always one of these — set from the teacher's web dropdown).
+ */
+private val difficultyLevels = listOf("INICIAL", "BASICO", "INTERMEDIO", "AVANZADO", "EXPERTO")
+
+private fun difficultyLabel(difficulty: String): String = when (difficulty) {
+    "INICIAL" -> "Inicial"
+    "BASICO" -> "Básico"
+    "INTERMEDIO" -> "Intermedio"
+    "AVANZADO" -> "Avanzado"
+    "EXPERTO" -> "Experto"
+    else -> difficulty
+}
+
 private fun difficultyColor(difficulty: String): Color = when (difficulty) {
-    "fácil" -> SuccessGreen
-    "media" -> WarningYellow
-    "difícil" -> ErrorRed
+    "INICIAL" -> SuccessGreen
+    "BASICO" -> PrimaryBlue
+    "INTERMEDIO" -> WarningYellow
+    "AVANZADO" -> PetLunaOrange
+    "EXPERTO" -> ErrorRed
     else -> Color.Gray
 }
 
@@ -124,8 +143,6 @@ private val filterChips = listOf(
     FilterChipOption("Asignadas", 1),
     FilterChipOption("Aprendidas", 2),
     FilterChipOption("Pendientes", 3),
-    FilterChipOption("Fáciles", 4),
-    FilterChipOption("Difíciles", 5),
 )
 
 // ── Alphabet Wheel Constants ──
@@ -163,7 +180,7 @@ fun DictionaryScreen(
                         imageUrl = dto.imageUrl ?: "",
                         audioUrl = dto.audioUrl ?: "",
                         category = playableCategory,
-                        difficulty = dto.difficultyLabel.ifBlank { "media" },
+                        difficulty = dto.difficultyLabel.ifBlank { "INICIAL" },
                         stars = 0,
                         learned = false,
                     )
@@ -181,7 +198,7 @@ fun DictionaryScreen(
                             // originally came from a teacher assignment, so it can't be
                             // reliably tagged "Asignada" here — defaults to "Catálogo".
                             category = "Catálogo",
-                            difficulty = dto.difficultyLabel.ifBlank { "media" },
+                            difficulty = dto.difficultyLabel.ifBlank { "INICIAL" },
                             stars = 0,
                             learned = true,
                         )
@@ -200,22 +217,22 @@ fun DictionaryScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
+    var selectedDifficulty by remember { mutableStateOf<String?>(null) }
     var selectedWord by remember { mutableStateOf<DictionaryWord?>(null) }
 
-    val filteredWords by remember(searchQuery, selectedFilterIndex) {
+    val filteredWords by remember(searchQuery, selectedFilterIndex, selectedDifficulty) {
         derivedStateOf {
             val q = searchQuery.trim().lowercase()
             fetchedWords.filter { word ->
                 val matchesSearch = q.isEmpty() || word.word.lowercase().contains(q)
-                val matchesFilter = when (selectedFilterIndex) {
+                val matchesTab = when (selectedFilterIndex) {
                     1 -> word.category == "Asignada"
                     2 -> word.learned
                     3 -> !word.learned
-                    4 -> word.difficulty == "fácil"
-                    5 -> word.difficulty == "difícil"
                     else -> true
                 }
-                matchesSearch && matchesFilter
+                val matchesDifficulty = selectedDifficulty == null || word.difficulty == selectedDifficulty
+                matchesSearch && matchesTab && matchesDifficulty
             }
         }
     }
@@ -296,14 +313,24 @@ fun DictionaryScreen(
                     .padding(start = 4.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
             )
 
-            // Filter chips
-            FilterChipsRow(
-                selectedIndex = selectedFilterIndex,
-                onChipSelected = { selectedFilterIndex = it },
+            // Filter chips + difficulty dropdown
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 4.dp, end = 8.dp, bottom = 4.dp),
-            )
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FilterChipsRow(
+                    selectedIndex = selectedFilterIndex,
+                    onChipSelected = { selectedFilterIndex = it },
+                    modifier = Modifier.weight(1f),
+                )
+                DifficultyDropdownChip(
+                    selected = selectedDifficulty,
+                    onSelected = { selectedDifficulty = it },
+                )
+            }
 
             // Word grid
             val isEmpty = filteredWords.isEmpty()
@@ -564,6 +591,73 @@ private fun FilterChipsRow(
     }
 }
 
+// ── Difficulty Dropdown ──
+
+/**
+ * Single filter chip for the 5 difficulty levels, expanding into a dropdown
+ * menu instead of adding 5 more chips to the horizontally-scrolling row.
+ */
+@Composable
+private fun DifficultyDropdownChip(
+    selected: String?,
+    onSelected: (String?) -> Unit,
+) {
+    val isNight = isNightTime()
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        FilterChip(
+            selected = selected != null,
+            onClick = { expanded = true },
+            label = {
+                Text(
+                    text = if (selected != null) difficultyLabel(selected) else "Dificultad ▾",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = if (selected != null) FontWeight.SemiBold else FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            },
+            shape = MaterialTheme.shapes.large,
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = if (isNight) Color.White.copy(alpha = 0.2f)
+                    else MaterialTheme.colorScheme.primaryContainer,
+                selectedLabelColor = if (isNight) Color.White else MaterialTheme.colorScheme.primary,
+                containerColor = glassCardColor(),
+                labelColor = glassChipUnselectedLabel(),
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+                borderColor = if (isNight) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.4f),
+                selectedBorderColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                enabled = true,
+                selected = selected != null,
+            ),
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            DropdownMenuItem(
+                text = { Text("Todas") },
+                onClick = {
+                    onSelected(null)
+                    expanded = false
+                },
+            )
+            difficultyLevels.forEach { level ->
+                DropdownMenuItem(
+                    text = { Text(difficultyLabel(level), color = difficultyColor(level)) },
+                    onClick = {
+                        onSelected(level)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
 // ── Dictionary Word Card ──
 
 @Composable
@@ -758,12 +852,7 @@ private fun DifficultyDot(difficulty: String) {
 @Composable
 private fun DifficultyLabel(difficulty: String) {
     val color = difficultyColor(difficulty)
-    val label = when (difficulty) {
-        "fácil" -> "Fácil"
-        "media" -> "Media"
-        "difícil" -> "Difícil"
-        else -> difficulty
-    }
+    val label = difficultyLabel(difficulty)
     Row(verticalAlignment = Alignment.CenterVertically) {
         DifficultyDot(difficulty = difficulty)
         Spacer(modifier = Modifier.width(4.dp))
