@@ -75,10 +75,8 @@ import org.alphakids.app.koinInject
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
-import org.alphakids.app.theme.PetDrakoCyan
 import org.alphakids.app.theme.PetLunaOrange
 import org.alphakids.app.theme.PrimaryBlue
-import org.alphakids.app.theme.PrimaryIndigo
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
 import org.alphakids.app.theme.circadianBackground
@@ -99,12 +97,8 @@ import alphakids_kmp.sharedui.generated.resources.ic_star
 // ── Category colour palette ──
 
 private val categoryColors = mapOf(
-    "Animales" to PetLunaOrange,
-    "Colores" to PrimaryIndigo,
-    "Objetos" to PrimaryBlue,
-    "Alimentos" to SuccessGreen,
-    "Naturaleza" to PetDrakoCyan,
-    "Cuerpo" to ErrorRed,
+    "Asignada" to SuccessGreen,
+    "Catálogo" to PrimaryBlue,
 )
 
 private fun categoryColor(category: String): Color =
