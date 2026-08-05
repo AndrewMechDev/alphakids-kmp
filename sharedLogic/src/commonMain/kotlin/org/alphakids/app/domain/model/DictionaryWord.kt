@@ -7,8 +7,10 @@ package org.alphakids.app.domain.model
  * @property imageName Resource name for the word's image placeholder.
  * @property imageUrl Cloudinary image URL from the teacher's word assignment.
  * @property audioUrl Cloudinary audio URL for word pronunciation.
- * @property category Word category (e.g. "Animales", "Colores", "Objetos").
- * @property difficulty Difficulty level: "fácil", "media", or "difícil".
+ * @property category Origin tag used by the dictionary filters — "Asignada"
+ *   (from a teacher's pending assignment) or "Catálogo" (generic fallback).
+ * @property difficulty One of INICIAL, BASICO, INTERMEDIO, AVANZADO, EXPERTO
+ *   — the backend's Word.difficultyLabel value.
  * @property stars Stars earned for this word (0–3).
  * @property learned Whether the child has completed this word.
  * @property dateLearned ISO date string when the word was learned, or null.
