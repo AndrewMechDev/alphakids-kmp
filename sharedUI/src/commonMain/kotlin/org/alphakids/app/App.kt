@@ -315,7 +315,7 @@ fun App() {
                         imageName = safeText.first().toString(),
                         category = "Palabras",
                         difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
-                            .ifBlank { "fácil" },
+                            .ifBlank { "INICIAL" },
                         imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
                             .ifBlank { null },
                     )
@@ -357,7 +357,7 @@ fun App() {
                         imageName = safeText.first().toString(),
                         category = "Palabras",
                         difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
-                            .ifBlank { "fácil" },
+                            .ifBlank { "INICIAL" },
                         imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
                             .ifBlank { null },
                     )
