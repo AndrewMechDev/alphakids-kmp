@@ -51,19 +51,14 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_user
 import alphakids_kmp.sharedui.generated.resources.ic_user_add
+import org.alphakids.app.components.avatarColorFor
 import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 
-private val avatarColors = listOf(
-    Color(0xFF6C63FF),
-    Color(0xFFFF6584),
-    Color(0xFF43B88C),
-    Color(0xFFFFAA33),
-    Color(0xFF3DBBF5),
-    Color(0xFFE84393),
-)
+/** Fixed neutral color for the "Agregar" action circle — same in both circadian cycles. */
+private val addProfileColor = Color(0xFF37474F)
 
 @Composable
 fun NetflixProfilesScreen(navController: NavController) {
@@ -139,11 +134,10 @@ fun NetflixProfilesScreen(navController: NavController) {
                         items = children,
                         key = { "child-${it.id}" },
                     ) { child ->
-                        val colorIndex = children.indexOf(child) % avatarColors.size
                         ProfileItem(
                             initial = child.name.firstOrNull()?.uppercase() ?: "?",
                             name = child.name,
-                            color = avatarColors[colorIndex],
+                            color = avatarColorFor(child.id),
                             avatarSeed = child.avatarSeed,
                             onClick = {
                                 SessionManager.setActiveChild(child)
@@ -160,8 +154,9 @@ fun NetflixProfilesScreen(navController: NavController) {
                             initial = "+",
                             name = "Agregar",
                             icon = Res.drawable.ic_user_add,
-                            // circadian-exempt: translucent avatar-circle container background, not text/icon color
-                            color = Color.White.copy(alpha = 0.3f),
+                            // circadian-exempt: fixed neutral action color, not the circadian gradient — must
+                            // stay visible against both the light and dark background without blending in.
+                            color = addProfileColor,
                             isAddCard = true,
                             onClick = {
                                 navController.navigate(Screen.SetupWizard.route) {

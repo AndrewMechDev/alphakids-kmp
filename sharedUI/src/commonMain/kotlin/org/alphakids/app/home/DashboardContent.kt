@@ -42,8 +42,11 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.components.CoinCounter
+import org.alphakids.app.components.avatarColorFor
 import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.painterResource
@@ -52,14 +55,6 @@ import alphakids_kmp.sharedui.generated.resources.ic_gamepad
 import alphakids_kmp.sharedui.generated.resources.ic_logout
 import alphakids_kmp.sharedui.generated.resources.ic_book_open
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
-
-private val avatarColors = listOf(
-    Color(0xFF6C63FF),
-    Color(0xFFFF6584),
-    Color(0xFF43B88C),
-    Color(0xFFFFAA33),
-    Color(0xFF3DBBF5),
-)
 
 @Composable
 fun DashboardContent(
@@ -71,7 +66,7 @@ fun DashboardContent(
     modifier: Modifier = Modifier,
 ) {
     val audioService = rememberAudioService()
-    val avatarColor = avatarColors[state.childName.hashCode().mod(avatarColors.size).let { if (it < 0) it + avatarColors.size else it }]
+    val avatarColor = avatarColorFor(state.childId.ifEmpty { state.childName })
     val avatarUrl = resolveAvatarUrl(
         state.childAvatarSeed.ifEmpty { state.childName.lowercase().replace(" ", "") }
     )
@@ -87,16 +82,46 @@ fun DashboardContent(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        // Header: avatar + name + coins
+        // Top utility row: switch-profile icon only, so it never competes
+        // with the name for width.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(glassCardColor())
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onSwitchProfile,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_logout),
+                    contentDescription = "Cambiar perfil",
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Avatar + name row — full width now available, so long names no
+        // longer get squeezed and truncated.
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
                     .background(avatarColor),
                 contentAlignment = Alignment.Center,
@@ -105,7 +130,7 @@ fun DashboardContent(
                     model = avatarUrl,
                     contentDescription = state.childName,
                     modifier = Modifier
-                        .size(52.dp)
+                        .size(60.dp)
                         .clip(CircleShape),
                 )
             }
@@ -125,25 +150,17 @@ fun DashboardContent(
                     color = glassTextSecondary(),
                 )
             }
-            org.alphakids.app.components.CoinCounter(amount = state.coins)
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onSwitchProfile,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_logout),
-                    contentDescription = "Cambiar perfil",
-                    tint = glassTextColor(),
-                    modifier = Modifier.size(24.dp),
-                )
-            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Coins get their own eye-catching row instead of being squeezed
+        // into the header — bigger and animated (CoinCounter bumps on gain).
+        Row(modifier = Modifier.fillMaxWidth()) {
+            CoinCounter(
+                amount = state.coins,
+                modifier = Modifier.height(40.dp),
+            )
         }
 
         Spacer(modifier = Modifier.height(4.dp))
