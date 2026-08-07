@@ -82,10 +82,9 @@ fun DashboardContent(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Spacer(modifier = Modifier.height(4.dp))
-
         // Top utility row: switch-profile icon only, so it never competes
-        // with the name for width.
+        // with the name for width. Tight gap to the row below on purpose —
+        // it reads as one header block, not two separate sections.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
@@ -111,17 +110,16 @@ fun DashboardContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Avatar + name row — full width now available, so long names no
-        // longer get squeezed and truncated.
+        // Avatar + name + coins row — name is a notch smaller than before so
+        // it shares the row comfortably with the coin pill instead of the
+        // coins floating on their own disconnected line below.
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
-                    .size(60.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
                     .background(avatarColor),
                 contentAlignment = Alignment.Center,
@@ -130,15 +128,15 @@ fun DashboardContent(
                     model = avatarUrl,
                     contentDescription = state.childName,
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(56.dp)
                         .clip(CircleShape),
                 )
             }
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = state.childName,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = glassTextColor(),
                     maxLines = 1,
@@ -150,20 +148,9 @@ fun DashboardContent(
                     color = glassTextSecondary(),
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
+            CoinCounter(amount = state.coins)
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Coins get their own eye-catching row instead of being squeezed
-        // into the header — bigger and animated (CoinCounter bumps on gain).
-        Row(modifier = Modifier.fillMaxWidth()) {
-            CoinCounter(
-                amount = state.coins,
-                modifier = Modifier.height(40.dp),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
 
         // Welcome title — directly on background, no card
         Text(
