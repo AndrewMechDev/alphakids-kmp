@@ -1,6 +1,33 @@
 package org.alphakids.app.components
 
+import androidx.compose.ui.graphics.Color
+import kotlin.math.absoluteValue
+
 private const val DEFAULT_AVATAR_STYLE = "big-smile"
+
+/** Solid background colors for a child's avatar circle, shared across every screen. */
+private val avatarBackgroundColors = listOf(
+    Color(0xFF6C63FF),
+    Color(0xFFFF6584),
+    Color(0xFF43B88C),
+    Color(0xFFFFAA33),
+    Color(0xFF3DBBF5),
+    Color(0xFFE84393),
+)
+
+/**
+ * Picks a stable background color for a child's avatar circle from their
+ * [childId], so the same child always gets the same color everywhere.
+ *
+ * Screens used to derive this independently — one by list position, another
+ * by hashing the child's name, each with its own color palette — so the same
+ * child looked different from tab to tab. `childId` never changes (unlike
+ * list order or a name that could be edited), so it's the only safe key.
+ */
+fun avatarColorFor(childId: String): Color {
+    val index = childId.hashCode().absoluteValue % avatarBackgroundColors.size
+    return avatarBackgroundColors[index]
+}
 
 /**
  * Resolves a [ChildSummary][org.alphakids.app.parent.domain.model.ChildSummary]'s

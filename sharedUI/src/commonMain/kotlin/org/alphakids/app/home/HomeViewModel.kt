@@ -12,6 +12,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
  * UI state for the AdventureHome dashboard (Tab 1 — Inicio).
  *
  * @param isLoading True while initial data loads.
+ * @param childId The active child's stable id, used to derive a consistent avatar color.
  * @param childName The child's display name.
  * @param childLevel Current level (1–MAX).
  * @param childRank Display rank title (Semillita, Brotito, etc.).
@@ -33,6 +34,7 @@ import org.alphakids.app.parent.domain.model.SessionManager
  */
 data class UiState(
     val isLoading: Boolean = false,
+    val childId: String = "",
     val childName: String = "",
     val childAvatarSeed: String = "",
     val childLevel: Int = 1,
@@ -98,6 +100,7 @@ class HomeViewModel : ViewModel() {
         val child = SessionManager.currentChild
         _state.update {
             it.copy(
+                childId = child?.id ?: "valentina",
                 childName = child?.name ?: "Valentina",
                 childAvatarSeed = child?.avatarSeed ?: "valentina",
                 childLevel = child?.level ?: 1,
