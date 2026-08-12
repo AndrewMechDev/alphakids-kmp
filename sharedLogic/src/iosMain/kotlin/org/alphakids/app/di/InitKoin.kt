@@ -1,5 +1,6 @@
 package org.alphakids.app.di
 
+import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.alphakids.app.game.di.gameModule
@@ -7,6 +8,7 @@ import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.onboarding.di.onboardingModule
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.di.parentModule
+import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.store.di.storeModule
 import org.alphakids.app.store.domain.repository.StoreRepository
@@ -26,6 +28,7 @@ object AppKoin {
             modules(
                 commonModule,
                 domainModule,
+                platformSettingsModule,
                 dataModule,
                 onboardingModule,
                 parentModule,
@@ -33,7 +36,7 @@ object AppKoin {
                 studentPetModule,
                 storeModule,
             )
-        }.koin
+        }.koin.also { SessionManager.init(it.get<Settings>()) }
     }
 }
 

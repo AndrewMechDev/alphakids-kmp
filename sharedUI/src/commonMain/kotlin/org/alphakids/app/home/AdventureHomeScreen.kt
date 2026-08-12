@@ -40,7 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassNavIndicator
 import org.alphakids.app.theme.isNightTime
@@ -52,13 +54,24 @@ import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
 @Composable
 fun AdventureHomeScreen(navController: NavController) {
-    val viewModel = remember { HomeViewModel() }
+    val viewModel = remember { HomeViewModel(koinInject<ParentRepository>()) }
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedTab) {
         viewModel.refreshCoins()
+    }
+
+    // No active child could be resolved (process restart wiped the session
+    // and re-hydration found nothing) — send back to Splash instead of
+    // showing placeholder data for a child that isn't real.
+    LaunchedEffect(state.sessionExpired) {
+        if (state.sessionExpired) {
+            navController.navigate(Screen.Splash.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
     }
 
     BackHandler {
