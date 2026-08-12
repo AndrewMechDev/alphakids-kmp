@@ -1,5 +1,6 @@
 package org.alphakids.app.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,18 +21,22 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaInlineLoading
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -43,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
@@ -60,15 +66,56 @@ import org.alphakids.app.theme.glassTextSecondary
 /** Fixed neutral color for the "Agregar" action circle — same in both circadian cycles. */
 private val addProfileColor = Color(0xFF37474F)
 
+/** Soft cap on children per parent — mirrors the backend limit once implemented there. */
+private const val MAX_CHILDREN = 3
+
 @Composable
 fun NetflixProfilesScreen(navController: NavController) {
     val parentRepository: ParentRepository = koinInject()
+    val authRepository: AuthRepository = koinInject()
+    val coroutineScope = rememberCoroutineScope()
     var children by remember { mutableStateOf<List<ChildSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var showExitConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         children = parentRepository.getChildren()
         isLoading = false
+    }
+
+    // Leaving this screen means leaving the profile-picker gate entirely —
+    // confirm first instead of letting an accidental back press drop
+    // straight out of the app.
+    BackHandler {
+        showExitConfirm = true
+    }
+
+    if (showExitConfirm) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirm = false },
+            shape = MaterialTheme.shapes.large,
+            title = { Text("¿Salir de esta pantalla?") },
+            text = { Text("Se cerrará tu sesión y volverás al inicio de sesión.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExitConfirm = false
+                    coroutineScope.launch {
+                        authRepository.logout()
+                        SessionManager.clearSession()
+                        navController.navigate(Screen.WelcomeSelection.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }) {
+                    Text("Salir", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirm = false }) {
+                    Text("Cancelar")
+                }
+            },
+        )
     }
 
     Box(
@@ -148,23 +195,35 @@ fun NetflixProfilesScreen(navController: NavController) {
                         )
                     }
 
-                    // 3. Add profile card last
-                    item(key = "add-profile") {
-                        ProfileItem(
-                            initial = "+",
-                            name = "Agregar",
-                            icon = Res.drawable.ic_user_add,
-                            // circadian-exempt: fixed neutral action color, not the circadian gradient — must
-                            // stay visible against both the light and dark background without blending in.
-                            color = addProfileColor,
-                            isAddCard = true,
-                            onClick = {
-                                navController.navigate(Screen.SetupWizard.route) {
-                                    popUpTo(Screen.NetflixProfiles.route) { inclusive = false }
-                                }
-                            },
-                        )
+                    // 3. Add profile card last — hidden once the child limit is reached.
+                    if (children.size < MAX_CHILDREN) {
+                        item(key = "add-profile") {
+                            ProfileItem(
+                                initial = "+",
+                                name = "Agregar",
+                                icon = Res.drawable.ic_user_add,
+                                // circadian-exempt: fixed neutral action color, not the circadian gradient — must
+                                // stay visible against both the light and dark background without blending in.
+                                color = addProfileColor,
+                                isAddCard = true,
+                                onClick = {
+                                    navController.navigate(Screen.SetupWizard.route) {
+                                        popUpTo(Screen.NetflixProfiles.route) { inclusive = false }
+                                    }
+                                },
+                            )
+                        }
                     }
+                }
+
+                if (children.size >= MAX_CHILDREN) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Ya tienes el máximo de perfiles ($MAX_CHILDREN)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = glassTextSecondary(),
+                        textAlign = TextAlign.Center,
+                    )
                 }
             }
         }
