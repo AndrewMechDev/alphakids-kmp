@@ -112,7 +112,6 @@ fun WelcomeScreen(
     // Creation state
     var isCreating by remember { mutableStateOf(false) }
     var creationError by remember { mutableStateOf<String?>(null) }
-    var pendingVerification by remember { mutableStateOf(false) }
 
     var animatedInitialCoins by remember { mutableStateOf(0) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
@@ -359,12 +358,15 @@ fun WelcomeScreen(
                                 lastActivity = "Recién creado",
                                 wordsLearned = 0,
                                 stars = 0,
+                                verificationStatus = result.verificationStatus,
                             )
                             SessionManager.setActiveChild(childSummary)
                             wizardViewModel.resetWizard()
 
                             if (result.verificationStatus == "PENDING") {
-                                pendingVerification = true
+                                navController.navigate(Screen.AwaitingApproval.route) {
+                                    popUpTo(Screen.Splash.route) { inclusive = true }
+                                }
                             } else {
                                 navController.navigate(Screen.AdventureHome.route) {
                                     popUpTo(Screen.Splash.route) { inclusive = true }
@@ -383,31 +385,6 @@ fun WelcomeScreen(
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
                     Text("Cancelar")
-                }
-            },
-        )
-    }
-
-    // ── Pending verification dialog (institution assigned) ──
-    if (pendingVerification) {
-        AlertDialog(
-            onDismissRequest = { pendingVerification = false },
-            title = { Text("¡Perfil creado!") },
-            text = {
-                Text(
-                    "El perfil de ${data.childName} ha sido vinculado a ${data.institutionName ?: "la institución"}.\n\n" +
-                    "Un director debe verificar el registro para que ${data.childName} " +
-                    "pueda acceder. Te notificaremos cuando sea aprobado."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    pendingVerification = false
-                    navController.navigate(Screen.AdventureHome.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
-                    }
-                }) {
-                    Text("Entendido")
                 }
             },
         )

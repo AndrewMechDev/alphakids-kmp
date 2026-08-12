@@ -188,7 +188,16 @@ fun NetflixProfilesScreen(navController: NavController) {
                             avatarSeed = child.avatarSeed,
                             onClick = {
                                 SessionManager.setActiveChild(child)
-                                navController.navigate(Screen.AdventureHome.route) {
+                                // An institutional profile pending/rejected by the director
+                                // must never reach Home — same gate as right after creation.
+                                // AwaitingApprovalScreen handles both PENDING (poll + wait) and
+                                // REJECTED (explains and sends back) internally.
+                                val target = if (child.verificationStatus == "VERIFIED") {
+                                    Screen.AdventureHome.route
+                                } else {
+                                    Screen.AwaitingApproval.route
+                                }
+                                navController.navigate(target) {
                                     popUpTo(Screen.NetflixProfiles.route) { inclusive = true }
                                 }
                             },
