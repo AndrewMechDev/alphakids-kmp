@@ -11,6 +11,8 @@ data class ChildSummary(
     val stars: Int,
     val institutionId: String? = null,
     val institutionName: String? = null,
+    /** "PENDING" | "VERIFIED" | "REJECTED" — only meaningful when [institutionId] is set. */
+    val verificationStatus: String = "VERIFIED",
 )
 
 data class ChildStats(

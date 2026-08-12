@@ -44,6 +44,9 @@ sealed class Screen(val route: String) {
     /** Welcome celebration with avatar + pet */
     data object Welcome : Screen("welcome")
 
+    /** Waiting room shown while a director reviews an institutional profile */
+    data object AwaitingApproval : Screen("awaiting-approval")
+
     /** AdventureHome dashboard with bottom navigation */
     data object AdventureHome : Screen("adventure-home")
 
@@ -106,6 +109,7 @@ sealed class Screen(val route: String) {
             route == AssignInstitution.route -> AssignInstitution
             route == ChooseFirstPet.route -> ChooseFirstPet
             route == Welcome.route -> Welcome
+            route == AwaitingApproval.route -> AwaitingApproval
             route == AdventureHome.route -> AdventureHome
             route == ChildProfileSelector.route -> ChildProfileSelector
             route == LearningAdventureHub.route -> LearningAdventureHub

@@ -220,6 +220,7 @@ class ParentRepositoryImpl(
             stars = progress?.totalStars ?: 0,
             institutionId = institutionId,
             institutionName = institution?.name,
+            verificationStatus = verificationStatus,
         )
     }
 
