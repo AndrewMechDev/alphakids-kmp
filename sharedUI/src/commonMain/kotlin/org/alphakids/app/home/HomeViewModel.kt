@@ -1,12 +1,16 @@
 package org.alphakids.app.home
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.parent.domain.model.SessionManager
+import org.alphakids.app.parent.domain.repository.ParentRepository
 
 /**
  * UI state for the AdventureHome dashboard (Tab 1 — Inicio).
@@ -54,6 +58,13 @@ data class UiState(
     val alphiMessage: String = "¡Bienvenido de vuelta! ¿Listo para aprender?",
     val pendingActivities: List<PendingActivity> = listOf(),
     val error: String? = null,
+    /**
+     * True when no active child could be resolved — [SessionManager] was
+     * empty (process restart) and re-hydrating from the persisted child id
+     * failed or found nothing. The screen must redirect to login instead of
+     * silently showing placeholder data for a child that isn't real.
+     */
+    val sessionExpired: Boolean = false,
 )
 
 /**
@@ -75,17 +86,14 @@ data class PendingActivity(
  * Initializes with inline mock data. In a future phase this will pull
  * real data from the child repository and pet repository.
  */
-class HomeViewModel : ViewModel() {
-    companion object {
-        /** Persists during app session even if ViewModel is recreated. */
-        private var sessionStars: Int = 0
-    }
-
+class HomeViewModel(
+    private val parentRepository: ParentRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     init {
-        loadMockData()
+        viewModelScope.launch { loadData() }
     }
 
     /**
@@ -96,20 +104,49 @@ class HomeViewModel : ViewModel() {
         _state.update { it.copy(coins = GameProgressManager.coinsBalance) }
     }
 
-    private fun loadMockData() {
-        val child = SessionManager.currentChild
+    /**
+     * Resolves the active child, re-hydrating [SessionManager] from the
+     * persisted child id if the in-memory value was wiped (e.g. Android
+     * killed the process while backgrounded). Only falls back to
+     * `sessionExpired` — never to fabricated demo data — when no real child
+     * can be resolved at all.
+     */
+    private suspend fun loadData() {
+        var child = SessionManager.currentChild
+
+        if (child == null) {
+            val persistedId = SessionManager.persistedActiveChildId()
+            if (persistedId != null) {
+                val children = parentRepository.getChildren()
+                val matched = children.find { it.id == persistedId }
+                if (matched != null) {
+                    SessionManager.setActiveChild(matched)
+                    child = matched
+                }
+            }
+        }
+
+        if (child == null) {
+            _state.update { it.copy(sessionExpired = true) }
+            return
+        }
+
+        applyChild(child)
+    }
+
+    private fun applyChild(child: ChildSummary) {
         _state.update {
             it.copy(
-                childId = child?.id ?: "valentina",
-                childName = child?.name ?: "Valentina",
-                childAvatarSeed = child?.avatarSeed ?: "valentina",
-                childLevel = child?.level ?: 1,
-                childRank = child?.rank ?: "Semillita",
+                childId = child.id,
+                childName = child.name,
+                childAvatarSeed = child.avatarSeed,
+                childLevel = child.level,
+                childRank = child.rank,
                 coins = GameProgressManager.coinsBalance,
-                stars = child?.stars ?: sessionStars,
+                stars = child.stars,
                 xp = 30,
                 xpToNextLevel = 100,
-                wordsLearned = child?.wordsLearned ?: 0,
+                wordsLearned = child.wordsLearned,
                 wordsPending = 3,
                 streak = 2,
                 petName = "Inti Sol",
