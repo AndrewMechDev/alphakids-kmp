@@ -1,6 +1,11 @@
 package org.alphakids.app.jugar
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -18,7 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +51,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
@@ -59,13 +65,16 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
-import alphakids_kmp.sharedui.generated.resources.ic_camera
 import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
+
+/** Minimum time between two validated scan attempts, so a single framing of
+ * the word doesn't get processed dozens of times per second. */
+private val SCAN_COOLDOWN = 800.milliseconds
 
 data class OcrResult(
     val success: Boolean,
@@ -81,10 +90,9 @@ fun WordScannerChallenge(
     val letters = word.word.toList().map { it.toString() }
     val letterSlots = remember { mutableStateListOf(*Array(letters.size) { "" }) }
     var attempts by remember { mutableIntStateOf(0) }
-    var isScanning by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<OcrResult?>(null) }
     var showResult by remember { mutableStateOf(false) }
-    var scanTriggered by remember { mutableStateOf(false) }
+    var lastAttemptMark by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
 
     val audioService = rememberAudioService()
 
@@ -92,10 +100,15 @@ fun WordScannerChallenge(
         audioService.play(AudioCategory.INSTRUCTION)
     }
 
+    // No capture button — every camera frame with text is a candidate. A
+    // cooldown keeps one physical framing of the word from being validated
+    // dozens of times per second, and results freeze validation entirely
+    // until the child retries.
     val onTextDetected: (String) -> Unit = {
-        if (scanTriggered) {
-            scanTriggered = false
-            isScanning = false
+        val mark = lastAttemptMark
+        val cooledDown = mark == null || mark.elapsedNow() > SCAN_COOLDOWN
+        if (!showResult && cooledDown) {
+            lastAttemptMark = TimeSource.Monotonic.markNow()
             attempts++
 
             val cleaned = it.trim().uppercase()
@@ -111,13 +124,15 @@ fun WordScannerChallenge(
             val isComplete = fullWord.length == letters.size
             val isMatch = isComplete && WordBank.validateWord(fullWord, word.word)
 
-            result = OcrResult(success = isMatch, detectedText = fullWord)
-            showResult = true
+            if (isComplete) {
+                result = OcrResult(success = isMatch, detectedText = fullWord)
+                showResult = true
 
-            if (isMatch) {
-                audioService.play(AudioCategory.CHEER)
-            } else {
-                audioService.play(AudioCategory.ENCOURAGE)
+                if (isMatch) {
+                    audioService.play(AudioCategory.CHEER)
+                } else {
+                    audioService.play(AudioCategory.ENCOURAGE)
+                }
             }
         }
     }
@@ -177,40 +192,48 @@ fun WordScannerChallenge(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            CameraView(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                onTextDetected = onTextDetected,
-                onError = {},
-            )
+            ) {
+                CameraView(
+                    modifier = Modifier.fillMaxSize(),
+                    onTextDetected = onTextDetected,
+                    onError = {},
+                )
+
+                // Passive scanning affordance — no button to tap, just a
+                // pulsing frame communicating "actively looking" while the
+                // child holds the word in view.
+                if (!showResult) {
+                    val infiniteTransition = rememberInfiniteTransition(label = "scanPulse")
+                    val pulseAlpha by infiniteTransition.animateFloat(
+                        initialValue = 0.4f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 900),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                        label = "scanPulseAlpha",
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .border(
+                                width = 3.dp,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha),
+                                shape = RoundedCornerShape(20.dp),
+                            ),
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Capture button — centered
-            Button(
-                onClick = {
-                    scanTriggered = true
-                    isScanning = !isScanning
-                },
-                modifier = Modifier.size(64.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    // circadian-exempt: white on the solid brand-primary capture FAB, not the circadian BG.
-                    contentColor = Color.White,
-                ),
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_camera),
-                    contentDescription = "Capturar",
-                    modifier = Modifier.size(28.dp),
-                    tint = Color.White,
-                )
-            }
-
             AnimatedVisibility(
-                visible = isScanning,
+                visible = !showResult,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -225,7 +248,7 @@ fun WordScannerChallenge(
                         color = glassTextColor(),
                     )
                     Text(
-                        text = "Escaneando...",
+                        text = "Enfoca la palabra... escaneando",
                         style = MaterialTheme.typography.bodySmall,
                         color = glassTextSecondary(),
                     )
@@ -286,8 +309,7 @@ fun WordScannerChallenge(
                             letterSlots.forEachIndexed { index, _ ->
                                 letterSlots[index] = ""
                             }
-                            isScanning = false
-                            scanTriggered = false
+                            lastAttemptMark = null
                         },
                         modifier = Modifier
                             .fillMaxWidth()
