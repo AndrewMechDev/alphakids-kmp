@@ -1,9 +1,12 @@
 package org.alphakids.app.onboarding.wizard
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +47,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
@@ -69,8 +73,63 @@ fun AwaitingApprovalScreen(navController: NavController) {
     var status by remember { mutableStateOf(SessionManager.currentChild?.verificationStatus ?: "PENDING") }
     var isChecking by remember { mutableStateOf(false) }
     var contentVisible by remember { mutableStateOf(false) }
+    var showStillPendingDialog by remember { mutableStateOf(false) }
+    var showBackConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { contentVisible = true }
+
+    // Leaving this screen shouldn't only mean "log out" — a parent may just
+    // want to switch to another child while this one waits. Confirm first
+    // either way so a stray back press doesn't lose the flow silently.
+    BackHandler {
+        showBackConfirm = true
+    }
+
+    if (showBackConfirm) {
+        AlertDialog(
+            onDismissRequest = { showBackConfirm = false },
+            shape = MaterialTheme.shapes.large,
+            title = { Text("¿Volver a elegir perfil?") },
+            text = {
+                Text(
+                    "Tu sesión sigue activa. Puedes elegir otro perfil o crear uno nuevo — " +
+                        "te avisaremos cuando este quede aprobado."
+                )
+            },
+            confirmButton = {
+                AlphaPrimaryButton(
+                    text = "Volver",
+                    onClick = {
+                        showBackConfirm = false
+                        navController.navigate(Screen.NetflixProfiles.route) {
+                            popUpTo(Screen.AwaitingApproval.route) { inclusive = true }
+                        }
+                    },
+                )
+            },
+            dismissButton = {
+                AlphaTextButton(
+                    text = "Cancelar",
+                    onClick = { showBackConfirm = false },
+                )
+            },
+        )
+    }
+
+    if (showStillPendingDialog) {
+        AlertDialog(
+            onDismissRequest = { showStillPendingDialog = false },
+            shape = MaterialTheme.shapes.large,
+            title = { Text("Todavía en revisión") },
+            text = { Text("Tu director aún no ha aprobado este perfil. Intenta de nuevo más tarde.") },
+            confirmButton = {
+                AlphaPrimaryButton(
+                    text = "Cerrar",
+                    onClick = { showStillPendingDialog = false },
+                )
+            },
+        )
+    }
 
     LaunchedEffect(Unit) {
         val childId = SessionManager.currentChild?.id ?: return@LaunchedEffect
@@ -92,6 +151,25 @@ fun AwaitingApprovalScreen(navController: NavController) {
             .circadianBackground()
             .fillMaxSize(),
     ) {
+        Box(
+            modifier = Modifier
+                .padding(8.dp)
+                .size(48.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = { showBackConfirm = true },
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_arrow_left),
+                contentDescription = "Elegir otro perfil",
+                tint = glassTextColor(),
+                modifier = Modifier.size(24.dp),
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -147,12 +225,23 @@ fun AwaitingApprovalScreen(navController: NavController) {
                             status = matched.verificationStatus
                         }
                         isChecking = false
+                        if (status == "PENDING") {
+                            showStillPendingDialog = true
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(12.dp))
+
+            AlphaTextButton(
+                text = "Elegir otro perfil",
+                onClick = { showBackConfirm = true },
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             AlphaTextButton(
                 text = "Cerrar sesión",
