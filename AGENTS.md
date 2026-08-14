@@ -26,3 +26,8 @@
 - Conventional commits: type(scope): description
 - Git Flow: feature branches from develop
 - Work-unit commits: code + tests together
+
+## Documentation
+- Product spec, design system, and flow docs live under `/docs` (see README's
+  "Documentación" section) — not `/requirements`, which no longer exists.
+- Active specs/changes live under `/openspec`.

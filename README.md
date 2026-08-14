@@ -19,6 +19,16 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 - [`/sharedUI`](./sharedUI) — UI compartida Compose Multiplatform
 - [`/sharedLogic`](./sharedLogic) — Lógica de negocio compartida (domain/data/di/platform)
 
+## Documentación
+
+- [`/openspec`](./openspec) — specs y changes activos (spec-driven development)
+- [`/docs/product-spec`](./docs/product-spec) — spec visual completo (design language, componentes, pantallas, flujos)
+- [`/docs/design`](./docs/design) — sistema de diseño y librería de prompts
+- [`/docs/flows`](./docs/flows) — flujo de la app y especificación de mejoras UX/UI
+- [`/docs/reference`](./docs/reference) — inventario de audio, esquema de base de datos
+- [`/docs/ios`](./docs/ios) — guía de setup y prompts de réplica iOS
+- [`/docs/archive`](./docs/archive) — prompts de sesiones anteriores ya completados, fuera de vigencia
+
 ## Flujo actual
 
 ```
