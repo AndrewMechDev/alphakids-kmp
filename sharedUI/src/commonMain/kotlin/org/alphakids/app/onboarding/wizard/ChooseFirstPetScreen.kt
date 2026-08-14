@@ -22,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.data.mock.Pet
@@ -188,22 +188,18 @@ private fun NamePetModal(
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(
-                    text = "Confirmar",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
+            AlphaTextButton(
+                text = "Confirmar",
+                onClick = onConfirm,
+                color = MaterialTheme.colorScheme.primary,
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = "Cancelar",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = glassTextSecondary(),
-                )
-            }
+            AlphaTextButton(
+                text = "Cancelar",
+                onClick = onDismiss,
+                color = glassTextSecondary(),
+            )
         },
     )
 }

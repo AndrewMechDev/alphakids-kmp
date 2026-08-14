@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.AlphaGradients
-import org.alphakids.app.theme.PrimaryBlue
+import org.alphakids.app.theme.RadiusFull
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.logo_alphi_principal
@@ -142,8 +141,8 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             .fillMaxWidth()
                             .height(48.dp)
                             .background(
-                                brush = AlphaGradients.angled(AlphaGradients.Nature),
-                                shape = RoundedCornerShape(14.dp),
+                                brush = AlphaGradients.angled(AlphaGradients.Adventure),
+                                shape = RadiusFull,
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -151,7 +150,9 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             text = "Iniciar sesión",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            // circadian-exempt: white on the solid brand gradient pill, same
+                            // treatment as AlphaPrimaryButton — always legible either cycle.
+                            color = Color.White,
                         )
                     }
                 }
@@ -205,8 +206,8 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             .fillMaxWidth()
                             .height(48.dp)
                             .background(
-                                color = PrimaryBlue,
-                                shape = RoundedCornerShape(14.dp),
+                                brush = AlphaGradients.angled(AlphaGradients.Adventure),
+                                shape = RadiusFull,
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -214,7 +215,9 @@ fun WelcomeSelectionScreen(navController: NavController) {
                             text = "Crear cuenta gratis",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            // circadian-exempt: white on the solid brand gradient pill, same
+                            // treatment as AlphaPrimaryButton — always legible either cycle.
+                            color = Color.White,
                         )
                     }
                 }

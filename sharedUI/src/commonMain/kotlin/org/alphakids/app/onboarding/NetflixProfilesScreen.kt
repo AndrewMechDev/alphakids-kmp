@@ -25,7 +25,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaInlineLoading
+import org.alphakids.app.components.AlphaTextButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -95,23 +95,23 @@ fun NetflixProfilesScreen(navController: NavController) {
             title = { Text("¿Salir de esta pantalla?") },
             text = { Text("Se cerrará tu sesión y volverás al inicio de sesión.") },
             confirmButton = {
-                TextButton(onClick = {
-                    showExitConfirm = false
-                    coroutineScope.launch {
-                        authRepository.logout()
-                        SessionManager.clearSession()
-                        navController.navigate(Screen.WelcomeSelection.route) {
-                            popUpTo(0) { inclusive = true }
+                AlphaTextButton(
+                    text = "Salir",
+                    color = MaterialTheme.colorScheme.error,
+                    onClick = {
+                        showExitConfirm = false
+                        coroutineScope.launch {
+                            authRepository.logout()
+                            SessionManager.clearSession()
+                            navController.navigate(Screen.WelcomeSelection.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
-                    }
-                }) {
-                    Text("Salir", color = MaterialTheme.colorScheme.error)
-                }
+                    },
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showExitConfirm = false }) {
-                    Text("Cancelar")
-                }
+                AlphaTextButton(text = "Cancelar", onClick = { showExitConfirm = false })
             },
         )
     }

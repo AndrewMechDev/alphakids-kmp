@@ -21,7 +21,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -103,19 +103,19 @@ fun AdventureHomeScreen(navController: NavController) {
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
-                    showExitDialog = false
-                    navController.navigate(Screen.WelcomeSelection.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }) {
-                    Text("Salir", color = MaterialTheme.colorScheme.error)
-                }
+                AlphaTextButton(
+                    text = "Salir",
+                    color = MaterialTheme.colorScheme.error,
+                    onClick = {
+                        showExitDialog = false
+                        navController.navigate(Screen.WelcomeSelection.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showExitDialog = false }) {
-                    Text("Seguir jugando")
-                }
+                AlphaTextButton(text = "Seguir jugando", onClick = { showExitDialog = false })
             },
         )
     }

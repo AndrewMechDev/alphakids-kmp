@@ -34,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +46,7 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.data.mock.Pet
@@ -334,7 +334,7 @@ fun WelcomeScreen(
                 Text("Se creará el perfil de ${data.childFirstName} con la mascota elegida$instNote")
             },
             confirmButton = {
-                TextButton(onClick = {
+                AlphaTextButton(text = "Confirmar", onClick = {
                     showConfirmDialog = false
                     isCreating = true
                     creationError = null
@@ -397,14 +397,10 @@ fun WelcomeScreen(
                                 ?: "No se pudo crear el perfil. Verifica los datos e intenta de nuevo."
                         }
                     }
-                }) {
-                    Text("Confirmar")
-                }
+                })
             },
             dismissButton = {
-                TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancelar")
-                }
+                AlphaTextButton(text = "Cancelar", onClick = { showConfirmDialog = false })
             },
         )
     }
@@ -416,17 +412,13 @@ fun WelcomeScreen(
             title = { Text("Error") },
             text = { Text(creationError!!) },
             confirmButton = {
-                TextButton(onClick = {
+                AlphaTextButton(text = "Reintentar", onClick = {
                     creationError = null
                     showConfirmDialog = true
-                }) {
-                    Text("Reintentar")
-                }
+                })
             },
             dismissButton = {
-                TextButton(onClick = { creationError = null }) {
-                    Text("Cancelar")
-                }
+                AlphaTextButton(text = "Cancelar", onClick = { creationError = null })
             },
         )
     }

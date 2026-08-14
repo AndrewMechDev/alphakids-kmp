@@ -25,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.components.AlphaSecondaryButton
 import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
@@ -209,12 +209,10 @@ fun AssignInstitutionScreen(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedButton(
+                    AlphaSecondaryButton(
+                        text = "Reintentar",
                         onClick = { assignViewModel.loadInstitutions() },
-                        shape = MaterialTheme.shapes.small,
-                    ) {
-                        Text("Reintentar")
-                    }
+                    )
                 }
                 uiState.institutions.isEmpty() -> {
                     Text(

@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -291,21 +292,21 @@ private fun ChildrenListTab(
             title = { Text("¿Eliminar el perfil de ${child.name}?") },
             text = { Text("Se perderá su progreso y no se puede deshacer.") },
             confirmButton = {
-                TextButton(onClick = {
-                    coroutineScope.launch {
-                        if (parentRepository.deleteChild(child.id)) {
-                            children = children.filterNot { it.id == child.id }
+                AlphaTextButton(
+                    text = "Eliminar",
+                    color = MaterialTheme.colorScheme.error,
+                    onClick = {
+                        coroutineScope.launch {
+                            if (parentRepository.deleteChild(child.id)) {
+                                children = children.filterNot { it.id == child.id }
+                            }
+                            childPendingDelete = null
                         }
-                        childPendingDelete = null
-                    }
-                }) {
-                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
-                }
+                    },
+                )
             },
             dismissButton = {
-                TextButton(onClick = { childPendingDelete = null }) {
-                    Text("Cancelar")
-                }
+                AlphaTextButton(text = "Cancelar", onClick = { childPendingDelete = null })
             },
         )
     }
