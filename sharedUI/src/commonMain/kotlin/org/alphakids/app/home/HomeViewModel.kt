@@ -7,10 +7,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.alphakids.app.data.remote.dto.FeedPetRequestDto
+import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
+import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 
 /**
  * UI state for the AdventureHome dashboard (Tab 1 — Inicio).
@@ -22,15 +25,21 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
  * @param childRank Display rank title (Semillita, Brotito, etc.).
  * @param coins Currency for the in-app shop.
  * @param stars Stars earned from activities.
- * @param xp Current experience points toward next level.
- * @param xpToNextLevel XP needed to reach the next level.
+ * @param xp Current experience points toward next level. The backend does not
+ *   expose an XP/leveling system yet, so this always reads 0 — kept in the
+ *   state rather than removed so the XP bar UI has a defined value instead
+ *   of being deleted piecemeal; do not fabricate a non-zero value here.
+ * @param xpToNextLevel XP needed to reach the next level (see [xp] note).
  * @param wordsLearned Number of words completed.
- * @param wordsPending Number of words still pending.
- * @param streak Consecutive days of activity.
- * @param petName The active pet's name.
- * @param petType Pet type slug ("inti-sol", "piedra-doce", "triangulo").
- * @param petHunger Pet hunger 0–100.
- * @param petHappiness Pet happiness 0–100.
+ * @param wordsPending Number of words still pending — derived from the real
+ *   playable-words list ([GameRepository.getPlayableWords]), not a guess.
+ * @param streak Consecutive days of activity. Same backend gap as [xp] — the
+ *   API doesn't track daily streaks yet, so this always reads 0.
+ * @param petName The active pet's name — from [StudentPetRepository.getPets],
+ *   blank when the child has no pet yet.
+ * @param petType Pet catalog species slug, blank when no pet.
+ * @param petHunger Real pet hunger 0–100 from the backend, 0 when no pet.
+ * @param petHappiness Real pet happiness 0–100 from the backend, 0 when no pet.
  * @param dailyObjective Today's objective text.
  * @param alphiMessage Greeting / tip from Alphi.
  * @param pendingActivities List of in-progress word activities.
@@ -48,12 +57,12 @@ data class UiState(
     val xp: Int = 0,
     val xpToNextLevel: Int = 100,
     val wordsLearned: Int = 0,
-    val wordsPending: Int = 3,
+    val wordsPending: Int = 0,
     val streak: Int = 0,
     val petName: String = "",
     val petType: String = "",
-    val petHunger: Int = 80,
-    val petHappiness: Int = 70,
+    val petHunger: Int = 0,
+    val petHappiness: Int = 0,
     val dailyObjective: String = "Completa una palabra nueva",
     val alphiMessage: String = "¡Bienvenido de vuelta! ¿Listo para aprender?",
     val pendingActivities: List<PendingActivity> = listOf(),
@@ -83,11 +92,15 @@ data class PendingActivity(
 /**
  * ViewModel for the AdventureHome dashboard.
  *
- * Initializes with inline mock data. In a future phase this will pull
- * real data from the child repository and pet repository.
+ * Pulls the child summary from [ParentRepository], the active pet's real
+ * hunger/happiness from [StudentPetRepository], and the pending word list
+ * from [GameRepository]. XP/leveling and daily-streak are not backed by any
+ * API yet — see [UiState.xp]/[UiState.streak].
  */
 class HomeViewModel(
     private val parentRepository: ParentRepository,
+    private val studentPetRepository: StudentPetRepository,
+    private val gameRepository: GameRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -132,6 +145,22 @@ class HomeViewModel(
         }
 
         applyChild(child)
+
+        val pet = studentPetRepository.getPets(child.id).firstOrNull { it.isActive }
+        val playable = gameRepository.getPlayableWords(child.id)
+
+        _state.update {
+            it.copy(
+                petName = pet?.customName ?: pet?.petCatalog?.name ?: "",
+                petType = pet?.petCatalog?.species ?: "",
+                petHunger = pet?.hungerLevel ?: 0,
+                petHappiness = pet?.happinessLevel ?: 0,
+                wordsPending = playable?.words?.size ?: 0,
+                pendingActivities = playable?.words.orEmpty().take(3).map { word ->
+                    PendingActivity(wordName = word.text, imageName = word.imageUrl ?: "", progress = 0f)
+                },
+            )
+        }
     }
 
     private fun applyChild(child: ChildSummary) {
@@ -144,20 +173,7 @@ class HomeViewModel(
                 childRank = child.rank,
                 coins = GameProgressManager.coinsBalance,
                 stars = child.stars,
-                xp = 30,
-                xpToNextLevel = 100,
                 wordsLearned = child.wordsLearned,
-                wordsPending = 3,
-                streak = 2,
-                petName = "Inti Sol",
-                petType = "inti-sol",
-                petHunger = 80,
-                petHappiness = 70,
-                pendingActivities = listOf(
-                    PendingActivity(wordName = "Sol", imageName = "word_sol", progress = 0.6f),
-                    PendingActivity(wordName = "Luna", imageName = "word_luna", progress = 0.3f),
-                    PendingActivity(wordName = "Estrella", imageName = "word_estrella", progress = 0.0f),
-                ),
             )
         }
     }

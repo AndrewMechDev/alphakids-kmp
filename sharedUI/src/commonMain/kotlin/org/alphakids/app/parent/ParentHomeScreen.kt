@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -33,10 +34,13 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -62,6 +67,7 @@ import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.parent.domain.model.MAX_CHILDREN
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
@@ -73,6 +79,7 @@ import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
+import alphakids_kmp.sharedui.generated.resources.ic_close
 import alphakids_kmp.sharedui.generated.resources.ic_credit_card
 import alphakids_kmp.sharedui.generated.resources.ic_kid
 import alphakids_kmp.sharedui.generated.resources.ic_settings
@@ -120,7 +127,7 @@ fun ParentHomeScreen(
                 actions = {
                     TextButton(
                         onClick = {
-                            navController.navigate(Screen.ChildProfileSelector.route) {
+                            navController.navigate(Screen.NetflixProfiles.route) {
                                 popUpTo(Screen.ParentDashboard.route) { inclusive = true }
                             }
                         },
@@ -258,6 +265,7 @@ fun ParentHomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChildrenListTab(
     navController: NavController,
@@ -265,12 +273,40 @@ private fun ChildrenListTab(
     modifier: Modifier = Modifier,
 ) {
     val parentRepository: ParentRepository = koinInject()
+    val coroutineScope = rememberCoroutineScope()
     var children by remember { mutableStateOf<List<ChildSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var childPendingDelete by remember { mutableStateOf<ChildSummary?>(null) }
 
     LaunchedEffect(Unit) {
         children = parentRepository.getChildren()
         isLoading = false
+    }
+
+    childPendingDelete?.let { child ->
+        AlertDialog(
+            onDismissRequest = { childPendingDelete = null },
+            shape = MaterialTheme.shapes.large,
+            title = { Text("¿Eliminar el perfil de ${child.name}?") },
+            text = { Text("Se perderá su progreso y no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        if (parentRepository.deleteChild(child.id)) {
+                            children = children.filterNot { it.id == child.id }
+                        }
+                        childPendingDelete = null
+                    }
+                }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { childPendingDelete = null }) {
+                    Text("Cancelar")
+                }
+            },
+        )
     }
 
     LazyColumn(
@@ -310,37 +346,80 @@ private fun ChildrenListTab(
             items = children,
             key = { it.id },
         ) { child ->
-            ChildAdminCard(child = child, onClick = { onChildClick(child.id) })
+            val dismissState = rememberSwipeToDismissBoxState(
+                confirmValueChange = { value ->
+                    if (value == SwipeToDismissBoxValue.EndToStart) {
+                        childPendingDelete = child
+                    }
+                    // Never auto-dismiss — the confirm dialog drives the actual removal.
+                    false
+                },
+            )
+            SwipeToDismissBox(
+                state = dismissState,
+                enableDismissFromStartToEnd = false,
+                enableDismissFromEndToStart = true,
+                backgroundContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.small)
+                            .background(MaterialTheme.colorScheme.error)
+                            .padding(horizontal = 20.dp),
+                        contentAlignment = Alignment.CenterEnd,
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_close),
+                            contentDescription = "Eliminar",
+                            tint = Color.White,
+                        )
+                    }
+                },
+            ) {
+                ChildAdminCard(child = child, onClick = { onChildClick(child.id) })
+            }
         }
 
-        item(key = "add-child") {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        navController.navigate(Screen.SetupWizard.route)
-                    },
-                shape = MaterialTheme.shapes.small,
-                colors = CardDefaults.cardColors(
-                    containerColor = glassCardColor(),
-                ),
-            ) {
-                Row(
+        if (children.size < MAX_CHILDREN) {
+            item(key = "add-child") {
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
+                        .clickable {
+                            navController.navigate(Screen.SetupWizard.route)
+                        },
+                    shape = MaterialTheme.shapes.small,
+                    colors = CardDefaults.cardColors(
+                        containerColor = glassCardColor(),
+                    ),
                 ) {
-                    Text(text = "+", style = MaterialTheme.typography.titleLarge, color = glassTextColor())
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Agregar hijo",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = glassTextColor(),
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(text = "+", style = MaterialTheme.typography.titleLarge, color = glassTextColor())
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Agregar hijo",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = glassTextColor(),
+                        )
+                    }
                 }
+            }
+        } else {
+            item(key = "max-children") {
+                Text(
+                    text = "Ya tienes el máximo de perfiles ($MAX_CHILDREN)",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = glassTextSecondary(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
 

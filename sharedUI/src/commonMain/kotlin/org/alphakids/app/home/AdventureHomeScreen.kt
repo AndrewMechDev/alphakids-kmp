@@ -40,9 +40,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.repository.ParentRepository
+import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassNavIndicator
 import org.alphakids.app.theme.isNightTime
@@ -54,7 +56,13 @@ import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
 @Composable
 fun AdventureHomeScreen(navController: NavController) {
-    val viewModel = remember { HomeViewModel(koinInject<ParentRepository>()) }
+    val viewModel = remember {
+        HomeViewModel(
+            koinInject<ParentRepository>(),
+            koinInject<StudentPetRepository>(),
+            koinInject<GameRepository>(),
+        )
+    }
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
