@@ -227,7 +227,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Ya tienes el máximo de perfiles ($MAX_CHILDREN)",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
                     )

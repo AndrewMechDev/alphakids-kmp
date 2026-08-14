@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -246,16 +247,20 @@ private fun InventoryOverlay(
                         color = glassTextColor(),
                     )
                 }
-                Icon(
-                    painter = painterResource(Res.drawable.ic_close),
-                    contentDescription = "Cerrar",
-                    tint = glassTextSecondary(),
+                Box(
                     modifier = Modifier
+                        .size(48.dp)
                         .clip(CircleShape)
-                        .clickable(onClick = onClose)
-                        .padding(8.dp)
-                        .size(20.dp),
-                )
+                        .clickable(onClick = onClose),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_close),
+                        contentDescription = "Cerrar",
+                        tint = glassTextSecondary(),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -556,7 +561,7 @@ private fun ProductCard(
                 isLocked -> {
                     Text(
                         text = "Nivel ${item.requiredLevel} requerido",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
                     )
@@ -583,24 +588,24 @@ private fun ProductCard(
                     if (hasInsufficientCoins) {
                         Text(
                             text = "Monedas insuficientes",
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = ErrorRed,
                             textAlign = TextAlign.Center,
                         )
                     } else {
                         Button(
                             onClick = onBuy,
-                            shape = RoundedCornerShape(10.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                            shape = MaterialTheme.shapes.small,
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
                                 contentColor = Color.White,
                             ),
-                            modifier = Modifier.height(32.dp),
+                            modifier = Modifier.heightIn(min = 48.dp),
                         ) {
                             Text(
                                 text = "Comprar",
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }

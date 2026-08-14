@@ -222,7 +222,7 @@ fun DashboardContent(
                         )
                         Text(
                             text = "Escanea letras con la cámara",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.8f),
                         )
                     }
@@ -276,7 +276,7 @@ fun DashboardContent(
                         )
                         Text(
                             text = "Explora las palabras aprendidas",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.8f),
                         )
                     }

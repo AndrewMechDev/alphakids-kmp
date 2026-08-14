@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -589,16 +590,20 @@ private fun PetProfileCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
             ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_close),
-                    contentDescription = "Cerrar",
-                    tint = glassTextColor(),
+                Box(
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
-                        .clickable(onClick = onClose)
-                        .padding(2.dp),
-                )
+                        .clickable(onClick = onClose),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_close),
+                        contentDescription = "Cerrar",
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
 
             // Large pet image
@@ -950,24 +955,24 @@ private fun PetActionButton(
 ) {
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(10.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+        shape = MaterialTheme.shapes.small,
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             // circadian-exempt: white on a solid per-action brand color, not the circadian BG.
             contentColor = Color.White,
         ),
-        modifier = modifier.height(36.dp),
+        modifier = modifier.heightIn(min = 48.dp),
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = null,
-            modifier = Modifier.size(14.dp),
+            modifier = Modifier.size(18.dp),
         )
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

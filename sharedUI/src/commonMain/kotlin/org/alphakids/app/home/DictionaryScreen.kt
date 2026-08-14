@@ -812,7 +812,7 @@ private fun DictionaryWordCard(
                 Spacer(modifier = Modifier.width(6.dp))
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(glassCardColor())
                         .clickable { audioService.playUrl(word.audioUrl) },
@@ -822,7 +822,7 @@ private fun DictionaryWordCard(
                         painter = painterResource(Res.drawable.ic_speaker),
                         contentDescription = "Escuchar",
                         tint = glassTextColor(),
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }

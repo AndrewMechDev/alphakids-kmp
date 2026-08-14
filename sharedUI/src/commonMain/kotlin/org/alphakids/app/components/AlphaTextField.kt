@@ -82,7 +82,7 @@ fun AlphaTextField(
                     TextButton(onClick = { passwordVisible = !passwordVisible }) {
                         Text(
                             text = if (passwordVisible) "Ocultar" else "Mostrar",
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
@@ -156,7 +156,7 @@ private fun PasswordStrengthBar(strength: PasswordStrength) {
         }
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = color,
             modifier = Modifier.padding(top = 4.dp),
         )
