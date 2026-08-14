@@ -4,7 +4,7 @@ description: "Trigger: circadian, night mode, dark background, color lost, text 
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "3.1"
+  version: "3.2"
 ---
 
 ## Activation Contract
@@ -34,8 +34,8 @@ v3.0 rule: **the circadian background is variable in both hue AND lightness acro
   - Unselected chip → `labelColor = glassChipUnselectedLabel()`. Never `Color.White` fixed.
 - `NavigationBar` / bottom bar on glass surface:
   - `indicatorColor = glassNavIndicator()` (never `Color.White.copy(0.7f)` fixed).
-  - `selectedIconColor` / `selectedTextColor` = night → `Color(0xFF9CB8FF)`, day → `MaterialTheme.colorScheme.primary`.
-  - `unselectedIconColor` / `unselectedTextColor` = night → `Color.White.copy(0.5f)`, day → `Color(0xFF4A5568)`.
+  - `selectedIconColor` / `selectedTextColor` = `MaterialTheme.colorScheme.primary` (both cycles — it already swaps schemes on `isNightTime()`, don't re-branch it with a hardcoded night hex).
+  - `unselectedIconColor` / `unselectedTextColor` = `glassChipUnselectedLabel()` (both cycles). **Do not** hand-roll `if (isNight) Color.White.copy(alpha=0.5f) else Color(0xFF4A5568)` inline — that literal drifted from the real helper (0.85 alpha, not 0.5) across three files (`AdventureHomeScreen`, `ParentHomeScreen`'s bottom nav) before being caught in an audit. Always call the helper, never re-type its values.
 - `TopAppBar` with transparent container on circadian screen → `titleContentColor = glassTextColor()`, `actionIconContentColor = glassTextColor()`, `navigationIconContentColor = glassTextColor()`.
 - Progress bar tracks inside cards → `Color.White.copy(alpha = 0.2f)` (works both cycles).
 - Borders on glass elements → day: `Color.White.copy(alpha = 0.4f)`, night: `Color.White.copy(alpha = 0.12f)`.
@@ -70,6 +70,8 @@ These MUST NOT appear inside any screen with `circadianBackground()` (or any com
 | Chip label — SELECTED | `onPrimaryContainer` (branched by `isNightTime`) | `Color(0xFF9CB8FF)` |
 | Chip label — UNSELECTED | `glassChipUnselectedLabel()` = #4A5568 | `glassChipUnselectedLabel()` = White 85% |
 | NavigationBar indicator | `glassNavIndicator()` = Primary 15% | `glassNavIndicator()` = White 10% |
+| NavigationBar selected icon/text | `MaterialTheme.colorScheme.primary` | `MaterialTheme.colorScheme.primary` (same both cycles — it self-swaps) |
+| NavigationBar unselected icon/text | `glassChipUnselectedLabel()` | `glassChipUnselectedLabel()` |
 | Progress bar track | `Color.White.copy(alpha = 0.2f)` | `Color.White.copy(alpha = 0.2f)` |
 | Border on glass element | `Color.White.copy(alpha = 0.4f)` | `Color.White.copy(alpha = 0.12f)` |
 

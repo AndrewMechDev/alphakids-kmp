@@ -4,7 +4,7 @@ description: "Trigger: icon, emoji, SVG, drawable, UI element with graphic. Enfo
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "1.1"
+  version: "1.2"
 ---
 
 ## Activation Contract
@@ -82,6 +82,29 @@ Icon(
     tint = glassTextColor(), // or Color.White if on circadian bg
 )
 ```
+
+## Known Conscious Exceptions — Do Not "Fix" These
+
+An audit flagged the large per-rank/per-trophy/per-item emoji in
+`AchievementsScreen.kt` and `StoreScreen.kt` (🌱, 🐉, 📝, etc. — dozens of
+distinct glyphs, one per rank/trophy/item) as a hard-rule violation. The
+project owner reviewed this explicitly and decided to **keep them as-is**:
+they read as big, friendly, immediately-recognizable symbols for a 3-8
+year old audience, which is arguably better UX here than an abstract
+vector icon — and converting all of them requires new SVG source assets
+that don't exist yet (this is not a simple 1:1 icon swap like the `"✓"`/`"+"`
+cases below).
+
+This is tracked as deliberate design debt, not an oversight — do not
+silently "clean this up" in an unrelated change. If/when the owner wants
+to convert them, that's a dedicated batch: they provide the replacement
+SVGs, run them through `svg-to-vector-drawable`, and only then wire up the
+new `Res.drawable.ic_*` refs in place of `RankDef.emoji`/`item.emoji`.
+
+Icon-as-single-glyph cases (a fixed, one-time icon, not per-item data) are
+still hard violations and should be fixed on sight — e.g. the "✓"/"·" used
+as a grade-selection indicator, or a literal "+" `Text` standing in for an
+"add" icon, were both fixed to real `Icon(...)` calls once identified.
 
 ## Audit Checklist
 

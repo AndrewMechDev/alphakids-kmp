@@ -4,7 +4,7 @@ description: "Trigger: back button, navigation back, return button, arrow back. 
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "1.0"
+  version: "2.0"
 ---
 
 ## Activation Contract
@@ -16,14 +16,14 @@ Activate when:
 
 ## Hard Rules
 
-- Use `AlphaHeader` component for screens with title + back button (wizard flows, detail screens).
-- For standalone back buttons (no header title needed), use the inline pattern below.
+- Use `AlphaHeader` component for screens with title + back button (wizard flows, detail screens) — it already renders the back icon internally via `onBack`.
+- For a standalone back icon with no header title (celebration/waiting-room/error screens), use the shared `AlphaBackIcon` component — **do not** hand-roll a `Box(48dp).clickable{}.Icon(...)` inline. Three screens (`WelcomeScreen`, `AwaitingApprovalScreen`, `ChildDetailScreen`) independently reinvented this exact pattern before it was extracted into a shared component; a fourth copy is the bug this skill exists to prevent.
 - Icon: `painterResource(Res.drawable.ic_arrow_left)` — never emoji, never Material Icons.
-- Tint: `Color.White` — consistent with circadian backgrounds.
-- Touch target: minimum 48dp (use `TextButton` or `IconButton` which provide this).
-- Position: top-left, aligned with content padding (`16.dp` horizontal).
-- Content description: `"Back"` (English, accessibility).
-- Action: `navController.popBackStack()` or callback `onBack()`.
+- Tint: `glassTextColor()` — **not** a fixed `Color.White`. `AlphaBackIcon` already does this internally; if you're touching a spot that still hardcodes `Color.White` for a back icon, that's the exact circadian day-mode-invisibility bug this project has been bitten by — fix it to the helper while you're there.
+- Touch target: minimum 48dp — `AlphaBackIcon` sizes its own tap box at 48dp regardless of the 24dp icon inside it.
+- Position: top-left, aligned with content padding (`16.dp`/`24.dp` horizontal, matches the screen).
+- Content description: `"Volver"` (Spanish — matches every other screen's accessibility strings; `DictionaryScreen` briefly had `"Back"` in English before an audit caught the inconsistency). Override via `AlphaBackIcon`'s `contentDescription` param only when the action isn't literally "go back" (e.g. `AwaitingApprovalScreen` uses "Elegir otro perfil" since the icon opens a profile-switch confirmation, not a plain pop).
+- Action: `navController.popBackStack()`, or a callback that opens a confirmation dialog first if leaving the screen has consequences worth confirming (session/progress loss).
 
 ## Decision Gates
 
@@ -31,39 +31,39 @@ Activate when:
 |---|---|---|
 | Wizard/multi-step flow | `AlphaHeader(title, onBack = { ... })` | `AlphaHeader` |
 | Detail screen with title | `AlphaHeader(title, onBack = { ... })` | `AlphaHeader` |
-| Tab content (Dictionary, Store) | Inline back button, top-left | Inline |
+| Celebration / waiting-room / error state (no header) | Standalone icon, top-left | `AlphaBackIcon` |
+| Tab content (Dictionary, Store) | Inline back button, top-left | `AlphaBackIcon` |
 | Screens inside bottom nav | No back button needed | — |
 
-## Inline Pattern
+## Pattern
 
 ```kotlin
-IconButton(onClick = { navController.popBackStack() }) {
-    Icon(
-        painter = painterResource(Res.drawable.ic_arrow_left),
-        contentDescription = "Back",
-        tint = Color.White,
-        modifier = Modifier.size(24.dp),
-    )
-}
+import org.alphakids.app.components.AlphaBackIcon
+
+AlphaBackIcon(onClick = { navController.popBackStack() })
+
+// with a custom description and extra positioning padding:
+AlphaBackIcon(
+    onClick = { showBackConfirm = true },
+    modifier = Modifier.padding(8.dp),
+    contentDescription = "Elegir otro perfil",
+)
 ```
 
-Required imports:
-```kotlin
-import org.jetbrains.compose.resources.painterResource
-import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
-```
+`AlphaBackIcon` lives in `sharedUI/.../components/AlphaButton.kt` alongside
+`AlphaPrimaryButton`/`AlphaSecondaryButton`/`AlphaTextButton` — same file,
+same "don't reinvent this per-screen" reasoning.
 
 ## Execution Steps
 
 1. Determine screen type from the decision gate table.
 2. If wizard/detail → use `AlphaHeader` with `onBack`.
-3. If tab/standalone → use inline pattern.
-4. Verify touch target is >= 48dp.
-5. Verify tint is `Color.White` and icon is `ic_arrow_left`.
+3. If standalone (no header) → use `AlphaBackIcon`, never a hand-rolled `Box+Icon`.
+4. Verify touch target is >= 48dp (automatic with `AlphaBackIcon`).
+5. Verify `contentDescription` is Spanish and accurately describes the action.
 
 ## Output Contract
 
 Return:
-- Which pattern was applied (AlphaHeader or inline).
-- Confirmation that icon, tint, and touch target are correct.
+- Which pattern was applied (`AlphaHeader` or `AlphaBackIcon`).
+- Confirmation that icon, tint, touch target, and content description are correct.
