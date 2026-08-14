@@ -54,10 +54,12 @@ import alphakids_kmp.sharedui.generated.resources.ic_star
 import alphakids_kmp.sharedui.generated.resources.ic_camera
 import alphakids_kmp.sharedui.generated.resources.ic_microphone
 import alphakids_kmp.sharedui.generated.resources.ic_chart_bar
+import alphakids_kmp.sharedui.generated.resources.ic_user_add
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.parent.domain.model.MAX_CHILDREN
 
 @Composable
 fun ParentInsightCenter(
@@ -151,34 +153,52 @@ fun ParentInsightCenter(
             }
         }
 
-        // Add child
-        item(key = "add-child") {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        navController.navigate(Screen.SetupWizard.route)
-                    },
-                shape = MaterialTheme.shapes.small,
-                colors = CardDefaults.cardColors(
-                    containerColor = glassCardColor(),
-                ),
-            ) {
-                Row(
+        // Add child — hidden once the shared MAX_CHILDREN cap is reached,
+        // same gate as NetflixProfilesScreen/ParentHomeScreen's ChildrenListTab.
+        if (state.children.size < MAX_CHILDREN) {
+            item(key = "add-child") {
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .clickable {
+                            navController.navigate(Screen.SetupWizard.route)
+                        },
+                    shape = MaterialTheme.shapes.small,
+                    colors = CardDefaults.cardColors(
+                        containerColor = glassCardColor(),
+                    ),
                 ) {
-                    Text(text = "+", style = MaterialTheme.typography.titleLarge, color = glassTextColor())
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Agregar hijo",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = glassTextColor(),
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_user_add),
+                            contentDescription = null,
+                            tint = glassTextColor(),
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Agregar hijo",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Medium,
+                            color = glassTextColor(),
+                        )
+                    }
                 }
+            }
+        } else {
+            item(key = "max-children") {
+                Text(
+                    text = "Ya tienes el máximo de perfiles ($MAX_CHILDREN)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = glassTextSecondary(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
 

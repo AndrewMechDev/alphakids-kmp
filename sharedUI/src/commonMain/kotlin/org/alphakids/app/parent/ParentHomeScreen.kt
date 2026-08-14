@@ -87,6 +87,7 @@ import alphakids_kmp.sharedui.generated.resources.ic_help
 import alphakids_kmp.sharedui.generated.resources.ic_file_text
 import alphakids_kmp.sharedui.generated.resources.ic_logout
 import alphakids_kmp.sharedui.generated.resources.ic_star
+import alphakids_kmp.sharedui.generated.resources.ic_user_add
 
 private data class ParentNavTab(
     val label: String,
@@ -400,7 +401,12 @@ private fun ChildrenListTab(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
                     ) {
-                        Text(text = "+", style = MaterialTheme.typography.titleLarge, color = glassTextColor())
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_user_add),
+                            contentDescription = null,
+                            tint = glassTextColor(),
+                            modifier = Modifier.size(20.dp),
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Agregar hijo",

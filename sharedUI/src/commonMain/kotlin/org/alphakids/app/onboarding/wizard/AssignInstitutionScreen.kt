@@ -51,6 +51,7 @@ import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_school
+import alphakids_kmp.sharedui.generated.resources.ic_check
 import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassAccentColor
@@ -401,17 +402,16 @@ private fun InstitutionCard(
                             .padding(horizontal = 12.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = if (isGradeSelected) "✓" else "·",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (isGradeSelected) {
-                                MaterialTheme.colorScheme.onSecondaryContainer
-                            } else {
-                                glassTextSecondary()
-                            },
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.width(20.dp),
-                        )
+                        Box(modifier = Modifier.width(20.dp)) {
+                            if (isGradeSelected) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_check),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            }
+                        }
                         Text(
                             text = grade.name,
                             style = MaterialTheme.typography.bodyMedium,

@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_lock
+import alphakids_kmp.sharedui.generated.resources.ic_trophy
 import org.jetbrains.compose.resources.painterResource
 import org.alphakids.app.theme.AlphaShadows
 import org.alphakids.app.theme.glassCardColor
@@ -31,7 +32,7 @@ import org.alphakids.app.theme.glassTextSecondary
 fun AchievementCard(
     title: String,
     description: String,
-    iconEmoji: String = "🏆",
+    iconEmoji: String? = null,
     isUnlocked: Boolean = true,
     progress: Float? = null,
     modifier: Modifier = Modifier,
@@ -51,10 +52,19 @@ fun AchievementCard(
                 modifier = Modifier.alpha(if (isUnlocked) 1f else 0.5f),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = iconEmoji,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
+                if (iconEmoji.isNullOrBlank()) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_trophy),
+                        contentDescription = null,
+                        tint = glassTextColor(),
+                        modifier = Modifier.size(28.dp),
+                    )
+                } else {
+                    Text(
+                        text = iconEmoji,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
