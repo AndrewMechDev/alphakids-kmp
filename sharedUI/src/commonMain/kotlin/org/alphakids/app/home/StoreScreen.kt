@@ -315,6 +315,8 @@ private fun InventoryOverlay(
                                     .padding(12.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
+                                // circadian-exempt: a subtle fixed-tint highlight ring behind
+                                // the item glyph, not text — reads the same either cycle.
                                 Box(
                                     modifier = Modifier
                                         .size(56.dp)
@@ -500,6 +502,8 @@ private fun ProductCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            // circadian-exempt: a subtle fixed-tint highlight ring behind
+            // the item glyph, not text — reads the same either cycle.
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -598,7 +602,9 @@ private fun ProductCard(
                             shape = MaterialTheme.shapes.small,
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                // circadian-exempt: white on the solid primary-color
+                                // button fill, not the circadian BG — always legible.
                                 contentColor = Color.White,
                             ),
                             modifier = Modifier.heightIn(min = 48.dp),

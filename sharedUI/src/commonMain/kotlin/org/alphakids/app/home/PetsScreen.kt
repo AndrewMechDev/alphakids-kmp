@@ -903,6 +903,8 @@ private fun XpProgressBar(
                 .fillMaxWidth()
                 .height(8.dp),
             color = XpBarStart,
+            // circadian-exempt: fixed subtle track groove behind the filled bar,
+            // same low-alpha white used for every progress track in the app.
             trackColor = Color.White.copy(alpha = 0.2f),
             strokeCap = StrokeCap.Round,
         )
@@ -931,6 +933,8 @@ private fun PetStatBar(
                 .weight(1f)
                 .height(10.dp),
             color = color,
+            // circadian-exempt: fixed subtle track groove behind the filled bar,
+            // same low-alpha white used for every progress track in the app.
             trackColor = Color.White.copy(alpha = 0.2f),
             strokeCap = StrokeCap.Round,
         )

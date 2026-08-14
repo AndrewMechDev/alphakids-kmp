@@ -46,6 +46,7 @@ import org.alphakids.app.navigation.Screen
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 import org.alphakids.app.theme.circadianBackground
+import org.alphakids.app.theme.glassChipUnselectedLabel
 import org.alphakids.app.theme.glassNavIndicator
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
@@ -223,10 +224,10 @@ private fun GlassmorphicNavigationBar(
                     },
                     alwaysShowLabel = true,
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
-                        selectedTextColor = if (isNight) Color(0xFF9CB8FF) else MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
-                        unselectedTextColor = if (isNight) Color.White.copy(alpha = 0.5f) else Color(0xFF4A5568),
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = glassChipUnselectedLabel(),
+                        unselectedTextColor = glassChipUnselectedLabel(),
                         indicatorColor = glassNavIndicator(),
                     ),
                 )

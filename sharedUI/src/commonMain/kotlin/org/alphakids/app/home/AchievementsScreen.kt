@@ -65,6 +65,7 @@ import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
+import org.alphakids.app.theme.isNightTime
 
 // ── Sub-tab definitions ──
 
@@ -154,6 +155,7 @@ private fun AchievementsSubTabBar(
     selectedIndex: Int,
     onTabSelected: (Int) -> Unit,
 ) {
+    val isNight = isNightTime()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,8 +169,10 @@ private fun AchievementsSubTabBar(
                     .weight(1f)
                     .clip(RoundedCornerShape(10.dp))
                     .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else glassCardColor(),
+                        color = if (isSelected) {
+                            if (isNight) Color.White.copy(alpha = 0.2f)
+                            else MaterialTheme.colorScheme.primary
+                        } else glassCardColor(),
                     )
                     .clickable { onTabSelected(tab.index) }
                     .padding(vertical = 8.dp),
@@ -178,8 +182,8 @@ private fun AchievementsSubTabBar(
                     text = tab.displayName,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else glassTextSecondary(),
+                    // selected: on a solid/branded chip bg, white stays legible both cycles
+                    color = if (isSelected) Color.White else glassTextSecondary(),
                     maxLines = 1,
                 )
             }
@@ -296,6 +300,8 @@ private fun CurrentRankCard(
                     .height(14.dp)
                     .clip(RoundedCornerShape(7.dp)),
                 color = XpBarEnd,
+                // circadian-exempt: fixed subtle track groove behind the filled bar,
+                // same low-alpha white used for every progress track in the app.
                 trackColor = Color.White.copy(alpha = 0.2f),
             )
 
@@ -375,12 +381,16 @@ private fun RankCard(
                     text = rank.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isUnlocked) glassTextColor() else glassTextSecondary().copy(alpha = 0.5f),
+                    // Locked state is already communicated by the dimmed card
+                    // background + lock icon — stacking a second alpha here
+                    // on top of glassTextSecondary()'s own muted tone made
+                    // locked rank names nearly unreadable at night.
+                    color = if (isUnlocked) glassTextColor() else glassTextSecondary(),
                 )
                 Text(
                     text = rank.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isUnlocked) glassTextSecondary() else glassTextSecondary().copy(alpha = 0.5f),
+                    color = glassTextSecondary(),
                 )
             }
 

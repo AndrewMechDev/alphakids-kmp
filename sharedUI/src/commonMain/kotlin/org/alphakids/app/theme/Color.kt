@@ -1,9 +1,6 @@
 package org.alphakids.app.theme
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 
 // ── Primary Palette ──
 val PrimaryBlue = Color(0xFF3B7DF6)
@@ -111,9 +108,3 @@ val DarkColorScheme = androidx.compose.material3.darkColorScheme(
     surfaceTint = Color(0xFF9DBEFF),
 )
 
-object AlphaCardDefaults {
-    val Elevation = 2.dp
-    val Shape = RoundedCornerShape(16.dp)
-    val ContentPadding = PaddingValues(16.dp)
-    val Spacing = 12.dp
-}

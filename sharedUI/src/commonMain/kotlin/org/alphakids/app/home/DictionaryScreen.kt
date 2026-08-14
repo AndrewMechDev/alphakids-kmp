@@ -384,7 +384,7 @@ private fun AlphabetWheelPicker(
     // circadian-exempt: solid gold accent for the centered/active letter, saturated
     // enough to stay legible against both the light and dark circadian gradient.
     val activeColor = Color(0xFFFFD54F)
-    val availableColor = if (isNight) Color.White else Color(0xFF1A202C)
+    val availableColor = glassTextColor()
     val unavailableColor = if (isNight) Color.White.copy(alpha = 0.35f) else Color(0xFF718096)
 
     val effectiveLetter = selectedWordLetter ?: activeLetter ?: 'A'

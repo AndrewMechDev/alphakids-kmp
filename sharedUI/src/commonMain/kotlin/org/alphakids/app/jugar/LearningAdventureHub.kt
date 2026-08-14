@@ -195,6 +195,8 @@ private fun GameCard(
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
+        // circadian-exempt: all white content below sits on this card's own solid
+        // gradient fill, not the circadian background — legible either cycle.
         Box(
             modifier = Modifier
                 .fillMaxWidth()

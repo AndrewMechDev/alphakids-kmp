@@ -252,6 +252,8 @@ private fun WordCard(
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
+        // circadian-exempt: all white content below sits on this card's own solid
+        // gradient fill, not the circadian background — legible either cycle.
         Box(
             modifier = Modifier
                 .fillMaxWidth()

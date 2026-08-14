@@ -224,7 +224,7 @@ fun WordScannerChallenge(
                             .border(
                                 width = 3.dp,
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha),
-                                shape = RoundedCornerShape(20.dp),
+                                shape = MaterialTheme.shapes.large,
                             ),
                     )
                 }
