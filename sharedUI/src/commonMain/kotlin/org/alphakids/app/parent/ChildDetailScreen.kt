@@ -1,7 +1,6 @@
 package org.alphakids.app.parent
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.components.AlphaInlineLoading
 import org.alphakids.app.components.resolveAvatarUrl
 import androidx.compose.material3.Icon
@@ -51,7 +51,6 @@ import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_book_open
 import alphakids_kmp.sharedui.generated.resources.ic_camera
 import alphakids_kmp.sharedui.generated.resources.ic_microphone
@@ -97,19 +96,7 @@ fun ChildDetailScreen(
                 .circadianBackground()
                 .fillMaxSize(),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { navController.popBackStack() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Volver",
-                    tint = glassTextColor(),
-                    modifier = Modifier.size(24.dp),
-                )
-            }
+            AlphaBackIcon(onClick = { navController.popBackStack() })
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -141,19 +128,7 @@ fun ChildDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clickable { navController.popBackStack() },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_left),
-                        contentDescription = "Volver",
-                        tint = glassTextColor(),
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+                AlphaBackIcon(onClick = { navController.popBackStack() })
             }
         }
 

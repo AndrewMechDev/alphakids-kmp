@@ -57,7 +57,7 @@ import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextSecondary
 
 /**
- * Step 3 of 5 — DiceBear avatar selection screen.
+ * Step 4 of 6 — DiceBear avatar selection screen.
  *
  * Shows 3 categories (Animals, Explorers, Fantasy) as filter chips,
  * each with a 3-column grid of DiceBear SVG avatars.

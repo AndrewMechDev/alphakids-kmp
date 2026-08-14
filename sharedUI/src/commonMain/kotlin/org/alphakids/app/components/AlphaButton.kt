@@ -1,8 +1,10 @@
 package org.alphakids.app.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -35,6 +37,8 @@ import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 
 /**
  * Primary button — filled, pill-shaped.
@@ -219,6 +223,32 @@ fun AlphaIconButton(
         Icon(
             painter = org.jetbrains.compose.resources.painterResource(icon),
             contentDescription = contentDescription,
+            modifier = Modifier.size(24.dp),
+        )
+    }
+}
+
+/**
+ * Plain back-navigation icon — transparent 48dp tap target with a left arrow.
+ * Use at the top of a screen that has no [AlphaHeader] but still needs a
+ * visible way back (e.g. a celebration or waiting-room screen).
+ */
+@Composable
+fun AlphaBackIcon(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentDescription: String = "Volver",
+) {
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_arrow_left),
+            contentDescription = contentDescription,
+            tint = glassTextColor(),
             modifier = Modifier.size(24.dp),
         )
     }

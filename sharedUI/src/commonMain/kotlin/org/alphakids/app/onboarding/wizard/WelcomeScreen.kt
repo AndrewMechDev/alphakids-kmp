@@ -4,7 +4,6 @@ import org.alphakids.app.theme.AlphaGradients
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.koinInject
@@ -58,7 +58,6 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_corriendo
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
@@ -146,19 +145,7 @@ fun WelcomeScreen(
         // Back button — nothing has been created yet at this point, so it's
         // safe to let the parent step back through the wizard to fix something.
         Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start = 8.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { navController.popBackStack() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Volver",
-                    tint = glassTextColor(),
-                    modifier = Modifier.size(24.dp),
-                )
-            }
+            AlphaBackIcon(onClick = { navController.popBackStack() })
         }
 
         Spacer(modifier = Modifier.height(8.dp))

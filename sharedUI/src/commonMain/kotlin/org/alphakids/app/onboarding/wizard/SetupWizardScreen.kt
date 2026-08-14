@@ -50,7 +50,7 @@ import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 
 /**
- * Step 1 of 5 — Wizard setup intro screen.
+ * Step 1 of 6 — Wizard setup intro screen.
  *
  * Welcomes the parent, shows benefit cards with Alphi character,
  * and provides a "Comenzar configuración" CTA to start the child profile wizard.

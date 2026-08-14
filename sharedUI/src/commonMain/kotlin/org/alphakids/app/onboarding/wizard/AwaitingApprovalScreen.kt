@@ -5,8 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.koinInject
@@ -47,7 +46,6 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.alphi_pensando
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
@@ -151,24 +149,11 @@ fun AwaitingApprovalScreen(navController: NavController) {
             .circadianBackground()
             .fillMaxSize(),
     ) {
-        Box(
-            modifier = Modifier
-                .padding(8.dp)
-                .size(48.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = { showBackConfirm = true },
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_arrow_left),
-                contentDescription = "Elegir otro perfil",
-                tint = glassTextColor(),
-                modifier = Modifier.size(24.dp),
-            )
-        }
+        AlphaBackIcon(
+            onClick = { showBackConfirm = true },
+            modifier = Modifier.padding(8.dp),
+            contentDescription = "Elegir otro perfil",
+        )
 
         Column(
             modifier = Modifier

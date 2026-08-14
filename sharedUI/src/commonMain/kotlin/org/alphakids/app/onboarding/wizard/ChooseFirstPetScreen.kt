@@ -59,7 +59,7 @@ private fun petImageResource(petId: String) = when (petId) {
 }
 
 /**
- * Step 4 of 5 — Choose first pet screen.
+ * Step 5 of 6 — Choose first pet screen.
  *
  * Displays 3 starter pets as selectable cards. On confirm, shows a naming modal.
  * Navigates to [Screen.Welcome] after name confirmation.
