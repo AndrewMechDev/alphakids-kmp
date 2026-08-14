@@ -199,9 +199,13 @@ private fun RangosContent(achievementData: AchievementData) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
     ) {
-        // Current rank header
+        // Current rank header \u2014 the highest rank whose requiredLevel the
+        // child has actually reached, not just the first entry in the list
+        // (ALL_RANKS[0] is always "Semillita" regardless of real level).
         CurrentRankCard(
-            currentRank = achievementData.ranks.firstOrNull() ?: RankDef("Semillita", "\uD83C\uDF31", 1, ""),
+            currentRank = achievementData.ranks.lastOrNull { it.requiredLevel <= achievementData.level }
+                ?: achievementData.ranks.firstOrNull()
+                ?: RankDef("Semillita", "\uD83C\uDF31", 1, ""),
             level = achievementData.level,
             xp = achievementData.xp,
             xpToNext = achievementData.xpToNext,

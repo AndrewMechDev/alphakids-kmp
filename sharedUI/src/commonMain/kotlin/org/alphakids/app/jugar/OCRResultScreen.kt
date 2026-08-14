@@ -108,15 +108,19 @@ fun OCRResultScreen(
         GameProgressManager.addCoins(rewards.coins)
         GameProgressManager.completeWord(rewards.stars)
 
-        // 2. Track analytics for achievements / history
+        // 2. Track analytics for achievements / history. WordBank words have
+        // no API id, so fall back to the word text itself rather than a
+        // shared literal — otherwise every non-API word's stats would be
+        // aggregated together under one fake id.
+        val analyticsWordId = apiWordId.ifBlank { wordText.ifBlank { word.word } }
         AchievementAnalytics.trackSessionCompleted(
             gameType = "OCR_SCAN",
-            wordId = apiWordId.ifBlank { "wordbank" },
+            wordId = analyticsWordId,
             status = "COMPLETED",
             attempts = attempts,
         )
         AchievementAnalytics.trackWordCompleted(
-            wordId = apiWordId.ifBlank { "wordbank" },
+            wordId = analyticsWordId,
             wordText = wordText.ifBlank { word.word },
             attempts = attempts,
             coins = rewards.coins,

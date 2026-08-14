@@ -291,7 +291,7 @@ fun DictionaryScreen(
                 ) {
                     Icon(
                         painter = painterResource(Res.drawable.ic_arrow_left),
-                        contentDescription = "Back",
+                        contentDescription = "Volver",
                         tint = glassTextColor(),
                         modifier = Modifier.size(24.dp),
                     )
@@ -329,7 +329,15 @@ fun DictionaryScreen(
             // Word grid
             val isEmpty = filteredWords.isEmpty()
             if (isEmpty) {
-                EmptyState(modifier = Modifier.weight(1f).fillMaxWidth())
+                if (childId == null) {
+                    EmptyState(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        title = "No hay un perfil activo",
+                        subtitle = "Selecciona un perfil para ver su diccionario",
+                    )
+                } else {
+                    EmptyState(modifier = Modifier.weight(1f).fillMaxWidth())
+                }
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 150.dp),
@@ -878,7 +886,11 @@ private fun StarRating(stars: Int) {
 // ── Empty state ──
 
 @Composable
-private fun EmptyState(modifier: Modifier = Modifier) {
+private fun EmptyState(
+    modifier: Modifier = Modifier,
+    title: String = "No se encontraron palabras",
+    subtitle: String = "Intenta con otros filtros o búsqueda",
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -892,13 +904,13 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "No se encontraron palabras",
+            text = title,
             style = MaterialTheme.typography.bodyLarge,
             color = glassTextColor(),
             fontWeight = FontWeight.Medium,
         )
         Text(
-            text = "Intenta con otros filtros o búsqueda",
+            text = subtitle,
             style = MaterialTheme.typography.bodySmall,
             color = glassTextSecondary(),
         )

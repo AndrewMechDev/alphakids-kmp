@@ -40,6 +40,17 @@ class ChildDetailViewModel(
             try {
                 val children = parentRepository.getChildren()
                 val child = children.find { it.id == childId }
+
+                if (child == null) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "No se encontró este perfil. Puede que haya sido eliminado.",
+                        )
+                    }
+                    return@launch
+                }
+
                 val stats = parentRepository.getChildStats(childId)
 
                 _uiState.update {

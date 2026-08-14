@@ -92,15 +92,36 @@ fun ChildDetailScreen(
     }
 
     if (state.error != null) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+        Column(
+            modifier = modifier
+                .circadianBackground()
+                .fillMaxSize(),
         ) {
-            Text(
-                text = state.error ?: "Error desconocido",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable { navController.popBackStack() },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_left),
+                    contentDescription = "Volver",
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = state.error ?: "Error desconocido",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                )
+            }
         }
         return
     }
