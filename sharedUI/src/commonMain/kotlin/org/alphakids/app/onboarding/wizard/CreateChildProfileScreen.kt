@@ -1,15 +1,11 @@
 package org.alphakids.app.onboarding.wizard
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,11 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -40,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,20 +46,17 @@ import org.alphakids.app.components.AlphaTextField
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.model.WizardStep
 import org.alphakids.app.theme.circadianBackground
-import org.alphakids.app.theme.glassAccentColor
-import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassInputBorder
 import org.alphakids.app.theme.glassTextColor
-import org.alphakids.app.theme.glassTextSecondary
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 
 /**
- * Step 2 of 5 — Create child profile screen.
+ * Step 3 of 6 — Create child profile screen.
  *
- * Collects child name, age (2–12), birth date, and shows an avatar preview placeholder.
- * Saves to [WizardViewModel] and advances to [Screen.ChooseAvatar].
+ * Collects child first/last name and age (2–12). Saves to [WizardViewModel]
+ * and advances to [Screen.ChooseAvatar].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,11 +68,12 @@ fun CreateChildProfileScreen(
     val scrollState = rememberScrollState()
 
     // Local form state
-    var name by remember { mutableStateOf(wizardState.data.childName) }
+    var firstName by remember { mutableStateOf(wizardState.data.childFirstName) }
+    var lastName by remember { mutableStateOf(wizardState.data.childLastName) }
     var selectedAge by remember { mutableStateOf(wizardState.data.childAge?.toString() ?: "") }
     var ageExpanded by remember { mutableStateOf(false) }
 
-    val formValid = name.isNotBlank() && selectedAge.isNotBlank()
+    val formValid = firstName.isNotBlank() && lastName.isNotBlank() && selectedAge.isNotBlank()
     val ageOptions = (2..12).map { it.toString() }
 
     Column(
@@ -97,7 +87,7 @@ fun CreateChildProfileScreen(
         AlphaHeader(
             title = "Perfil del niño",
             subtitle = "Cuéntanos sobre tu hijo",
-            currentStep = 2,
+            currentStep = 3,
             totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
             onBack = { navController.popBackStack() },
@@ -125,11 +115,21 @@ fun CreateChildProfileScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Child name field
+        // Child name fields
         AlphaTextField(
-            label = "Nombre del niño",
-            value = name,
-            onValueChange = { name = it },
+            label = "Nombre(s) del niño",
+            value = firstName,
+            onValueChange = { firstName = it },
+            imeAction = ImeAction.Next,
+            modifier = Modifier.padding(horizontal = 24.dp),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AlphaTextField(
+            label = "Apellido(s) del niño",
+            value = lastName,
+            onValueChange = { lastName = it },
             imeAction = ImeAction.Next,
             modifier = Modifier.padding(horizontal = 24.dp),
         )
@@ -180,60 +180,15 @@ fun CreateChildProfileScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Avatar preview card (small circle with DiceBear seed placeholder)
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            shape = MaterialTheme.shapes.medium,
-            colors = CardDefaults.cardColors(
-                containerColor = glassCardColor(),
-            ),
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Avatar preview circle
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(glassCardColor()),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = name.firstOrNull()?.uppercase() ?: "?",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = glassAccentColor(),
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(
-                        text = "Avatar",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = glassTextColor(),
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "Personalizarás el avatar en el siguiente paso",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = glassTextSecondary(),
-                    )
-                }
-            }
-        }
-
+        Spacer(modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.height(32.dp))
 
         // Continuar button — disabled until name + age filled
         AlphaPrimaryButton(
             text = "Continuar",
             onClick = {
-                wizardViewModel.setChildName(name.trim())
+                wizardViewModel.setChildFirstName(firstName.trim())
+                wizardViewModel.setChildLastName(lastName.trim())
                 selectedAge.toIntOrNull()?.let { wizardViewModel.setChildAge(it) }
                 wizardViewModel.updateStep(WizardStep.ChooseAvatar)
                 navController.navigate(Screen.ChooseAvatar.route)

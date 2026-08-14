@@ -113,12 +113,7 @@ class AssignInstitutionViewModel(
         // Institution is already saved via selectInstitution / selectGrade
     }
 
-    /** Skip the institution step. */
-    fun skip() {
-        wizardViewModel.clearInstitution()
-    }
-
-    /** Whether the user can continue (skip is always valid). */
+    /** Whether the user can continue ("No" is always valid). */
     fun isComplete(): Boolean {
         val state = _uiState.value
         return if (state.wantsInstitution) {

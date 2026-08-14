@@ -38,4 +38,12 @@ interface ParentRepository {
      * Backed by: POST /tutors/children
      */
     suspend fun createChild(request: CreateChildRequest): CreateChildResult?
+
+    /**
+     * Delete a child profile belonging to the current parent.
+     *
+     * Backed by: DELETE /students/:id — the backend already restricts this
+     * to the student's own registeredBy parent (or admin/director/teacher).
+     */
+    suspend fun deleteChild(childId: String): Boolean
 }

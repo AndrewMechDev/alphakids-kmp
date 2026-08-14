@@ -4,11 +4,13 @@ package org.alphakids.app.onboarding.domain.model
  * Shared state for the 6-step onboarding wizard.
  *
  * Institution, grade, and section are set when the parent optionally
- * assigns this child to a school during [WizardStep.AssignInstitution].
- * All three are nullable — the step is fully skippable.
+ * assigns this child to a school during [WizardStep.AssignInstitution],
+ * which now runs before the name/avatar/pet steps. All three are nullable —
+ * the step is fully skippable.
  */
 data class WizardData(
-    val childName: String = "",
+    val childFirstName: String = "",
+    val childLastName: String = "",
     val childAge: Int? = null,
     val avatarSeed: String = "",
     val avatarStyle: String = "adventurer-neutral",
@@ -21,7 +23,8 @@ data class WizardData(
     val sectionId: String? = null,
 ) {
     val isComplete: Boolean
-        get() = childName.isNotBlank()
+        get() = childFirstName.isNotBlank()
+                && childLastName.isNotBlank()
                 && childAge != null
                 && avatarSeed.isNotBlank()
                 && selectedPetId != null
@@ -30,12 +33,15 @@ data class WizardData(
 
 /**
  * Sequential steps of the child onboarding wizard.
+ *
+ * Institution comes right after the intro so a parent linking to a school
+ * decides that first; name/avatar/pet follow.
  */
 enum class WizardStep {
     SetupIntro,
+    AssignInstitution,
     CreateChild,
     ChooseAvatar,
-    AssignInstitution,
     ChoosePet,
     Welcome;
 

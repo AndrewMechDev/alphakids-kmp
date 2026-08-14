@@ -89,7 +89,7 @@ fun ChooseAvatarScreen(
         AlphaHeader(
             title = "Elige un avatar",
             subtitle = "Selecciona el personaje de tu hijo",
-            currentStep = 3,
+            currentStep = 4,
             totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
             onBack = { navController.popBackStack() },
@@ -179,8 +179,8 @@ fun ChooseAvatarScreen(
             text = "Guardar",
             onClick = {
                 chooseAvatarViewModel.onSaveAvatar()
-                wizardViewModel.updateStep(WizardStep.AssignInstitution)
-                navController.navigate(Screen.AssignInstitution.route)
+                wizardViewModel.updateStep(WizardStep.ChoosePet)
+                navController.navigate(Screen.ChooseFirstPet.route)
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             enabled = state.selectedAvatarId != null,

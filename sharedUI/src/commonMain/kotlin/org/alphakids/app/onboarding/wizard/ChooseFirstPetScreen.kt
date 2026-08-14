@@ -84,7 +84,7 @@ fun ChooseFirstPetScreen(
         AlphaHeader(
             title = "Tu primera mascota",
             subtitle = "Elige a tu compañero de aventuras",
-            currentStep = 4,
+            currentStep = 5,
             totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = false,
             onBack = { navController.popBackStack() },
@@ -137,9 +137,9 @@ fun ChooseFirstPetScreen(
             onConfirm = {
                 if (choosePetViewModel.onNameConfirmed()) {
                     wizardViewModel.updateStep(WizardStep.Welcome)
-                    navController.navigate(Screen.Welcome.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                    // No popUpTo here — WelcomeScreen needs the back stack intact
+                    // so its back button can return the parent to earlier wizard steps.
+                    navController.navigate(Screen.Welcome.route)
                 }
             },
             onDismiss = choosePetViewModel::onDismissNaming,

@@ -30,10 +30,12 @@ class WizardViewModelTest {
     }
 
     @Test
-    fun `setChildName updates name`() {
+    fun `setChildFirstName and setChildLastName update name`() {
         val viewModel = WizardViewModel()
-        viewModel.setChildName("Alice")
-        assertEquals("Alice", viewModel.state.value.data.childName)
+        viewModel.setChildFirstName("Alice")
+        viewModel.setChildLastName("Smith")
+        assertEquals("Alice", viewModel.state.value.data.childFirstName)
+        assertEquals("Smith", viewModel.state.value.data.childLastName)
     }
 
     @Test
@@ -69,7 +71,8 @@ class WizardViewModelTest {
     fun `resetWizard clears all state`() {
         val viewModel = WizardViewModel()
 
-        viewModel.setChildName("Alice")
+        viewModel.setChildFirstName("Alice")
+        viewModel.setChildLastName("Smith")
         viewModel.setChildAge(7)
         viewModel.setAvatar("seed", "style")
         viewModel.setPet("pet-id")

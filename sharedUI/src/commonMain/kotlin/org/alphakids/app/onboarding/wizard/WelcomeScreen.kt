@@ -4,6 +4,7 @@ import org.alphakids.app.theme.AlphaGradients
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,7 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_corriendo
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
+import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
 import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
 import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
@@ -76,10 +78,13 @@ private fun petImageResource(petId: String?) = when (petId) {
 }
 
 /**
- * Step 5 of 5 — Celebration welcome screen.
+ * Step 6 of 6 — Celebration welcome screen.
  *
  * Shows the child's avatar, chosen pet, starting stats (coins, level, rank),
- * and a celebratory message from Alphi. Blocks back navigation.
+ * and a celebratory message from Alphi. Nothing is created yet at this
+ * point — the profile is only submitted after the "¿Confirmar perfil?"
+ * dialog — so a visible back button lets the parent return through the
+ * wizard to fix a mistake before confirming.
  */
 @Composable
 fun WelcomeScreen(
@@ -138,7 +143,25 @@ fun WelcomeScreen(
             .graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
+        // Back button — nothing has been created yet at this point, so it's
+        // safe to let the parent step back through the wizard to fix something.
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start = 8.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable { navController.popBackStack() },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_left),
+                    contentDescription = "Volver",
+                    tint = glassTextColor(),
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Secondary Alphi (corriendo)
         Image(
@@ -151,7 +174,7 @@ fun WelcomeScreen(
 
         // Welcome message
         Text(
-            text = "¡${data.childName}, tu aventura comienza ahora!",
+            text = "¡${data.childFirstName}, tu aventura comienza ahora!",
             style = MaterialTheme.typography.headlineMedium,
             color = glassTextColor(),
             textAlign = TextAlign.Center,
@@ -172,13 +195,13 @@ fun WelcomeScreen(
             if (dicebearUrl != null) {
                 AsyncImage(
                     model = dicebearUrl,
-                    contentDescription = "Avatar de ${data.childName}",
+                    contentDescription = "Avatar de ${data.childFirstName}",
                     modifier = Modifier.fillMaxSize().clip(CircleShape).padding(8.dp),
                     contentScale = ContentScale.Fit,
                 )
             } else {
                 Text(
-                    text = data.childName.firstOrNull()?.uppercase() ?: "?",
+                    text = data.childFirstName.firstOrNull()?.uppercase() ?: "?",
                     style = MaterialTheme.typography.displayMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
@@ -308,7 +331,7 @@ fun WelcomeScreen(
                 val instNote = if (data.institutionName != null) {
                     "\n\nVinculado a: ${data.institutionName}"
                 } else ""
-                Text("Se creará el perfil de ${data.childName} con la mascota elegida$instNote")
+                Text("Se creará el perfil de ${data.childFirstName} con la mascota elegida$instNote")
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -317,12 +340,8 @@ fun WelcomeScreen(
                     creationError = null
 
                     val d = wizardViewModel.state.value.data
-
-                    // Split childName into firstName / lastName.
-                    // If only one word is entered, use it for both (API requires both non-empty).
-                    val nameParts = d.childName.trim().split(" ", limit = 2)
-                    val firstName = nameParts.getOrElse(0) { d.childName }
-                    val lastName = nameParts.getOrElse(1) { firstName }
+                    val firstName = d.childFirstName
+                    val lastName = d.childLastName
 
                     // Birth date is optional in the API — skip for now
                     val birthDate: String? = null

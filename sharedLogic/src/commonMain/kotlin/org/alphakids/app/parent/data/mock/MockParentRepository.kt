@@ -137,4 +137,8 @@ class MockParentRepository : ParentRepository {
             studentType = studentType,
         )
     }
+
+    override suspend fun deleteChild(childId: String): Boolean {
+        return children.removeAll { it.id == childId }
+    }
 }

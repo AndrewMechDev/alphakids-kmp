@@ -308,7 +308,7 @@ fun AwaitingApprovalScreen(navController: NavController) {
         )
     }
 
-    // ── Rejected — send back to a clean start ──
+    // ── Rejected — parece que no pertenece al colegio; puede seguir gratis ──
     if (status == "REJECTED") {
         AlertDialog(
             onDismissRequest = {},
@@ -316,17 +316,30 @@ fun AwaitingApprovalScreen(navController: NavController) {
             title = { Text("Solicitud no aprobada") },
             text = {
                 Text(
-                    "El director no aprobó este perfil para el colegio seleccionado. " +
-                        "Puedes crear el perfil de nuevo sin institución o contactar al colegio."
+                    "Tu solicitud no fue aprobada — parece que tu hijo no pertenece a este colegio. " +
+                        "Puedes seguir usando la versión gratuita mientras tanto."
                 )
             },
             confirmButton = {
                 AlphaPrimaryButton(
-                    text = "Entendido",
+                    text = "Continuar en modo gratis",
                     onClick = {
-                        SessionManager.clearSession()
-                        navController.navigate(Screen.WelcomeSelection.route) {
-                            popUpTo(0) { inclusive = true }
+                        navController.navigate(Screen.AdventureHome.route) {
+                            popUpTo(Screen.Splash.route) { inclusive = true }
+                        }
+                    },
+                )
+            },
+            dismissButton = {
+                AlphaTextButton(
+                    text = "Cerrar sesión",
+                    onClick = {
+                        coroutineScope.launch {
+                            authRepository.logout()
+                            SessionManager.clearSession()
+                            navController.navigate(Screen.WelcomeSelection.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
                     },
                 )

@@ -114,6 +114,27 @@ class ParentRepositoryImpl(
         }
     }
 
+    /**
+     * Elimina un perfil de hijo del tutor.
+     * DELETE /students/:id
+     */
+    override suspend fun deleteChild(childId: String): Boolean {
+        return try {
+            val response = api.httpClient.delete(ApiConstants.student(childId))
+
+            if (response.status == HttpStatusCode.Unauthorized) {
+                if (api.refreshTokens()) {
+                    return api.httpClient.delete(ApiConstants.student(childId)).status.isSuccess()
+                }
+                return false
+            }
+
+            response.status.isSuccess()
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     override suspend fun getChildStats(childId: String): ChildStats {
         return try {
             val response = api.httpClient.get(ApiConstants.studentAchievements(childId))

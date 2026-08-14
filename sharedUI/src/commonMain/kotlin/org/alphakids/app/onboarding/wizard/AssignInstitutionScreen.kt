@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,6 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.alphakids.app.components.AlphaHeader
 import org.alphakids.app.components.AlphaPrimaryButton
+import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.navigation.Screen
@@ -56,13 +61,15 @@ import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
 
 /**
- * Step 4 of 6 — Optional institution assignment screen.
+ * Step 2 of 6 — Institution assignment screen, asked right after the intro
+ * and before name/avatar/pet.
  *
  * Lets the parent optionally assign the child to an institution by picking
  * from the list returned by GET /institutions/public.
  * The parent can also select grade and section within the institution.
  *
- * All selections are optional — the step can be fully skipped.
+ * "No" requires an explicit confirmation before continuing, since that's
+ * the choice that determines the child stays FREEMIUM.
  */
 @Composable
 fun AssignInstitutionScreen(
@@ -73,6 +80,37 @@ fun AssignInstitutionScreen(
     val wizardState by wizardViewModel.state.collectAsState()
     val uiState by assignViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    var showNoConfirm by remember { mutableStateOf(false) }
+
+    fun proceedToCreateChild() {
+        assignViewModel.confirmSelection()
+        wizardViewModel.updateStep(WizardStep.CreateChild)
+        navController.navigate(Screen.CreateChild.route)
+    }
+
+    if (showNoConfirm) {
+        AlertDialog(
+            onDismissRequest = { showNoConfirm = false },
+            shape = MaterialTheme.shapes.large,
+            title = { Text("¿Tu hijo no asiste a un colegio?") },
+            text = { Text("Confirma que tu hijo no está inscrito en ningún colegio registrado en AlphaKids.") },
+            confirmButton = {
+                AlphaPrimaryButton(
+                    text = "Sí, confirmar",
+                    onClick = {
+                        showNoConfirm = false
+                        proceedToCreateChild()
+                    },
+                )
+            },
+            dismissButton = {
+                AlphaTextButton(
+                    text = "Cancelar",
+                    onClick = { showNoConfirm = false },
+                )
+            },
+        )
+    }
 
     // Auto-load institutions when the user opts in
     LaunchedEffect(uiState.wantsInstitution) {
@@ -92,7 +130,7 @@ fun AssignInstitutionScreen(
         AlphaHeader(
             title = "¿Pertenece a un colegio?",
             subtitle = "Vincula el perfil a una institución educativa",
-            currentStep = 4,
+            currentStep = 2,
             totalSteps = WizardStep.TOTAL_STEPS,
             showAlphi = true,
             onBack = { navController.popBackStack() },
@@ -217,38 +255,20 @@ fun AssignInstitutionScreen(
         Spacer(modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Bottom buttons
-        Row(
+        // Continuar — "No" pide confirmación antes de avanzar; "Sí" + colegio
+        // elegido avanza directo con la institución asignada.
+        AlphaPrimaryButton(
+            text = "Continuar",
+            onClick = {
+                if (uiState.wantsInstitution) {
+                    proceedToCreateChild()
+                } else {
+                    showNoConfirm = true
+                }
+            },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            OutlinedButton(
-                onClick = {
-                    assignViewModel.skip()
-                    wizardViewModel.updateStep(WizardStep.ChoosePet)
-                    navController.navigate(Screen.ChooseFirstPet.route) {
-                        popUpTo(Screen.AssignInstitution.route) { inclusive = true }
-                    }
-                },
-                modifier = Modifier.weight(1f),
-                shape = MaterialTheme.shapes.small,
-            ) {
-                Text("Omitir")
-            }
-
-            AlphaPrimaryButton(
-                text = "Continuar",
-                onClick = {
-                    assignViewModel.confirmSelection()
-                    wizardViewModel.updateStep(WizardStep.ChoosePet)
-                    navController.navigate(Screen.ChooseFirstPet.route) {
-                        popUpTo(Screen.AssignInstitution.route) { inclusive = true }
-                    }
-                },
-                modifier = Modifier.weight(1f),
-                enabled = assignViewModel.isComplete(),
-            )
-        }
+            enabled = assignViewModel.isComplete(),
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
     }

@@ -167,8 +167,8 @@ fun SetupWizardScreen(
             AlphaPrimaryButton(
                 text = "Comenzar configuración",
                 onClick = {
-                    wizardViewModel.updateStep(WizardStep.CreateChild)
-                    navController.navigate(Screen.CreateChild.route)
+                    wizardViewModel.updateStep(WizardStep.AssignInstitution)
+                    navController.navigate(Screen.AssignInstitution.route)
                 },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             )

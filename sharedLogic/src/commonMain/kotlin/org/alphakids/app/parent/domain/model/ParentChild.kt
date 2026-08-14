@@ -1,5 +1,8 @@
 package org.alphakids.app.parent.domain.model
 
+/** Soft cap on children per parent — mirrors the backend limit enforced in tutors.service.ts:createChild. */
+const val MAX_CHILDREN = 3
+
 data class ChildSummary(
     val id: String,
     val name: String,

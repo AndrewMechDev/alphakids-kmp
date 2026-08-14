@@ -50,6 +50,7 @@ import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.parent.domain.model.MAX_CHILDREN
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import coil3.compose.AsyncImage
@@ -65,9 +66,6 @@ import org.alphakids.app.theme.glassTextSecondary
 
 /** Fixed neutral color for the "Agregar" action circle — same in both circadian cycles. */
 private val addProfileColor = Color(0xFF37474F)
-
-/** Soft cap on children per parent — mirrors the backend limit once implemented there. */
-private const val MAX_CHILDREN = 3
 
 @Composable
 fun NetflixProfilesScreen(navController: NavController) {

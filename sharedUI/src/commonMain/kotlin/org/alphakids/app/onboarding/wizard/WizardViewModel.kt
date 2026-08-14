@@ -28,8 +28,12 @@ class WizardViewModel : ViewModel() {
         _state.update { it.copy(step = step) }
     }
 
-    fun setChildName(name: String) {
-        _state.update { it.copy(data = it.data.copy(childName = name)) }
+    fun setChildFirstName(firstName: String) {
+        _state.update { it.copy(data = it.data.copy(childFirstName = firstName)) }
+    }
+
+    fun setChildLastName(lastName: String) {
+        _state.update { it.copy(data = it.data.copy(childLastName = lastName)) }
     }
 
     fun setChildAge(age: Int) {
