@@ -8,8 +8,8 @@ package org.alphakids.app.data.remote
  */
 object ApiConstants {
 
-    /** Production API — hosted on Render (api.alphakids.org.pe DNS is no longer used). */
-    const val BASE_URL: String = "https://alphakids-back.onrender.com"
+    /** Production API — hosted on Railway (Render instance is down as of 2026-08-14). */
+    const val BASE_URL: String = "https://alphakids-back-production.up.railway.app"
 
     // ── Auth ──
     const val LOGIN = "auth/login"
