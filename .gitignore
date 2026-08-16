@@ -55,6 +55,8 @@ secrets/
 *.pfx
 *.cer
 *.p12
+keystore.properties
+!keystore.properties.example
 
 # Config con credenciales
 **/credentials.json
