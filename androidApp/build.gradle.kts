@@ -31,9 +31,20 @@ dependencies {
     implementation(libs.mlkit.text.recognition)
 }
 
+// Resolution order: -PapiBaseUrl=... (CI/local override) > ALPHAKIDS_API_BASE_URL
+// env var > the current production default. Never edit ApiConstants.kt by
+// hand to point at a different backend again — override it here instead.
+val apiBaseUrl: String = (project.findProperty("apiBaseUrl") as String?)
+    ?: System.getenv("ALPHAKIDS_API_BASE_URL")
+    ?: "https://alphakids-back-production.up.railway.app"
+
 android {
     namespace = "org.alphakids.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "org.alphakids.app"
@@ -41,6 +52,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
     packaging {
         resources {

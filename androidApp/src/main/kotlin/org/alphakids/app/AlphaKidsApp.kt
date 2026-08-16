@@ -20,6 +20,7 @@ class AlphaKidsApp : Application() {
         super.onCreate()
         val koinApp = startKoin {
             androidContext(this@AlphaKidsApp)
+            properties(mapOf("apiBaseUrl" to BuildConfig.API_BASE_URL))
             modules(
                 commonModule,
                 domainModule,

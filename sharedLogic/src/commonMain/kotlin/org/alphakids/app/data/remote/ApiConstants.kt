@@ -3,12 +3,18 @@ package org.alphakids.app.data.remote
 /**
  * Base URL and endpoint paths for the AlphaKids API.
  *
- * Override [BASE_URL] at build time via Gradle buildConfigField or
- * environment variable for different environments (dev/staging/prod).
+ * [BASE_URL] here is only the fallback default. On Android, the real value
+ * comes from `BuildConfig.API_BASE_URL` (see `androidApp/build.gradle.kts`,
+ * resolved from `-PapiBaseUrl=...` / `ALPHAKIDS_API_BASE_URL` env var / this
+ * default, in that order) and is injected into Koin as the "apiBaseUrl"
+ * property in `AlphaKidsApp.kt` — see [org.alphakids.app.di.dataModule].
+ * Never hand-edit this constant to point at a different backend; override
+ * it at build time instead, or Android's actual production value silently
+ * diverges from what this file claims.
  */
 object ApiConstants {
 
-    /** Production API — hosted on Railway (Render instance is down as of 2026-08-14). */
+    /** Fallback default — used if no "apiBaseUrl" Koin property is set (e.g. iOS, tests). */
     const val BASE_URL: String = "https://alphakids-back-production.up.railway.app"
 
     // ── Auth ──
