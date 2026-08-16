@@ -3,6 +3,8 @@ package org.alphakids.app.data.remote
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -14,7 +16,12 @@ import org.alphakids.app.data.remote.dto.AuthResponseDto
  * HTTP client for the AlphaKids API following the mobile integration guide.
  *
  * Features:
- * - Auto-injects Bearer token via [tokenProvider] in every request
+ * - Bearer token auto-injected and auto-refreshed on 401 via Ktor's [Auth]
+ *   plugin — every call site (including future repositories) is covered
+ *   without reimplementing a manual "if 401 then refresh" block. Two real
+ *   repositories (Store, StudentPet) shipped without that manual block
+ *   before this was centralized, which meant purchases/pet-feeding just
+ *   silently stopped working once the access token expired mid-session.
  * - JSON serialization via kotlinx (lenient, ignores unknown keys)
  * - 30s request timeout
  * - Content-Type: application/json by default
@@ -47,41 +54,46 @@ class AlphaKidsApiClient(
             socketTimeoutMillis = 30_000
         }
 
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    val access = tokenStorage.accessToken ?: return@loadTokens null
+                    BearerTokens(access, tokenStorage.refreshToken ?: "")
+                }
+
+                refreshTokens {
+                    val refreshToken = tokenStorage.refreshToken ?: return@refreshTokens null
+                    try {
+                        val response = client.post(ApiConstants.REFRESH) {
+                            markAsRefreshTokenRequest()
+                            setBody(mapOf("refresh_token" to refreshToken))
+                        }
+                        if (!response.status.isSuccess()) {
+                            // The server itself rejected the refresh token —
+                            // it's genuinely invalid/expired. Log out for real.
+                            tokenStorage.clear()
+                            return@refreshTokens null
+                        }
+                        val body = response.body<AuthResponseDto>()
+                        tokenStorage.accessToken = body.accessToken
+                        tokenStorage.refreshToken = body.refreshToken
+                        BearerTokens(body.accessToken, body.refreshToken)
+                    } catch (_: Exception) {
+                        // A network failure while refreshing is NOT the same
+                        // as an invalid refresh token — don't clear it, or a
+                        // brief connectivity blip logs the child out for no
+                        // real reason. The caller's own request just fails
+                        // this once and can be retried later.
+                        null
+                    }
+                }
+            }
+        }
+
         defaultRequest {
             url(baseUrl)
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-
-            // Auto-inject Bearer token from storage
-            tokenStorage.accessToken?.let {
-                header(HttpHeaders.Authorization, "Bearer $it")
-            }
-        }
-    }
-
-    /**
-     * Refreshes tokens by calling POST /auth/refresh.
-     * Returns true if the refresh succeeded.
-     */
-    suspend fun refreshTokens(): Boolean {
-        val refreshToken = tokenStorage.refreshToken ?: return false
-
-        return try {
-            val response = httpClient.post(ApiConstants.REFRESH) {
-                setBody(mapOf("refresh_token" to refreshToken))
-            }
-            if (response.status.isSuccess()) {
-                val body = response.body<AuthResponseDto>()
-                tokenStorage.accessToken = body.accessToken
-                tokenStorage.refreshToken = body.refreshToken
-                true
-            } else {
-                tokenStorage.clear()
-                false
-            }
-        } catch (_: Exception) {
-            tokenStorage.clear()
-            false
         }
     }
 }

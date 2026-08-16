@@ -42,16 +42,6 @@ class ParentRepositoryImpl(
     override suspend fun getChildren(): List<ChildSummary> {
         return try {
             val response = api.httpClient.get(ApiConstants.TUTORS_CHILDREN)
-
-            if (response.status == HttpStatusCode.Unauthorized) {
-                if (api.refreshTokens()) {
-                    val retry = api.httpClient.get(ApiConstants.TUTORS_CHILDREN)
-                    if (!retry.status.isSuccess()) return emptyList()
-                    return retry.body<List<StudentResponseDto>>().map { it.toChildSummary() }
-                }
-                return emptyList()
-            }
-
             if (!response.status.isSuccess()) return emptyList()
             response.body<List<StudentResponseDto>>().map { it.toChildSummary() }
         } catch (_: Exception) {
@@ -120,16 +110,7 @@ class ParentRepositoryImpl(
      */
     override suspend fun deleteChild(childId: String): Boolean {
         return try {
-            val response = api.httpClient.delete(ApiConstants.student(childId))
-
-            if (response.status == HttpStatusCode.Unauthorized) {
-                if (api.refreshTokens()) {
-                    return api.httpClient.delete(ApiConstants.student(childId)).status.isSuccess()
-                }
-                return false
-            }
-
-            response.status.isSuccess()
+            api.httpClient.delete(ApiConstants.student(childId)).status.isSuccess()
         } catch (_: Exception) {
             false
         }
@@ -138,16 +119,6 @@ class ParentRepositoryImpl(
     override suspend fun getChildStats(childId: String): ChildStats {
         return try {
             val response = api.httpClient.get(ApiConstants.studentAchievements(childId))
-
-            if (response.status == HttpStatusCode.Unauthorized) {
-                if (api.refreshTokens()) {
-                    val retry = api.httpClient.get(ApiConstants.studentAchievements(childId))
-                    if (!retry.status.isSuccess()) return ChildStats()
-                    return retry.body<AchievementsResponseDto>().toChildStats()
-                }
-                return ChildStats()
-            }
-
             if (!response.status.isSuccess()) return ChildStats()
             response.body<AchievementsResponseDto>().toChildStats()
         } catch (_: Exception) {
