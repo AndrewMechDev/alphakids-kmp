@@ -15,7 +15,7 @@ package org.alphakids.app.data.remote
 object ApiConstants {
 
     /** Fallback default — used if no "apiBaseUrl" Koin property is set (e.g. iOS, tests). */
-    const val BASE_URL: String = "https://alphakids-back-production.up.railway.app"
+    const val BASE_URL: String = "https://alphakids-api.onrender.com"
 
     // ── Auth ──
     const val LOGIN = "auth/login"

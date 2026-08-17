@@ -38,7 +38,7 @@ dependencies {
 // hand to point at a different backend again — override it here instead.
 val apiBaseUrl: String = (project.findProperty("apiBaseUrl") as String?)
     ?: System.getenv("ALPHAKIDS_API_BASE_URL")
-    ?: "https://alphakids-back-production.up.railway.app"
+    ?: "https://alphakids-api.onrender.com"
 
 // Release signing — see keystore.properties.example for how to generate the
 // keystore and fill this in. keystore.properties is gitignored on purpose;
