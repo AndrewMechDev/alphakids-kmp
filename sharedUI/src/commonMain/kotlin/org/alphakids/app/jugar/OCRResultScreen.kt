@@ -24,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import org.alphakids.app.components.AlphaBackIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -59,7 +60,6 @@ import org.alphakids.app.theme.WarningYellow
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
 import alphakids_kmp.sharedui.generated.resources.ic_clock
 import alphakids_kmp.sharedui.generated.resources.ic_coin
@@ -164,23 +164,7 @@ fun OCRResultScreen(
                     )
                 },
                 navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = { navController.popBackStack() },
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_arrow_left),
-                            contentDescription = "Volver",
-                            tint = glassTextColor(),
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
+                    AlphaBackIcon(onClick = { navController.popBackStack() })
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,

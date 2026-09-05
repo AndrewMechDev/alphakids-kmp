@@ -34,6 +34,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import org.alphakids.app.components.AlphaBackIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -88,7 +89,6 @@ import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_search
 import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 import alphakids_kmp.sharedui.generated.resources.ic_speaker
@@ -283,19 +283,7 @@ fun DictionaryScreen(
         Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
             // Back arrow
             onBack?.let { back ->
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clickable(onClick = back),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_left),
-                        contentDescription = "Volver",
-                        tint = glassTextColor(),
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+                AlphaBackIcon(onClick = back)
             }
 
             // Search bar

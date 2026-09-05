@@ -2,7 +2,6 @@ package org.alphakids.app.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.components.AlphaTextField
@@ -47,7 +46,6 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_padre
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -92,25 +90,10 @@ fun LoginScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .size(48.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) {
-                        navController.popBackStack()
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_left),
-                    contentDescription = "Volver",
-                    tint = glassTextColor(),
-                    modifier = Modifier.size(24.dp),
-                )
-            }
+            AlphaBackIcon(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.Start),
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

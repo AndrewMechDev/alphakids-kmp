@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.circadianBackground
@@ -54,7 +55,6 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.Icon
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_trabajando
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_camera
 import alphakids_kmp.sharedui.generated.resources.ic_microphone
 import androidx.compose.ui.graphics.painter.Painter
@@ -77,18 +77,7 @@ fun LearningAdventureHub(navController: NavController) {
                     )
                 },
                 navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clickable { navController.popBackStack() },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_arrow_left),
-                            contentDescription = "Volver",
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
+                    AlphaBackIcon(onClick = { navController.popBackStack() })
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,

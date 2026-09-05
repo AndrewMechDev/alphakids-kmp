@@ -63,8 +63,8 @@ import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.Icon
+import org.alphakids.app.components.AlphaBackIcon
 import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.ic_arrow_left
 import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
@@ -149,22 +149,7 @@ fun WordScannerChallenge(
                     )
                 },
                 navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = { navController.popBackStack() },
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_arrow_left),
-                            contentDescription = "Volver",
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
+                    AlphaBackIcon(onClick = { navController.popBackStack() })
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
