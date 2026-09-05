@@ -11,20 +11,25 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
@@ -118,6 +124,11 @@ fun WordScannerChallenge(
     var pendingCount by remember { mutableStateOf(0) }
 
     val audioService = rememberAudioService()
+
+    // Long words are hard to fit in the camera frame in portrait — this is
+    // the one screen in the app allowed to rotate (see ScreenOrientation.kt
+    // and the manifest's default portrait lock on every other screen).
+    AllowLandscapeWhileVisible()
 
     LaunchedEffect(Unit) {
         audioService.play(AudioCategory.INSTRUCTION)
@@ -228,143 +239,185 @@ fun WordScannerChallenge(
             )
         },
     ) { innerPadding ->
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(innerPadding),
         ) {
-            WordHintSection(word = word)
+            // Landscape gets its own side-by-side layout instead of just
+            // stretching the portrait Column — the camera needs the width,
+            // not the hint/letters/status stack, which reads fine narrower.
+            val isWide = maxWidth > maxHeight
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LetterSlotsRow(
-                letters = letters,
-                filledSlots = letterSlots.toList(),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-            ) {
-                CameraView(
-                    modifier = Modifier.fillMaxSize(),
-                    onTextDetected = onTextDetected,
-                    onError = {},
-                )
-
-                // Passive scanning affordance — no button to tap, just a
-                // pulsing frame communicating "actively looking" while the
-                // child holds the word in view.
-                if (!showResult) {
-                    val infiniteTransition = rememberInfiniteTransition(label = "scanPulse")
-                    val pulseAlpha by infiniteTransition.animateFloat(
-                        initialValue = 0.4f,
-                        targetValue = 1f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(durationMillis = 900),
-                            repeatMode = RepeatMode.Reverse,
-                        ),
-                        label = "scanPulseAlpha",
+            val cameraBox = @Composable { modifier: Modifier ->
+                Box(modifier = modifier) {
+                    CameraView(
+                        modifier = Modifier.fillMaxSize(),
+                        onTextDetected = onTextDetected,
+                        onError = {},
                     )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp)
-                            .border(
-                                width = 3.dp,
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha),
-                                shape = MaterialTheme.shapes.large,
+
+                    // Passive scanning affordance — no button to tap, just a
+                    // pulsing frame communicating "actively looking" while
+                    // the child holds the word in view.
+                    if (!showResult) {
+                        val infiniteTransition = rememberInfiniteTransition(label = "scanPulse")
+                        val pulseAlpha by infiniteTransition.animateFloat(
+                            initialValue = 0.4f,
+                            targetValue = 1f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(durationMillis = 900),
+                                repeatMode = RepeatMode.Reverse,
                             ),
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AnimatedVisibility(
-                visible = !showResult,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(top = 4.dp),
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
-                        color = glassTextColor(),
-                    )
-                    Text(
-                        text = "Enfoca la palabra... escaneando",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = glassTextSecondary(),
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Automatic feedback — no button either way. A match celebrates
-            // and moves on by itself (see the LaunchedEffect above); a
-            // mismatch shows what was actually detected and retries on its
-            // own once the message has had time to be read.
-            AnimatedVisibility(
-                visible = showResult && result != null,
-                enter = fadeIn() + scaleIn(initialScale = 0.85f),
-                exit = fadeOut(),
-            ) {
-                val r = result
-                if (r != null) {
-                    if (r.success) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_celebration_spark),
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp),
-                                tint = Color.Unspecified,
-                            )
-                            Text(
-                                text = "¡Lo lograste!",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = SuccessGreen,
-                            )
-                        }
-                    } else {
-                        // Show exactly what the camera locked onto — the
-                        // child (or parent) needs to see that, not just "it
-                        // failed", to understand what went wrong with the
-                        // framing.
-                        Text(
-                            text = "Detectamos \"${r.detectedText}\", pero la palabra es \"${word.word.uppercase()}\". ¡Sigue intentando!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = ErrorRed,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "scanPulseAlpha",
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                                .border(
+                                    width = 3.dp,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha),
+                                    shape = MaterialTheme.shapes.large,
+                                ),
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            val topPanel = @Composable {
+                WordHintSection(word = word, referenceImageSize = if (isWide) 88.dp else 64.dp)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LetterSlotsRow(
+                    letters = letters,
+                    filledSlots = letterSlots.toList(),
+                )
+            }
+
+            val statusPanel = @Composable {
+                AnimatedVisibility(
+                    visible = !showResult,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 4.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = glassTextColor(),
+                        )
+                        Text(
+                            text = "Enfoca la palabra... escaneando",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = glassTextSecondary(),
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Automatic feedback — no button either way. A match
+                // celebrates and moves on by itself (see the LaunchedEffect
+                // above); a mismatch shows what was actually detected and
+                // retries on its own once the message has had time to be
+                // read.
+                AnimatedVisibility(
+                    visible = showResult && result != null,
+                    enter = fadeIn() + scaleIn(initialScale = 0.85f),
+                    exit = fadeOut(),
+                ) {
+                    val r = result
+                    if (r != null) {
+                        if (r.success) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_celebration_spark),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = Color.Unspecified,
+                                )
+                                Text(
+                                    text = "¡Lo lograste!",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SuccessGreen,
+                                )
+                            }
+                        } else {
+                            // Show exactly what the camera locked onto — the
+                            // child (or parent) needs to see that, not just
+                            // "it failed", to understand what went wrong
+                            // with the framing.
+                            Text(
+                                text = "Detectamos \"${r.detectedText}\", pero la palabra es \"${word.word.uppercase()}\". ¡Sigue intentando!",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = ErrorRed,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (isWide) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    cameraBox(Modifier.weight(1.3f).fillMaxHeight())
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        topPanel()
+                        Spacer(modifier = Modifier.height(12.dp))
+                        statusPanel()
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    topPanel()
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    cameraBox(Modifier.fillMaxWidth().weight(1f))
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    statusPanel()
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun WordHintSection(word: ChallengeWord) {
+private fun WordHintSection(word: ChallengeWord, referenceImageSize: Dp = 64.dp) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
@@ -385,13 +438,13 @@ private fun WordHintSection(word: ChallengeWord) {
                     model = refImageUrl,
                     contentDescription = word.word,
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(referenceImageSize)
                         .clip(RoundedCornerShape(14.dp)),
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(referenceImageSize)
                         .clip(RoundedCornerShape(14.dp))
                         .background(
                             brush = AlphaGradients.angled(AlphaGradients.Nature),
@@ -428,17 +481,25 @@ private fun WordHintSection(word: ChallengeWord) {
     }
 }
 
+/**
+ * A plain fixed-width Row overflowed off-screen for longer words (8+
+ * letters could run past the edge on narrower phones, cutting off the last
+ * boxes even when they were filled with the correct letter) — LazyRow with
+ * horizontal scroll guarantees every slot stays reachable regardless of word
+ * length or screen width.
+ */
 @Composable
 private fun LetterSlotsRow(
     letters: List<String>,
     filledSlots: List<String>,
 ) {
-    Row(
+    LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+        contentPadding = PaddingValues(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        letters.forEachIndexed { index, _ ->
+        items(letters.size) { index ->
             val letter = filledSlots.getOrElse(index) { "" }
 
             Box(
@@ -473,10 +534,6 @@ private fun LetterSlotsRow(
                         color = glassTextSecondary(),
                     )
                 }
-            }
-
-            if (index < letters.size - 1) {
-                Spacer(modifier = Modifier.width(4.dp))
             }
         }
     }
