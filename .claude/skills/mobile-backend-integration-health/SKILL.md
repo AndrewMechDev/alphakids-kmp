@@ -4,7 +4,7 @@ description: "Trigger: backend URL, API client, token refresh, release build, si
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "1.0"
+  version: "1.1"
 ---
 
 ## Activation Contract
@@ -77,6 +77,17 @@ they only show up as "it works in dev, breaks in the field."
    that needs a specific justification in the PR — Play Store's data-safety
    review flags cleartext traffic to arbitrary hosts, and this app talks to
    children's data.
+10. **A DTO field's default value must never silently gate a feature for a
+    case the backend legitimately omits the field for.** Found: `StudentDto.
+    verificationStatus` defaults to `"PENDING"` when the backend response
+    doesn't include it — correct for an institutional student mid-review,
+    but a freemium student (`institutionId == null`) has no director and no
+    verification workflow at all, so the same lenient default routed every
+    freemium child into `AwaitingApprovalScreen` (and its one-tap "Cerrar
+    sesión" button) instead of straight to Home. Any screen gating on a
+    lenient-decoded field must also check the field that makes that gate
+    meaningful in the first place (here: `institutionId != null`) — never
+    trust the DTO default alone to mean "this case doesn't apply."
 
 ## Decision Gates
 

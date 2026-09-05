@@ -186,11 +186,14 @@ fun NetflixProfilesScreen(navController: NavController) {
                             avatarSeed = child.avatarSeed,
                             onClick = {
                                 SessionManager.setActiveChild(child)
-                                // An institutional profile pending/rejected by the director
-                                // must never reach Home — same gate as right after creation.
-                                // AwaitingApprovalScreen handles both PENDING (poll + wait) and
-                                // REJECTED (explains and sends back) internally.
-                                val target = if (child.verificationStatus == "VERIFIED") {
+                                // Verification only applies to institutional profiles. A
+                                // freemium child (institutionId == null) has no director to
+                                // approve them — StudentDto.verificationStatus defaults to
+                                // "PENDING" when the backend omits the field entirely for
+                                // these students, which used to send every freemium child
+                                // into AwaitingApprovalScreen (and its one-tap "Cerrar
+                                // sesión" button) instead of straight to Home.
+                                val target = if (child.institutionId == null || child.verificationStatus == "VERIFIED") {
                                     Screen.AdventureHome.route
                                 } else {
                                     Screen.AwaitingApproval.route
