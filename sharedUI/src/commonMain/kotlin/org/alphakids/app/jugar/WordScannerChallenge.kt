@@ -76,6 +76,17 @@ import org.alphakids.app.theme.circadianBackground
  * the word doesn't get processed dozens of times per second. */
 private val SCAN_COOLDOWN = 800.milliseconds
 
+/**
+ * How many consecutive camera frames must produce the exact same cleaned
+ * text before it's accepted as a result. ML Kit's recognizer applies its own
+ * language-model correction to the whole line, so one frame with a rotated
+ * or partially-occluded letter can make it "read" an entirely different
+ * word — not just mis-read one character. Requiring agreement across
+ * several frames filters out that single-frame noise before it ever reaches
+ * the letter slots.
+ */
+private const val STABILITY_FRAMES = 3
+
 data class OcrResult(
     val success: Boolean,
     val detectedText: String,
@@ -94,37 +105,62 @@ fun WordScannerChallenge(
     var showResult by remember { mutableStateOf(false) }
     var lastAttemptMark by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
 
+    // Frame-stability voting state — see STABILITY_FRAMES. pendingCandidate/
+    // pendingCount track how many consecutive frames agree on the same
+    // cleaned text; only an agreeing streak gets locked in as a result.
+    var pendingCandidate by remember { mutableStateOf("") }
+    var pendingCount by remember { mutableStateOf(0) }
+
     val audioService = rememberAudioService()
 
     LaunchedEffect(Unit) {
         audioService.play(AudioCategory.INSTRUCTION)
     }
 
+    fun resetScan() {
+        showResult = false
+        result = null
+        lastAttemptMark = null
+        pendingCandidate = ""
+        pendingCount = 0
+        letterSlots.forEachIndexed { index, _ -> letterSlots[index] = "" }
+    }
+
     // No capture button — every camera frame with text is a candidate. A
-    // cooldown keeps one physical framing of the word from being validated
-    // dozens of times per second, and results freeze validation entirely
-    // until the child retries.
-    val onTextDetected: (String) -> Unit = {
-        val mark = lastAttemptMark
-        val cooledDown = mark == null || mark.elapsedNow() > SCAN_COOLDOWN
-        if (!showResult && cooledDown) {
-            lastAttemptMark = TimeSource.Monotonic.markNow()
-            attempts++
+    // single frame is never trusted on its own: ML Kit's recognizer applies
+    // its own language-model correction to the whole line, so one rotated or
+    // occluded letter can make it "read" a completely different word, not
+    // just mis-read one character. The slots always mirror the current raw
+    // candidate (so what's shown is always what the camera is actually
+    // seeing), but a result is only locked in once the SAME cleaned text
+    // repeats for STABILITY_FRAMES frames in a row.
+    val onTextDetected: (String) -> Unit = { raw ->
+        if (!showResult) {
+            val cleaned = raw.filter { ch -> ch.isLetter() }.uppercase()
 
-            val cleaned = it.trim().uppercase()
-            val chars = cleaned.filter { ch -> ch.isLetter() }.take(letterSlots.size)
-
-            for (i in chars.indices) {
-                if (i < letterSlots.size) {
-                    letterSlots[i] = chars[i].toString()
-                }
+            if (cleaned == pendingCandidate) {
+                pendingCount++
+            } else {
+                pendingCandidate = cleaned
+                pendingCount = 1
             }
 
-            val fullWord = letterSlots.joinToString("")
-            val isComplete = fullWord.length == letters.size
-            val isMatch = isComplete && WordBank.validateWord(fullWord, word.word)
+            val liveChars = cleaned.take(letterSlots.size)
+            for (i in letterSlots.indices) {
+                letterSlots[i] = liveChars.getOrNull(i)?.toString() ?: ""
+            }
 
-            if (isComplete) {
+            val mark = lastAttemptMark
+            val cooledDown = mark == null || mark.elapsedNow() > SCAN_COOLDOWN
+            val isStable = pendingCount >= STABILITY_FRAMES
+            val isComplete = cleaned.length >= letters.size
+
+            if (isStable && isComplete && cooledDown) {
+                lastAttemptMark = TimeSource.Monotonic.markNow()
+                attempts++
+
+                val fullWord = cleaned.take(letters.size)
+                val isMatch = WordBank.validateWord(fullWord, word.word)
                 result = OcrResult(success = isMatch, detectedText = fullWord)
                 showResult = true
 
@@ -287,15 +323,20 @@ fun WordScannerChallenge(
                         }
                     }
                 } else {
+                    // Show exactly what the camera locked onto — the child
+                    // (or parent) needs to see that, not just "it failed",
+                    // to understand what went wrong with the framing.
+                    Text(
+                        text = "Detectamos \"${r.detectedText}\", pero la palabra es \"${word.word.uppercase()}\"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = glassTextSecondary(),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                    )
                     Button(
-                        onClick = {
-                            showResult = false
-                            result = null
-                            letterSlots.forEachIndexed { index, _ ->
-                                letterSlots[index] = ""
-                            }
-                            lastAttemptMark = null
-                        },
+                        onClick = { resetScan() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
