@@ -4,10 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,8 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 import org.alphakids.app.domain.model.ChallengeWord
@@ -86,6 +86,12 @@ private val SCAN_COOLDOWN = 800.milliseconds
  * the letter slots.
  */
 private const val STABILITY_FRAMES = 3
+
+/** How long the success celebration / mismatch message stays on screen
+ * before the flow continues on its own — no button to tap either way, so
+ * both hands stay free for holding the word up to the camera. */
+private const val CELEBRATION_DELAY_MS = 2200L
+private const val AUTO_RETRY_DELAY_MS = 2600L
 
 data class OcrResult(
     val success: Boolean,
@@ -124,6 +130,33 @@ fun WordScannerChallenge(
         pendingCandidate = ""
         pendingCount = 0
         letterSlots.forEachIndexed { index, _ -> letterSlots[index] = "" }
+    }
+
+    // Fully automatic flow, guided only by voice/animation — no button for
+    // the child to find or tap. A match plays CHEER, waits for the
+    // celebration to read, then moves on to the results screen by itself. A
+    // mismatch plays ENCOURAGE, waits long enough for the "detectamos X"
+    // message to be read, then resets the scan on its own.
+    LaunchedEffect(showResult) {
+        val r = result
+        if (showResult && r != null) {
+            if (r.success) {
+                delay(CELEBRATION_DELAY_MS)
+                val wordText = word.word.uppercase()
+                val wordIndex = WordBank.words.indexOf(word).coerceAtLeast(0)
+                navController.navigate(
+                    Screen.OcrResult.createRoute(
+                        wordIndex = wordIndex,
+                        attempts = attempts,
+                        time = 0L,
+                        wordText = wordText,
+                    )
+                )
+            } else {
+                delay(AUTO_RETRY_DELAY_MS)
+                resetScan()
+            }
+        }
     }
 
     // No capture button — every camera frame with text is a candidate. A
@@ -278,79 +311,48 @@ fun WordScannerChallenge(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Result / Retry actions
-            if (showResult && result != null) {
-                val r = result!!
-                if (r.success) {
-                    Button(
-                        onClick = {
-                            val wordText = word.word.uppercase()
-                            val wordIndex = WordBank.words.indexOf(word).coerceAtLeast(0)
-                            navController.navigate(
-                                Screen.OcrResult.createRoute(
-                                    wordIndex = wordIndex,
-                                    attempts = attempts,
-                                    time = 0L,
-                                    wordText = wordText,
-                                )
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = SuccessGreen,
-                            // circadian-exempt: white on the solid success-green card, not the circadian BG.
-                            contentColor = Color.White,
-                        ),
-                    ) {
+            // Automatic feedback — no button either way. A match celebrates
+            // and moves on by itself (see the LaunchedEffect above); a
+            // mismatch shows what was actually detected and retries on its
+            // own once the message has had time to be read.
+            AnimatedVisibility(
+                visible = showResult && result != null,
+                enter = fadeIn() + scaleIn(initialScale = 0.85f),
+                exit = fadeOut(),
+            ) {
+                val r = result
+                if (r != null) {
+                    if (r.success) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_celebration_spark),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(32.dp),
                                 tint = Color.Unspecified,
                             )
                             Text(
-                                text = "¡Completada! Ver resultado",
-                                style = MaterialTheme.typography.labelLarge,
+                                text = "¡Lo lograste!",
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
+                                color = SuccessGreen,
                             )
                         }
-                    }
-                } else {
-                    // Show exactly what the camera locked onto — the child
-                    // (or parent) needs to see that, not just "it failed",
-                    // to understand what went wrong with the framing.
-                    Text(
-                        text = "Detectamos \"${r.detectedText}\", pero la palabra es \"${word.word.uppercase()}\"",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = glassTextSecondary(),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                    )
-                    Button(
-                        onClick = { resetScan() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ErrorRed,
-                            // circadian-exempt: white on the solid error-red card, not the circadian BG.
-                            contentColor = Color.White,
-                        ),
-                    ) {
+                    } else {
+                        // Show exactly what the camera locked onto — the
+                        // child (or parent) needs to see that, not just "it
+                        // failed", to understand what went wrong with the
+                        // framing.
                         Text(
-                            text = "Reintentar",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
+                            text = "Detectamos \"${r.detectedText}\", pero la palabra es \"${word.word.uppercase()}\". ¡Sigue intentando!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = ErrorRed,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
