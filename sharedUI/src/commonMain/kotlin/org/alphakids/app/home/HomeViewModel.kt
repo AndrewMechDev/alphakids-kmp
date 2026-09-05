@@ -24,17 +24,14 @@ import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
  * @param childLevel Current level (1–MAX).
  * @param childRank Display rank title (Semillita, Brotito, etc.).
  * @param coins Currency for the in-app shop.
- * @param stars Stars earned from activities.
- * @param xp Current experience points toward next level. The backend does not
- *   expose an XP/leveling system yet, so this always reads 0 — kept in the
- *   state rather than removed so the XP bar UI has a defined value instead
- *   of being deleted piecemeal; do not fabricate a non-zero value here.
- * @param xpToNextLevel XP needed to reach the next level (see [xp] note).
+ * @param stars Stars earned from activities — the real progression currency
+ *   that drives rank/level (see AchievementModels.kt); there is no separate
+ *   XP system, that was a locally-invented number nothing else used.
  * @param wordsLearned Number of words completed.
  * @param wordsPending Number of words still pending — derived from the real
  *   playable-words list ([GameRepository.getPlayableWords]), not a guess.
- * @param streak Consecutive days of activity. Same backend gap as [xp] — the
- *   API doesn't track daily streaks yet, so this always reads 0.
+ * @param streak Consecutive days of activity. The API doesn't track daily
+ *   streaks yet, so this always reads 0.
  * @param petName The active pet's name — from [StudentPetRepository.getPets],
  *   blank when the child has no pet yet.
  * @param petType Pet catalog species slug, blank when no pet.
@@ -54,8 +51,6 @@ data class UiState(
     val childRank: String = "Semillita",
     val coins: Int = 50,
     val stars: Int = 0,
-    val xp: Int = 0,
-    val xpToNextLevel: Int = 100,
     val wordsLearned: Int = 0,
     val wordsPending: Int = 0,
     val streak: Int = 0,

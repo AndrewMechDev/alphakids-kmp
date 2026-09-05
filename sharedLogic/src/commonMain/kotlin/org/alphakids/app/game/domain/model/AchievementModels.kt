@@ -79,10 +79,11 @@ data class HistoryEntry(
 /**
  * Consolidated achievement data built from API + local analytics.
  *
- * @param level Current child level.
+ * @param level Current child level (real backend value \u2014 [RankDef.requiredLevel]
+ *   is what actually gates each rank, not a locally-invented XP formula).
  * @param rankName Display name of the current rank.
- * @param xp Current experience points toward next level (derived).
- * @param xpToNext XP needed to reach next level (derived).
+ * @param nextRankRequiredLevel Level needed to reach the next rank, or null
+ *   if [level] has already reached the highest rank in [ALL_RANKS].
  * @param coins Current coin balance.
  * @param stars Total stars earned.
  * @param wordsCompleted Words the child has completed.
@@ -94,8 +95,7 @@ data class HistoryEntry(
 data class AchievementData(
     val level: Int,
     val rankName: String,
-    val xp: Int,
-    val xpToNext: Int,
+    val nextRankRequiredLevel: Int?,
     val coins: Int,
     val stars: Int,
     val wordsCompleted: Int,
@@ -110,7 +110,6 @@ data class AchievementData(
 /**
  * Builds [AchievementData] from the API response plus local analytics.
  *
- * XP formula: each word = 10 XP. XP_TO_NEXT scales with level.
  * Stats are derived from progress fields.
  */
 fun AchievementsResponseDto.toAchievementData(
@@ -122,8 +121,7 @@ fun AchievementsResponseDto.toAchievementData(
     val p = progress
     val wordsUsed = maxOf(p.wordsCompleted, dictionaryWordCount)
     val level = p.currentLevel
-    val xpValue = wordsUsed * 10
-    val xpToNextValue = level * 50 + 50
+    val nextRankRequiredLevel = ALL_RANKS.map { it.requiredLevel }.firstOrNull { it > level }
     val currentRankName = p.currentRank?.name
         ?: ALL_RANKS.firstOrNull { it.requiredLevel == level }?.name
         ?: ALL_RANKS.first().name
@@ -166,8 +164,7 @@ fun AchievementsResponseDto.toAchievementData(
     return AchievementData(
         level = level,
         rankName = currentRankName,
-        xp = xpValue,
-        xpToNext = xpToNextValue,
+        nextRankRequiredLevel = nextRankRequiredLevel,
         coins = coinStats,
         stars = starStats,
         wordsCompleted = wordsUsed,
@@ -192,8 +189,7 @@ fun fallbackAchievementData(
 ): AchievementData {
     val level = 1
     val wordsUsed = maxOf(0, wordsCompleted)
-    val xpValue = wordsUsed * 10
-    val xpToNextValue = 100
+    val nextRankRequiredLevel = ALL_RANKS.map { it.requiredLevel }.firstOrNull { it > level }
 
     // Unlock first_word trophy if any words completed
     val firstWordUnlocked = wordsUsed >= 1
@@ -225,8 +221,7 @@ fun fallbackAchievementData(
     return AchievementData(
         level = level,
         rankName = ALL_RANKS.first().name,
-        xp = xpValue,
-        xpToNext = xpToNextValue,
+        nextRankRequiredLevel = nextRankRequiredLevel,
         coins = coins,
         stars = stars,
         wordsCompleted = wordsUsed,

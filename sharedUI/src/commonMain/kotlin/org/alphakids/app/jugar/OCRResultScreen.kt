@@ -61,13 +61,10 @@ import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_correcto
 import alphakids_kmp.sharedui.generated.resources.ic_celebration_spark
-import alphakids_kmp.sharedui.generated.resources.ic_clock
 import alphakids_kmp.sharedui.generated.resources.ic_coin
 import alphakids_kmp.sharedui.generated.resources.ic_gamepad
 import alphakids_kmp.sharedui.generated.resources.ic_retry
 import alphakids_kmp.sharedui.generated.resources.ic_star
-import alphakids_kmp.sharedui.generated.resources.ic_target
-import alphakids_kmp.sharedui.generated.resources.ic_zap
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
@@ -206,17 +203,13 @@ fun OCRResultScreen(
             // ── Rewards card ──
             RewardsCard(
                 coins = rewards.coins,
-                xp = rewards.xp,
                 stars = rewards.stars,
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             // ── Stats card ──
-            StatsCard(
-                attempts = attempts,
-                timeSpent = timeSpent,
-            )
+            StatsCard(attempts = attempts)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -383,7 +376,6 @@ private fun WordDisplay(word: ChallengeWord) {
 @Composable
 private fun RewardsCard(
     coins: Int,
-    xp: Int,
     stars: Int,
 ) {
     Card(
@@ -409,6 +401,12 @@ private fun RewardsCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Only coins and stars \u2014 an "XP" tile used to sit here too, but
+            // it was a locally-invented number (nothing in the backend
+            // tracks it) that parents and teachers in testing didn't
+            // understand. Stars are the real, backend-tracked currency that
+            // already drives rank/level progress (see AchievementModels.kt)
+            // \u2014 no need for a third, fabricated one.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -417,12 +415,6 @@ private fun RewardsCard(
                     icon = Res.drawable.ic_coin,
                     value = coins,
                     subtitle = "Monedas",
-                    modifier = Modifier.weight(1f),
-                )
-                org.alphakids.app.components.RewardCard(
-                    icon = Res.drawable.ic_zap,
-                    value = xp,
-                    subtitle = "XP",
                     modifier = Modifier.weight(1f),
                 )
                 org.alphakids.app.components.RewardCard(
@@ -436,18 +428,14 @@ private fun RewardsCard(
     }
 }
 
-
 @Composable
-private fun StatsCard(
-    attempts: Int,
-    timeSpent: Long,
-) {
-    val accuracy = if (attempts > 0) {
-        "${(100f / attempts).toInt()}%"
-    } else {
-        "100%"
-    }
-
+private fun StatsCard(attempts: Int) {
+    // "Precisi\u00f3n" (100/attempts) and "Tiempo" (always "--" \u2014 nothing ever
+    // measured real elapsed time, WordScannerChallenge always passed 0)
+    // used to live here too. Parent/teacher testing found "Precisi\u00f3n"
+    // confusing regardless of whether the math was sound, and "Tiempo"
+    // never had real data to show \u2014 both removed rather than kept as
+    // decoration. Only "Intentos" survives: it's simple and self-evident.
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -458,22 +446,12 @@ private fun StatsCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
         ) {
             StatItem(
                 icon = Res.drawable.ic_retry,
                 label = "Intentos",
                 value = "$attempts",
-            )
-            StatItem(
-                icon = Res.drawable.ic_clock,
-                label = "Tiempo",
-                value = formatTime(timeSpent),
-            )
-            StatItem(
-                icon = Res.drawable.ic_target,
-                label = "Precisi\u00f3n",
-                value = accuracy,
             )
         }
     }
@@ -509,36 +487,19 @@ private fun StatItem(
 /**
  * Calculates rewards based on number of attempts.
  *
- * - **1 attempt**: 100 coins, 40 XP, 3 stars
- * - **2 attempts**: 75 coins, 30 XP, 2 stars
- * - **3-4 attempts**: 50 coins, 20 XP, 1 star
- * - **5+ attempts**: 25 coins, 10 XP, 1 star
+ * - **1 attempt**: 100 coins, 3 stars
+ * - **2 attempts**: 75 coins, 2 stars
+ * - **3-4 attempts**: 50 coins, 1 star
+ * - **5+ attempts**: 25 coins, 1 star
  */
 private data class Rewards(
     val coins: Int,
-    val xp: Int,
     val stars: Int,
 )
 
 private fun calculateRewards(attempts: Int): Rewards = when {
-    attempts <= 1 -> Rewards(coins = 100, xp = 40, stars = 3)
-    attempts == 2 -> Rewards(coins = 75, xp = 30, stars = 2)
-    attempts <= 4 -> Rewards(coins = 50, xp = 20, stars = 1)
-    else -> Rewards(coins = 25, xp = 10, stars = 1)
-}
-
-/**
- * Formats milliseconds into a human-readable time string.
- * Returns "X segundos" or "X min X seg".
- */
-private fun formatTime(millis: Long): String {
-    if (millis <= 0) return "--"
-    val totalSeconds = millis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return if (minutes > 0) {
-        "${minutes}min ${seconds}seg"
-    } else {
-        "${seconds}seg"
-    }
+    attempts <= 1 -> Rewards(coins = 100, stars = 3)
+    attempts == 2 -> Rewards(coins = 75, stars = 2)
+    attempts <= 4 -> Rewards(coins = 50, stars = 1)
+    else -> Rewards(coins = 25, stars = 1)
 }

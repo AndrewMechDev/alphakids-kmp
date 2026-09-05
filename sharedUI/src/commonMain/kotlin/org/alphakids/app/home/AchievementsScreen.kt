@@ -211,8 +211,7 @@ private fun RangosContent(achievementData: AchievementData) {
                 ?: achievementData.ranks.firstOrNull()
                 ?: RankDef("Semillita", "\uD83C\uDF31", 1, ""),
             level = achievementData.level,
-            xp = achievementData.xp,
-            xpToNext = achievementData.xpToNext,
+            nextRankRequiredLevel = achievementData.nextRankRequiredLevel,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -244,10 +243,18 @@ private fun RangosContent(achievementData: AchievementData) {
 private fun CurrentRankCard(
     currentRank: RankDef,
     level: Int,
-    xp: Int,
-    xpToNext: Int,
+    nextRankRequiredLevel: Int?,
 ) {
-    val progress = (xp.toFloat() / xpToNext).coerceIn(0f, 1f)
+    // Progress toward the next rank, using the child's real level — the
+    // same field that already unlocks ranks in RangosContent below. This
+    // used to be an "XP" bar with numbers invented locally (words × 10)
+    // that had nothing to do with how ranks actually unlock; parents and
+    // teachers in testing didn't understand what it meant either.
+    val progress = if (nextRankRequiredLevel != null) {
+        (level.toFloat() / nextRankRequiredLevel).coerceIn(0f, 1f)
+    } else {
+        1f
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -292,7 +299,7 @@ private fun CurrentRankCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // XP Progress bar
+            // Progress bar toward the next rank
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier
@@ -308,7 +315,11 @@ private fun CurrentRankCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "$xp / $xpToNext XP",
+                text = if (nextRankRequiredLevel != null) {
+                    "Nivel $level de $nextRankRequiredLevel"
+                } else {
+                    "¡Rango máximo alcanzado!"
+                },
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = PrimaryIndigo,
