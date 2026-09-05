@@ -47,6 +47,16 @@ import org.alphakids.app.onboarding.data.mock.MockPetsRepository
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.CircadianTheme
 
+/**
+ * The API's word-assignment schema has no per-word clue/hint field, so the
+ * OCR scan screen's hint card previously showed a hardcoded "Escanea las
+ * letras" placeholder for every API word — redundant with the screen's own
+ * title, and not a real hint. The difficulty label IS real data, so it's
+ * what fills that slot instead.
+ */
+private fun difficultyHint(rawDifficulty: String): String =
+    "Nivel: " + rawDifficulty.lowercase().replaceFirstChar { it.uppercase() }
+
 @Composable
 @Preview
 fun App() {
@@ -308,13 +318,14 @@ fun App() {
                     // Dynamic word from API (WordSelectionScreen)
                     val safeText = fallbackText.uppercase().filter { it.isLetter() || it.isWhitespace() }
                         .ifBlank { "ABC" }
+                    val difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
+                        .ifBlank { "INICIAL" }
                     org.alphakids.app.domain.model.ChallengeWord(
                         word = safeText,
-                        hint = "Escanea las letras",
+                        hint = difficultyHint(difficulty),
                         imageName = safeText.first().toString(),
                         category = "Palabras",
-                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
-                            .ifBlank { "INICIAL" },
+                        difficulty = difficulty,
                         imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
                             .ifBlank { null },
                     )
@@ -350,13 +361,14 @@ fun App() {
                 val word = if (ocrWordText.isNotBlank()) {
                     val safeText = ocrWordText.uppercase().filter { it.isLetter() }
                         .ifBlank { "ABC" }
+                    val difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
+                        .ifBlank { "INICIAL" }
                     org.alphakids.app.domain.model.ChallengeWord(
                         word = safeText,
-                        hint = "Escanea las letras",
+                        hint = difficultyHint(difficulty),
                         imageName = safeText.first().toString(),
                         category = "Palabras",
-                        difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
-                            .ifBlank { "INICIAL" },
+                        difficulty = difficulty,
                         imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
                             .ifBlank { null },
                     )
