@@ -295,3 +295,6 @@ Abrir iosApp/ en Xcode y compilar
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
 - ⏳ **iOS (SwiftUI)** — Próxima fase
+- ⏳ **Tests del plugin Auth (Ktor)** — Cubrir 401→refresh→reintento, refresh rechazado por el servidor vs. falla de red, con `MockEngine`
+- ⏳ **Keystore de release** — Generar con `keytool`, completar `androidApp/keystore.properties` (ver `keystore.properties.example`)
+- ⏳ **Bump de `versionCode`/`versionName`** — Antes de la primera subida real a Play Store (hoy siguen en `1`/`"1.0"`)
