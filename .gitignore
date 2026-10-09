@@ -72,3 +72,6 @@ gradle/wrapper/gradle-wrapper.jar
 *.swo
 *~
 .DS_Store?
+
+# CodeGraph local index
+.codegraph/
