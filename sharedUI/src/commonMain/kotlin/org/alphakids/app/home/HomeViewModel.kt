@@ -141,7 +141,7 @@ class HomeViewModel(
 
         applyChild(child)
 
-        val pet = studentPetRepository.getPets(child.id).firstOrNull { it.isActive }
+        val pet = studentPetRepository.getPets(child.id).orEmpty().firstOrNull { it.isActive }
         val playable = gameRepository.getPlayableWords(child.id)
 
         _state.update {

@@ -2,6 +2,7 @@ package org.alphakids.app.data.remote
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
@@ -31,12 +32,19 @@ import org.alphakids.app.data.remote.dto.AuthResponseDto
  * val api = AlphaKidsApiClient(tokenStorage)
  * api.httpClient.get("/tutors/children")
  * ```
+ *
+ * @param engine Explicit engine, e.g. Ktor's `MockEngine` in contract tests.
+ *   Null (production) lets Ktor pick the platform engine (OkHttp / Darwin).
  */
 class AlphaKidsApiClient(
     private val tokenStorage: TokenStorage,
     private val baseUrl: String = ApiConstants.BASE_URL,
+    engine: HttpClientEngine? = null,
 ) {
-    val httpClient: HttpClient = HttpClient {
+    val httpClient: HttpClient =
+        if (engine != null) HttpClient(engine) { configure() } else HttpClient { configure() }
+
+    private fun HttpClientConfig<*>.configure() {
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = false

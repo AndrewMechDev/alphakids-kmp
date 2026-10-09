@@ -6,7 +6,6 @@ import io.ktor.http.*
 import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
 import org.alphakids.app.data.remote.dto.FeedPetRequestDto
-import org.alphakids.app.data.remote.dto.FeedPetResponseDto
 import org.alphakids.app.data.remote.dto.StudentPetDto
 import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 
@@ -17,23 +16,23 @@ class StudentPetRepositoryImpl(
     private val api: AlphaKidsApiClient,
 ) : StudentPetRepository {
 
-    override suspend fun getPets(studentId: String): List<StudentPetDto> {
+    override suspend fun getPets(studentId: String): List<StudentPetDto>? {
         return try {
-            val response = api.httpClient.get(ApiConstants.pets(studentId))
-            if (!response.status.isSuccess()) return emptyList()
+            val response = api.httpClient.get(ApiConstants.studentPets(studentId))
+            if (!response.status.isSuccess()) return null
             response.body<List<StudentPetDto>>()
         } catch (_: Exception) {
-            emptyList()
+            null
         }
     }
 
-    override suspend fun feedPet(petId: String, request: FeedPetRequestDto): FeedPetResponseDto? {
+    override suspend fun feedPet(studentId: String, petId: String, accessoryId: String): StudentPetDto? {
         return try {
-            val response = api.httpClient.post(ApiConstants.feedPet(petId)) {
-                setBody(request)
+            val response = api.httpClient.post(ApiConstants.feedStudentPet(studentId, petId)) {
+                setBody(FeedPetRequestDto(accessoryId))
             }
             if (!response.status.isSuccess()) return null
-            response.body<FeedPetResponseDto>()
+            response.body<StudentPetDto>()
         } catch (_: Exception) {
             null
         }

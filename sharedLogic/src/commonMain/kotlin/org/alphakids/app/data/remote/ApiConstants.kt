@@ -41,9 +41,9 @@ object ApiConstants {
     // ── Game Sessions ──
     const val GAME_SESSIONS_COMPLETE = "game-sessions/complete"
 
-    // ── Pets ──
-    fun pets(studentId: String) = "pets/$studentId"
-    fun feedPet(petId: String) = "pets/$petId/feed"
+    // ── Pets ── (alphakids-api src/pets/pets.controller.ts)
+    fun studentPets(studentId: String) = "students/$studentId/pets"
+    fun feedStudentPet(studentId: String, petId: String) = "students/$studentId/pets/$petId/feed"
 
     // ── Institutions ──
     /**

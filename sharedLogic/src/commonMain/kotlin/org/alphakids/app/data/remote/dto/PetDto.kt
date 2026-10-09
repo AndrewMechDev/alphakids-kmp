@@ -3,8 +3,13 @@ package org.alphakids.app.data.remote.dto
 import kotlinx.serialization.Serializable
 
 /**
- * Response from GET /pets/:studentId
- * Lists all pets owned by a student.
+ * Prisma `StudentPet` model.
+ *
+ * - GET /students/:studentId/pets and POST /students/:studentId/store/pets/buy
+ *   include [petCatalog].
+ * - POST /students/:studentId/pets/:petId/feed returns the bare updated row,
+ *   so [petCatalog] is null there — merge the stats into the pet you already
+ *   hold instead of replacing it.
  */
 @Serializable
 data class StudentPetDto(
@@ -19,6 +24,7 @@ data class StudentPetDto(
     val lastFedAt: String? = null,
 )
 
+/** Prisma `PetCatalog` model (GET /students/:studentId/store/catalogs/pets). */
 @Serializable
 data class PetCatalogDto(
     val id: String,
@@ -31,17 +37,12 @@ data class PetCatalogDto(
 )
 
 /**
- * Request/response for POST /pets/:petId/feed
+ * Body for POST /students/:studentId/pets/:petId/feed.
+ *
+ * [accessoryId] is an `AccessoryCatalog` id (the backend looks up the
+ * student's inventory row by `accessoryCatalogId`), NOT an inventory row id.
  */
 @Serializable
 data class FeedPetRequestDto(
-    val inventoryItemId: String,
-)
-
-@Serializable
-data class FeedPetResponseDto(
-    val success: Boolean,
-    val pet: StudentPetDto? = null,
-    val newHunger: Int = 0,
-    val newHappiness: Int = 0,
+    val accessoryId: String,
 )
