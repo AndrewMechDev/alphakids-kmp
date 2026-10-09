@@ -35,9 +35,9 @@ honest measurements. A buggy reference invalidates the comparison.
 
 Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 
-- [ ] T0 `chore/build-toolchain`: commit AGP 9.4.0 / Gradle 9.6.0 bump, skill registry refresh, ignore `.codegraph/`.
-- [ ] T1 `fix/release-audio-crash`: C1 (R.raw reflection stripped by R8), M8 (MediaPlayer on main thread, never released, one service per screen).
-- [ ] T2 `perf/startup-assets`: H8 (fixed 4 s splash delay), L8 (Calendar per glass color call). Image re-encoding deferred (assets untouched).
+- [x] T0 `chore/build-toolchain`: commit AGP 9.4.0 / Gradle 9.6.0 bump, skill registry refresh, ignore `.codegraph/`.
+- [x] T1 `fix/release-audio-crash`: C1 (R.raw reflection stripped by R8), M8 (MediaPlayer on main thread, never released, one service per screen).
+- [x] T2 `perf/startup-assets`: H8 (fixed 4 s splash delay), L8 (Calendar per glass color call). Image re-encoding deferred (assets untouched).
 - [ ] T3 `fix/economy-api-wiring`: H3 (coins never loaded from API), H4 (store/pets hardcoded, wrong pets routes and feed body), M10 (item granted without enough coins).
 - [ ] T4 `fix/game-flow-state`: H9 (word lost on process death), M1 (rewards granted twice), M9 (spaces in words), L2 (unencoded route args), L3 (repeat flow, time = 0), M11 (tests for rewards and OCR vote).
 - [ ] T5 `fix/viewmodel-lifecycle`: M2 (ViewModels via remember{}, leaked scope), M6 (sequential network calls).
@@ -74,7 +74,12 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 
 | Task | Route | Commit(s) | Checks | Review |
 |---|---|---|---|---|
+| T0 | inline (mechanical) | 4e726e2, b070bc9, 2227515, e4394bd; merge 4943c11 | assembleDebug + allTests green | medium, under budget |
+| T1 | delegated (multi-file writer trigger) | 9c4b0cc; merge ebfdc22 | assembleDebug + allTests green; packageRelease keeps 48/48 mp3 (was 1) | medium, under budget |
+| T2 | delegated (same writer) | 49a0a02, f68aea5; merge 5a45892 | assembleDebug + allTests green (re-run by parent on develop) | medium, under budget |
+
+Notes: T1 keeps sounds playing across screen changes on purpose (Dashboard plays "jugar" then navigates); playback stops on app background. Shared cooldown now skips a second cheer within 10 s. Device playback not tested.
 
 ## Next step
 
-T0.
+T3.
