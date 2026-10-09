@@ -46,6 +46,7 @@ import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.CircadianTheme
+import org.alphakids.app.audio.ProvideAudioService
 
 /**
  * The API's word-assignment schema has no per-word clue/hint field, so the
@@ -61,6 +62,7 @@ private fun difficultyHint(rawDifficulty: String): String =
 @Preview
 fun App() {
     CircadianTheme {
+    ProvideAudioService {
         val navController = rememberNavController()
 
         // Shared wizard ViewModel — survives navigation across wizard screens
@@ -386,5 +388,6 @@ fun App() {
 
         } // NavHost
         } // Box
+    } // ProvideAudioService
     } // CircadianTheme
 } // App
