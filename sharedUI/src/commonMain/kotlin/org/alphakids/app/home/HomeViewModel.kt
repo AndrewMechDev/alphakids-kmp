@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.alphakids.app.data.remote.dto.FeedPetRequestDto
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.GameProgressManager
@@ -171,21 +170,5 @@ class HomeViewModel(
                 wordsLearned = child.wordsLearned,
             )
         }
-    }
-
-    /** Feed the pet: increases hunger by 10 (capped at 100). */
-    fun feedPet() {
-        _state.update { it.copy(petHunger = minOf(100, it.petHunger + 10)) }
-    }
-
-    /** Play with the pet: increases happiness by 10 (capped at 100). */
-    fun playWithPet() {
-        _state.update { it.copy(petHappiness = minOf(100, it.petHappiness + 10)) }
-    }
-
-    /** Deduct coins when the child buys something from the Tienda. */
-    fun spendCoins(amount: Int) {
-        GameProgressManager.spendCoins(amount)
-        _state.update { it.copy(coins = GameProgressManager.coinsBalance) }
     }
 }

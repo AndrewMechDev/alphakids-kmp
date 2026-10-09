@@ -1,94 +1,76 @@
 package org.alphakids.app.parent.domain.model
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import org.alphakids.app.data.remote.dto.StudentProgressDto
+
 /**
- * Session-scoped state for game progress, coins, and inventory.
+ * Coins, stars and level exactly as the backend last reported them for one
+ * student (`StudentProgress` in alphakids-api).
+ */
+data class StudentEconomy(
+    val studentId: String,
+    val coinsBalance: Int,
+    val totalStars: Int,
+    val wordsCompleted: Int,
+    val currentLevel: Int,
+)
+
+/**
+ * Session-wide holder of the active child's [StudentEconomy].
  *
- * Bridges the gap between API responses and UI state within a single app
- * session. All values reset when the process dies.
- *
- * Integration points:
- * - [OCRResultScreen]: calls [addCoins] + [completeWord] after game completion
- * - [HomeViewModel]: reads [coinsBalance] instead of isolated sessionCoins
- * - [StoreScreen]: reads/writes [inventory] via [addToInventory] / [isPurchased]
- * - [AchievementsViewModel]: reads stats for fallback data
+ * The backend is the only source of truth: nothing here is computed
+ * locally. Every screen that receives a `StudentProgress` from the API
+ * (GET /students/:id/achievements, the `updatedProgress` of
+ * POST /game-sessions/complete) publishes it through [applyServerProgress],
+ * and every screen that shows coins, stars or level observes [economy].
+ * Store purchases do not return a balance, so callers re-read the progress
+ * after a successful purchase instead of subtracting prices on the client.
  */
 object GameProgressManager {
 
-    /** Current coin balance, initialized from API or default 50. */
+    private val _economy = MutableStateFlow<StudentEconomy?>(null)
+
+    /** Last economy reported by the backend; null until the first response. */
+    val economy: StateFlow<StudentEconomy?> = _economy.asStateFlow()
+
+    /** Publishes [progress] as-is — a 0 balance is a real balance, not "missing". */
+    fun applyServerProgress(progress: StudentProgressDto) {
+        _economy.value = StudentEconomy(
+            studentId = progress.studentId,
+            coinsBalance = progress.coinsBalance,
+            totalStars = progress.totalStars,
+            wordsCompleted = progress.wordsCompleted,
+            currentLevel = progress.currentLevel,
+        )
+    }
+
+    /** The last known economy of [studentId], or null if it belongs to another child. */
+    fun economyFor(studentId: String): StudentEconomy? =
+        _economy.value?.takeIf { it.studentId == studentId }
+
+    /** Forgets the economy (e.g. when the session ends). */
+    fun clear() {
+        _economy.value = null
+    }
+
+    // ── Legacy client-side economy, still read by Home, OCR result and Achievements ──
+
     var coinsBalance: Int = 50
         private set
-
-    /** Set of purchased item IDs, session-scoped. */
-    private val _inventory = mutableSetOf<String>()
-    val inventory: Set<String> get() = _inventory.toSet()
-
-    /** Running counts across this session. */
     var wordsCompleted: Int = 0
         private set
     var totalStarsEarned: Int = 0
         private set
-    var totalCoinsEarned: Int = 0
-        private set
 
-    // ── Coin management ──
-
-    /**
-     * Adds coins earned from a game session.
-     */
     fun addCoins(amount: Int) {
         if (amount <= 0) return
         coinsBalance += amount
-        totalCoinsEarned += amount
     }
 
-    /**
-     * Deducts coins when buying from the store.
-     * Returns true if the purchase was possible.
-     */
-    fun spendCoins(amount: Int): Boolean {
-        if (amount <= 0 || amount > coinsBalance) return false
-        coinsBalance -= amount
-        return true
-    }
-
-    // ── Inventory management ──
-
-    /** Adds an item to the session inventory. */
-    fun addToInventory(itemId: String) {
-        _inventory.add(itemId)
-    }
-
-    /** Checks if an item is owned. */
-    fun isPurchased(itemId: String): Boolean = itemId in _inventory
-
-    // ── Game progress ──
-
-    /**
-     * Called when a word is successfully completed.
-     * Updates all running counts.
-     */
     fun completeWord(starsEarned: Int) {
         wordsCompleted++
         totalStarsEarned += starsEarned
-    }
-
-    // ── Reset ──
-
-    /** Resets all state (e.g. on logout). */
-    fun resetSession() {
-        coinsBalance = 50
-        _inventory.clear()
-        wordsCompleted = 0
-        totalStarsEarned = 0
-        totalCoinsEarned = 0
-    }
-
-    /**
-     * Initializes the balance from an API value (e.g. after login).
-     */
-    fun initBalance(apiBalance: Int) {
-        if (apiBalance > 0) {
-            coinsBalance = apiBalance
-        }
     }
 }

@@ -150,12 +150,12 @@ fun AdventureHomeScreen(navController: NavController) {
                 },
                 modifier = Modifier.padding(innerPadding),
             )
-            1 -> PetsScreen(
-                coins = state.coins,
-                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
-                childLevel = state.childLevel,
-                modifier = Modifier.padding(innerPadding),
-            )
+            1 -> if (state.childId.isNotBlank()) {
+                PetsScreen(
+                    studentId = state.childId,
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
             2 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
             )
