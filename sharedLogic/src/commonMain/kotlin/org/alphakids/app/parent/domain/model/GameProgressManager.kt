@@ -54,23 +54,4 @@ object GameProgressManager {
     fun clear() {
         _economy.value = null
     }
-
-    // ── Legacy client-side economy, still read by Home, OCR result and Achievements ──
-
-    var coinsBalance: Int = 50
-        private set
-    var wordsCompleted: Int = 0
-        private set
-    var totalStarsEarned: Int = 0
-        private set
-
-    fun addCoins(amount: Int) {
-        if (amount <= 0) return
-        coinsBalance += amount
-    }
-
-    fun completeWord(starsEarned: Int) {
-        wordsCompleted++
-        totalStarsEarned += starsEarned
-    }
 }

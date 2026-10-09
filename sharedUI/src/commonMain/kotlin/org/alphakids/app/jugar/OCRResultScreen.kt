@@ -101,11 +101,7 @@ fun OCRResultScreen(
     val apiWordId = org.alphakids.app.game.domain.model.GameSessionState.currentWordId
     val wordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
     LaunchedEffect(Unit) {
-        // 1. Always update local session state (works offline)
-        GameProgressManager.addCoins(rewards.coins)
-        GameProgressManager.completeWord(rewards.stars)
-
-        // 2. Track analytics for achievements / history. WordBank words have
+        // 1. Track analytics for achievements / history. WordBank words have
         // no API id, so fall back to the word text itself rather than a
         // shared literal — otherwise every non-API word's stats would be
         // aggregated together under one fake id.
@@ -129,23 +125,22 @@ fun OCRResultScreen(
             )
         }
 
-        // 3. Try API sync (best-effort, non-blocking)
+        // 2. Report the session. The backend credits the rewards and answers
+        // with the child's updated progress, which becomes the balance shown
+        // everywhere; if the call fails, no coins are invented locally.
         if (studentId != null && studentId.isNotBlank()) {
-            try {
-                gameRepo.completeSession(
-                    GameSessionCompleteRequestDto(
-                        studentId = studentId,
-                        wordId = apiWordId.ifBlank { null },
-                        gameType = "OCR_SCAN",
-                        status = "COMPLETED",
-                        attempts = attempts,
-                        coinsEarned = rewards.coins,
-                        starsEarned = rewards.stars,
-                    )
+            val result = gameRepo.completeSession(
+                GameSessionCompleteRequestDto(
+                    studentId = studentId,
+                    wordId = apiWordId.ifBlank { null },
+                    gameType = "OCR_SCAN",
+                    status = "COMPLETED",
+                    attempts = attempts,
+                    coinsEarned = rewards.coins,
+                    starsEarned = rewards.stars,
                 )
-            } catch (_: Exception) {
-                // API sync is best-effort — local state is already updated
-            }
+            )
+            result?.progress?.let(GameProgressManager::applyServerProgress)
         }
     }
 

@@ -68,10 +68,6 @@ fun AdventureHomeScreen(navController: NavController) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(selectedTab) {
-        viewModel.refreshCoins()
-    }
-
     // No active child could be resolved (process restart wiped the session
     // and re-hydration found nothing) — send back to Splash instead of
     // showing placeholder data for a child that isn't real.

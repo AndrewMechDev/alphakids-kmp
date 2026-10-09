@@ -148,8 +148,11 @@ fun DashboardContent(
                     color = glassTextSecondary(),
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            CoinCounter(amount = state.coins)
+            // Hidden until the backend reports the balance — never a placeholder number.
+            state.coins?.let { coins ->
+                Spacer(modifier = Modifier.width(8.dp))
+                CoinCounter(amount = coins)
+            }
         }
 
         // Welcome title — directly on background, no card

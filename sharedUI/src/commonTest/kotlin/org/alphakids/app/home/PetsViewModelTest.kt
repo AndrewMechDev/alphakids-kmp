@@ -29,8 +29,8 @@ class PetsViewModelTest {
 
     @AfterTest
     fun tearDown() {
-        Dispatchers.resetMain()
         GameProgressManager.clear()
+        Dispatchers.resetMain()
     }
 
     private fun viewModel() = PetsViewModel(STUDENT, store, pets, game)
