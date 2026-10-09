@@ -69,7 +69,7 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import org.alphakids.app.audio.AudioService
-import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.audio.LocalAudioService
 import org.alphakids.app.domain.model.DictionaryWord
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
@@ -154,7 +154,7 @@ fun DictionaryScreen(
     onBack: (() -> Unit)? = null,
 ) {
     val gameRepo: GameRepository = remember { koinInject() }
-    val audioService = rememberAudioService()
+    val audioService = LocalAudioService.current
     val childId = remember { SessionManager.currentChild?.id }
 
     var fetchedWords by remember { mutableStateOf<List<DictionaryWord>>(emptyList()) }

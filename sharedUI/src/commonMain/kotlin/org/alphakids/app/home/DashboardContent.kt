@@ -41,7 +41,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
 import org.alphakids.app.audio.AudioCategory
-import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.audio.LocalAudioService
 import org.alphakids.app.components.CoinCounter
 import org.alphakids.app.components.avatarColorFor
 import org.alphakids.app.components.resolveAvatarUrl
@@ -65,7 +65,7 @@ fun DashboardContent(
     onNavigateToDictionary: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val audioService = rememberAudioService()
+    val audioService = LocalAudioService.current
     val avatarColor = avatarColorFor(state.childId.ifEmpty { state.childName })
     val avatarUrl = resolveAvatarUrl(
         state.childAvatarSeed.ifEmpty { state.childName.lowercase().replace(" ", "") }

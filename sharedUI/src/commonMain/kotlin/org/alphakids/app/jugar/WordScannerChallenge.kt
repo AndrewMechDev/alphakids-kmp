@@ -63,7 +63,7 @@ import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
-import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.audio.LocalAudioService
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
@@ -123,7 +123,7 @@ fun WordScannerChallenge(
     var pendingCandidate by remember { mutableStateOf("") }
     var pendingCount by remember { mutableStateOf(0) }
 
-    val audioService = rememberAudioService()
+    val audioService = LocalAudioService.current
 
     // Long words are hard to fit in the camera frame in portrait — this is
     // the one screen in the app allowed to rotate (see ScreenOrientation.kt

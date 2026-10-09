@@ -52,7 +52,7 @@ import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
-import org.alphakids.app.audio.rememberAudioService
+import org.alphakids.app.audio.LocalAudioService
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.SuccessGreen
@@ -88,7 +88,7 @@ fun OCRResultScreen(
     timeSpent: Long,
 ) {
     val rewards = calculateRewards(attempts)
-    val audioService = rememberAudioService()
+    val audioService = LocalAudioService.current
 
     // Play celebration sound on screen launch
     LaunchedEffect(Unit) {
