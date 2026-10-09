@@ -1,6 +1,8 @@
 package org.alphakids.app.onboarding
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
@@ -34,7 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.repository.ParentRepository
@@ -43,10 +49,43 @@ import org.alphakids.app.koinInject
 import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.alphi_anunciando
 import alphakids_kmp.sharedui.generated.resources.ic_sparkles
+import org.alphakids.app.theme.AlphaMotion
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
+
+/**
+ * The splash leaves as soon as the session check finishes, but never before
+ * its entry animation has played, so a fast check does not flash the logo.
+ * The minimum equals the entry animation length; it replaces a fixed 4 s wait.
+ */
+internal val SPLASH_MIN_DISPLAY: Duration = AlphaMotion.Slow.milliseconds
+
+private fun <T> splashEntrySpec(): FiniteAnimationSpec<T> = tween(durationMillis = AlphaMotion.Slow)
+
+/**
+ * Where the app starts: the profile picker for a signed-in parent with
+ * children, the welcome flow otherwise. Children are only fetched for a
+ * signed-in session.
+ */
+internal suspend fun resolveSplashDestination(
+    isLoggedIn: suspend () -> Boolean,
+    hasChildren: suspend () -> Boolean,
+): String =
+    if (isLoggedIn() && hasChildren()) Screen.NetflixProfiles.route
+    else Screen.WelcomeSelection.route
+
+/**
+ * Runs [block] and returns its result no earlier than [minimum] after the
+ * call: the wait overlaps the work instead of being added to it.
+ */
+internal suspend fun <T> awaitAtLeast(minimum: Duration, block: suspend () -> T): T = coroutineScope {
+    val minimumElapsed = launch { delay(minimum) }
+    val result = block()
+    minimumElapsed.join()
+    result
+}
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -57,22 +96,14 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) { contentVisible = true }
 
     LaunchedEffect(Unit) {
-        delay(4000L)
-        if (authRepository.isLoggedIn()) {
-            val children = parentRepository.getChildren()
-            if (children.isNotEmpty()) {
-                navController.navigate(Screen.NetflixProfiles.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-            } else {
-                navController.navigate(Screen.WelcomeSelection.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-            }
-        } else {
-            navController.navigate(Screen.WelcomeSelection.route) {
-                popUpTo(Screen.Splash.route) { inclusive = true }
-            }
+        val destination = awaitAtLeast(SPLASH_MIN_DISPLAY) {
+            resolveSplashDestination(
+                isLoggedIn = { authRepository.isLoggedIn() },
+                hasChildren = { parentRepository.getChildren().isNotEmpty() },
+            )
+        }
+        navController.navigate(destination) {
+            popUpTo(Screen.Splash.route) { inclusive = true }
         }
     }
 
@@ -88,7 +119,7 @@ fun SplashScreen(navController: NavController) {
         ) {
             AnimatedVisibility(
                 visible = contentVisible,
-                enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                enter = fadeIn(splashEntrySpec()) + scaleIn(splashEntrySpec(), initialScale = 0.8f),
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -113,7 +144,7 @@ fun SplashScreen(navController: NavController) {
 
             AnimatedVisibility(
                 visible = contentVisible,
-                enter = fadeIn() + scaleIn(initialScale = 0.85f),
+                enter = fadeIn(splashEntrySpec()) + scaleIn(splashEntrySpec(), initialScale = 0.85f),
             ) {
                 Image(
                     painter = painterResource(Res.drawable.alphi_anunciando),

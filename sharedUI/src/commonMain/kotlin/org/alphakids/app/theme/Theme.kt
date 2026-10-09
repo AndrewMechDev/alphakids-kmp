@@ -2,6 +2,8 @@ package org.alphakids.app.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 
 /**
  * AlphaKids M3 theme with automatic circadian day/night switching.
@@ -12,21 +14,27 @@ import androidx.compose.runtime.Composable
  *
  * Background images also change: [backgroundForTimePeriod].
  *
+ * The current [TimePeriod] is provided to [content] through [LocalTimePeriod]
+ * and refreshed while the app is visible, so every circadian helper reads the
+ * same value and the whole tree switches when the period changes.
+ *
  * @param content The composable content tree.
  */
 @Composable
 fun CircadianTheme(
     content: @Composable () -> Unit,
 ) {
-    val isNight = isNightTime()
-    val colorScheme = if (isNight) DarkColorScheme else LightColorScheme
+    val period by rememberTimePeriod()
+    val colorScheme = if (period.isNight) DarkColorScheme else LightColorScheme
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AlphaKidsTypography,
-        shapes = AlphaKidsShapes,
-        content = content,
-    )
+    CompositionLocalProvider(LocalTimePeriod provides period) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AlphaKidsTypography,
+            shapes = AlphaKidsShapes,
+            content = content,
+        )
+    }
 }
 
 /**
