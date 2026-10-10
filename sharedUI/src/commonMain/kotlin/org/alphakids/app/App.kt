@@ -18,9 +18,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import org.alphakids.app.navigation.GameRouteArgs
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.navigation.backToWordSelection
 import org.alphakids.app.home.AdventureHomeScreen
 import org.alphakids.app.home.DictionaryScreen
+import org.alphakids.app.jugar.GameWordUnavailable
 import org.alphakids.app.jugar.LearningAdventureHub
 import org.alphakids.app.jugar.OCRResultScreen
 import org.alphakids.app.jugar.WordScannerChallenge
@@ -42,21 +45,10 @@ import org.alphakids.app.onboarding.wizard.SetupWizardScreen
 import org.alphakids.app.onboarding.wizard.WelcomeScreen
 import org.alphakids.app.onboarding.wizard.WizardViewModel
 import org.alphakids.app.parent.ParentHomeScreen
-import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.onboarding.data.mock.MockPetsRepository
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.CircadianTheme
 import org.alphakids.app.audio.ProvideAudioService
-
-/**
- * The API's word-assignment schema has no per-word clue/hint field, so the
- * OCR scan screen's hint card previously showed a hardcoded "Escanea las
- * letras" placeholder for every API word — redundant with the screen's own
- * title, and not a real hint. The difficulty label IS real data, so it's
- * what fills that slot instead.
- */
-private fun difficultyHint(rawDifficulty: String): String =
-    "Nivel: " + rawDifficulty.lowercase().replaceFirstChar { it.uppercase() }
 
 @Composable
 @Preview
@@ -306,84 +298,50 @@ fun App() {
 
             composable(
                 route = Screen.WordScannerChallenge.route,
-                arguments = listOf(
-                    navArgument("wordIndex") { type = NavType.IntType },
-                ),
+                arguments = GameRouteArgs.wordArguments,
                 enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
                 exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
                 popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
-                val gameWordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
-                val fallbackText = if (gameWordText.isNotBlank()) gameWordText else ""
-                val word = if (fallbackText.isNotBlank()) {
-                    // Dynamic word from API (WordSelectionScreen)
-                    val safeText = fallbackText.uppercase().filter { it.isLetter() || it.isWhitespace() }
-                        .ifBlank { "ABC" }
-                    val difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
-                        .ifBlank { "INICIAL" }
-                    org.alphakids.app.domain.model.ChallengeWord(
-                        word = safeText,
-                        hint = difficultyHint(difficulty),
-                        imageName = safeText.first().toString(),
-                        category = "Palabras",
-                        difficulty = difficulty,
-                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
-                            .ifBlank { null },
-                    )
+                // The word comes from the route, which Navigation restores
+                // after process death — no global state, no silent fallback.
+                val args = backStackEntry.arguments
+                val word = GameRouteArgs.word { args?.getString(it) }
+                val attemptId = args?.getString(GameRouteArgs.ATTEMPT_ID).orEmpty()
+                if (word == null || attemptId.isBlank()) {
+                    GameWordUnavailable(onChooseWord = { navController.backToWordSelection() })
                 } else {
-                    // Hardcoded word from WordBank (direct navigation)
-                    val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
-                    WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                    WordScannerChallenge(
+                        navController = navController,
+                        gameWord = word,
+                        attemptId = attemptId,
+                    )
                 }
-                WordScannerChallenge(
-                    navController = navController,
-                    word = word,
-                )
             }
 
             composable(
                 route = Screen.OcrResult.route,
-                arguments = listOf(
-                    navArgument("wordIndex") { type = NavType.IntType },
-                    navArgument("attempts") { type = NavType.IntType },
-                    navArgument("time") { type = NavType.LongType },
-                    navArgument("wordText") { type = NavType.StringType; defaultValue = "" },
-                ),
+                arguments = GameRouteArgs.resultArguments,
                 enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
                 exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
                 popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) { backStackEntry ->
-                val attempts = backStackEntry.arguments?.getInt("attempts") ?: 0
-                val time = backStackEntry.arguments?.getLong("time") ?: 0L
-                val wordTextArg = backStackEntry.arguments?.getString("wordText") ?: ""
-                val ocrWordText = if (wordTextArg.isNotBlank()) wordTextArg
-                    else org.alphakids.app.game.domain.model.GameSessionState.currentWordText
-                val word = if (ocrWordText.isNotBlank()) {
-                    val safeText = ocrWordText.uppercase().filter { it.isLetter() }
-                        .ifBlank { "ABC" }
-                    val difficulty = org.alphakids.app.game.domain.model.GameSessionState.currentDifficulty
-                        .ifBlank { "INICIAL" }
-                    org.alphakids.app.domain.model.ChallengeWord(
-                        word = safeText,
-                        hint = difficultyHint(difficulty),
-                        imageName = safeText.first().toString(),
-                        category = "Palabras",
-                        difficulty = difficulty,
-                        imageUrl = org.alphakids.app.game.domain.model.GameSessionState.currentImageUrl
-                            .ifBlank { null },
-                    )
+                val args = backStackEntry.arguments
+                val word = GameRouteArgs.word { args?.getString(it) }
+                val attemptId = args?.getString(GameRouteArgs.ATTEMPT_ID).orEmpty()
+                if (word == null || attemptId.isBlank()) {
+                    GameWordUnavailable(onChooseWord = { navController.backToWordSelection() })
                 } else {
-                    val wordIndex = backStackEntry.arguments?.getInt("wordIndex") ?: 0
-                    WordBank.words.getOrElse(wordIndex) { WordBank.words.first() }
+                    OCRResultScreen(
+                        navController = navController,
+                        word = word,
+                        attemptId = attemptId,
+                        attempts = args?.getInt(GameRouteArgs.ATTEMPTS) ?: 1,
+                        elapsedMs = args?.getLong(GameRouteArgs.ELAPSED_MS) ?: 0L,
+                    )
                 }
-                OCRResultScreen(
-                    navController = navController,
-                    word = word,
-                    attempts = attempts,
-                    timeSpent = time,
-                )
             }
 
         } // NavHost

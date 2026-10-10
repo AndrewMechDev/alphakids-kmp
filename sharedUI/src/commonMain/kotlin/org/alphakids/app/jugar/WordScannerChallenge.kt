@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,10 +58,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 import org.alphakids.app.domain.model.ChallengeWord
-import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.game.domain.model.GameWord
+import org.alphakids.app.game.domain.model.ScanStabilityVote
+import org.alphakids.app.game.domain.model.ScanText
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.LocalAudioService
@@ -78,21 +80,6 @@ import org.alphakids.app.theme.glassTextSecondary
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
 
-/** Minimum time between two validated scan attempts, so a single framing of
- * the word doesn't get processed dozens of times per second. */
-private val SCAN_COOLDOWN = 800.milliseconds
-
-/**
- * How many consecutive camera frames must produce the exact same cleaned
- * text before it's accepted as a result. ML Kit's recognizer applies its own
- * language-model correction to the whole line, so one frame with a rotated
- * or partially-occluded letter can make it "read" an entirely different
- * word — not just mis-read one character. Requiring agreement across
- * several frames filters out that single-frame noise before it ever reaches
- * the letter slots.
- */
-private const val STABILITY_FRAMES = 3
-
 /** How long the success celebration / mismatch message stays on screen
  * before the flow continues on its own — no button to tap either way, so
  * both hands stay free for holding the word up to the camera. */
@@ -104,24 +91,36 @@ data class OcrResult(
     val detectedText: String,
 )
 
+/**
+ * Camera + OCR scan of one word.
+ *
+ * @param gameWord  The word to scan, restored from the route.
+ * @param attemptId Id of this play, handed to the result screen so the
+ *   session is reported exactly once.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordScannerChallenge(
     navController: NavController,
-    word: ChallengeWord = WordBank.words.first(),
+    gameWord: GameWord,
+    attemptId: String,
 ) {
-    val letters = word.word.toList().map { it.toString() }
+    val word = remember(gameWord) { gameWord.toChallengeWord() }
+    // Slots follow the shared scan rule (letters only), the same rule the
+    // camera read goes through, so words with spaces can complete.
+    val letters = ScanText.letters(word.word).map { it.toString() }
     val letterSlots = remember { mutableStateListOf(*Array(letters.size) { "" }) }
     var attempts by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<OcrResult?>(null) }
     var showResult by remember { mutableStateOf(false) }
-    var lastAttemptMark by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
 
-    // Frame-stability voting state — see STABILITY_FRAMES. pendingCandidate/
-    // pendingCount track how many consecutive frames agree on the same
-    // cleaned text; only an agreeing streak gets locked in as a result.
-    var pendingCandidate by remember { mutableStateOf("") }
-    var pendingCount by remember { mutableStateOf(0) }
+    // Real time to solve: from the scanner opening to the matching read.
+    val startMark = remember { TimeSource.Monotonic.markNow() }
+    var elapsedMs by remember { mutableLongStateOf(0L) }
+
+    // Frame-stability voting (see ScanStabilityVote): only a streak of
+    // identical frames gets locked in as a result.
+    val vote = remember(letters.size) { ScanStabilityVote(targetLength = letters.size) }
 
     val audioService = LocalAudioService.current
 
@@ -137,9 +136,7 @@ fun WordScannerChallenge(
     fun resetScan() {
         showResult = false
         result = null
-        lastAttemptMark = null
-        pendingCandidate = ""
-        pendingCount = 0
+        vote.reset()
         letterSlots.forEachIndexed { index, _ -> letterSlots[index] = "" }
     }
 
@@ -153,16 +150,18 @@ fun WordScannerChallenge(
         if (showResult && r != null) {
             if (r.success) {
                 delay(CELEBRATION_DELAY_MS)
-                val wordText = word.word.uppercase()
-                val wordIndex = WordBank.words.indexOf(word).coerceAtLeast(0)
+                // Replace the scanner: this attempt is over, so back from the
+                // result returns to the word list instead of a used attempt.
                 navController.navigate(
                     Screen.OcrResult.createRoute(
-                        wordIndex = wordIndex,
+                        word = gameWord,
+                        attemptId = attemptId,
                         attempts = attempts,
-                        time = 0L,
-                        wordText = wordText,
+                        elapsedMs = elapsedMs,
                     )
-                )
+                ) {
+                    popUpTo(Screen.WordScannerChallenge.route) { inclusive = true }
+                }
             } else {
                 delay(AUTO_RETRY_DELAY_MS)
                 resetScan()
@@ -177,38 +176,26 @@ fun WordScannerChallenge(
     // just mis-read one character. The slots always mirror the current raw
     // candidate (so what's shown is always what the camera is actually
     // seeing), but a result is only locked in once the SAME cleaned text
-    // repeats for STABILITY_FRAMES frames in a row.
+    // repeats for ScanStabilityVote.STABILITY_FRAMES frames in a row.
     val onTextDetected: (String) -> Unit = { raw ->
         if (!showResult) {
-            val cleaned = raw.filter { ch -> ch.isLetter() }.uppercase()
+            val outcome = vote.onFrame(raw)
 
-            if (cleaned == pendingCandidate) {
-                pendingCount++
-            } else {
-                pendingCandidate = cleaned
-                pendingCount = 1
-            }
-
-            val liveChars = cleaned.take(letterSlots.size)
+            val liveChars = outcome.liveLetters
             for (i in letterSlots.indices) {
                 letterSlots[i] = liveChars.getOrNull(i)?.toString() ?: ""
             }
 
-            val mark = lastAttemptMark
-            val cooledDown = mark == null || mark.elapsedNow() > SCAN_COOLDOWN
-            val isStable = pendingCount >= STABILITY_FRAMES
-            val isComplete = cleaned.length >= letters.size
-
-            if (isStable && isComplete && cooledDown) {
-                lastAttemptMark = TimeSource.Monotonic.markNow()
+            val fullWord = outcome.lockedIn
+            if (fullWord != null) {
                 attempts++
 
-                val fullWord = cleaned.take(letters.size)
-                val isMatch = WordBank.validateWord(fullWord, word.word)
+                val isMatch = ScanText.matches(detected = fullWord, target = word.word)
                 result = OcrResult(success = isMatch, detectedText = fullWord)
                 showResult = true
 
                 if (isMatch) {
+                    elapsedMs = startMark.elapsedNow().inWholeMilliseconds
                     audioService.play(AudioCategory.CHEER)
                 } else {
                     audioService.play(AudioCategory.ENCOURAGE)
@@ -471,7 +458,7 @@ private fun WordHintSection(word: ChallengeWord, referenceImageSize: Dp = 64.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${word.word.length} letras",
+                    text = "${ScanText.letters(word.word).length} letras",
                     style = MaterialTheme.typography.bodyMedium,
                     color = glassTextSecondary(),
                     fontWeight = FontWeight.SemiBold,

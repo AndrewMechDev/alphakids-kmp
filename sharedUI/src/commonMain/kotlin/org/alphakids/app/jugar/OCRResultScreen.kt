@@ -42,18 +42,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
-import org.alphakids.app.analytics.AchievementAnalytics
-import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.alphakids.app.domain.model.ChallengeWord
-import org.alphakids.app.domain.model.WordBank
-import org.alphakids.app.game.domain.model.GameSessionState
+import org.alphakids.app.game.domain.model.GameWord
+import org.alphakids.app.game.domain.model.newGameAttemptId
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.navigation.backToWordSelection
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.LocalAudioService
-import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
@@ -75,73 +76,40 @@ import org.alphakids.app.theme.glassTextSecondary
  * OCR Result Screen showing celebration, rewards, and stats.
  *
  * @param navController Navigation controller.
- * @param word          The word that was completed.
+ * @param word          The word that was completed, restored from the route.
+ * @param attemptId     Id of the play being reported.
  * @param attempts      Number of attempts taken.
- * @param timeSpent     Time spent in milliseconds (0 if not tracked).
+ * @param elapsedMs     Time from opening the scanner to the matching read.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OCRResultScreen(
     navController: NavController,
-    word: ChallengeWord,
+    word: GameWord,
+    attemptId: String,
     attempts: Int,
-    timeSpent: Long,
+    elapsedMs: Long,
 ) {
-    val rewards = calculateRewards(attempts)
+    val challenge = remember(word) { word.toChallengeWord() }
+    // Scoped to this back stack entry: reports the play once, even if the
+    // screen is recreated or restored after process death.
+    val viewModel = viewModel(key = attemptId) {
+        OCRResultViewModel(
+            word = word,
+            attemptId = attemptId,
+            attempts = attempts,
+            elapsedMs = elapsedMs,
+            gameRepository = koinInject<GameRepository>(),
+            savedStateHandle = createSavedStateHandle(),
+        )
+    }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val rewards = state.rewards
     val audioService = LocalAudioService.current
 
     // Play celebration sound on screen launch
     LaunchedEffect(Unit) {
         audioService.play(AudioCategory.CHEER)
-    }
-
-    // Report game session completion to the API
-    val gameRepo: GameRepository = remember { koinInject() }
-    val studentId = org.alphakids.app.parent.domain.model.SessionManager.currentChild?.id
-    val apiWordId = org.alphakids.app.game.domain.model.GameSessionState.currentWordId
-    val wordText = org.alphakids.app.game.domain.model.GameSessionState.currentWordText
-    LaunchedEffect(Unit) {
-        // 1. Track analytics for achievements / history. WordBank words have
-        // no API id, so fall back to the word text itself rather than a
-        // shared literal — otherwise every non-API word's stats would be
-        // aggregated together under one fake id.
-        val analyticsWordId = apiWordId.ifBlank { wordText.ifBlank { word.word } }
-        AchievementAnalytics.trackSessionCompleted(
-            gameType = "OCR_SCAN",
-            wordId = analyticsWordId,
-            status = "COMPLETED",
-            attempts = attempts,
-        )
-        AchievementAnalytics.trackWordCompleted(
-            wordId = analyticsWordId,
-            wordText = wordText.ifBlank { word.word },
-            attempts = attempts,
-            coins = rewards.coins,
-        )
-        if (rewards.stars > 0) {
-            AchievementAnalytics.trackStarsEarned(
-                amount = rewards.stars,
-                source = wordText.ifBlank { word.word },
-            )
-        }
-
-        // 2. Report the session. The backend credits the rewards and answers
-        // with the child's updated progress, which becomes the balance shown
-        // everywhere; if the call fails, no coins are invented locally.
-        if (studentId != null && studentId.isNotBlank()) {
-            val result = gameRepo.completeSession(
-                GameSessionCompleteRequestDto(
-                    studentId = studentId,
-                    wordId = apiWordId.ifBlank { null },
-                    gameType = "OCR_SCAN",
-                    status = "COMPLETED",
-                    attempts = attempts,
-                    coinsEarned = rewards.coins,
-                    starsEarned = rewards.stars,
-                )
-            )
-            result?.progress?.let(GameProgressManager::applyServerProgress)
-        }
     }
 
     Scaffold(
@@ -182,7 +150,7 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ── Word display ──
-            WordDisplay(word = word)
+            WordDisplay(word = challenge)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -201,6 +169,17 @@ fun OCRResultScreen(
                 stars = rewards.stars,
             )
 
+            if (state.sync == OCRResultViewModel.ProgressSync.NOT_SAVED) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "No pudimos guardar tus recompensas. Revisa tu conexión.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = glassTextSecondary(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
 
             // ── Stats card ──
@@ -209,58 +188,24 @@ fun OCRResultScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Action buttons ──
-            val isApiWord = GameSessionState.currentWordText.isNotBlank()
-
             org.alphakids.app.components.AlphaPrimaryButton(
                 text = "Seguir jugando",
                 icon = Res.drawable.ic_gamepad,
-                onClick = {
-                    if (isApiWord) {
-                        GameSessionState.clear()
-                        navController.navigate(Screen.WordSelection.route) {
-                            popUpTo(Screen.AdventureHome.route)
-                        }
-                    } else {
-                        val nextWord = WordBank.getRandomWord()
-                        navController.navigate(
-                            Screen.WordScannerChallenge.createRoute(
-                                WordBank.words.indexOf(nextWord).coerceAtLeast(0),
-                            )
-                        ) {
-                            popUpTo(Screen.AdventureHome.route)
-                        }
-                    }
-                },
+                onClick = { navController.backToWordSelection() },
                 modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Same word again, as a new play with its own attempt id.
             org.alphakids.app.components.AlphaSecondaryButton(
                 text = "Repetir",
                 icon = Res.drawable.ic_retry,
                 onClick = {
-                    // Re-set state before navigating so App.kt composable
-                    // reads the correct word regardless of route params
-                    if (isApiWord) {
-                        GameSessionState.setWord(
-                            text = GameSessionState.currentWordText,
-                            id = GameSessionState.currentWordId,
-                            difficulty = GameSessionState.currentDifficulty,
-                            imageUrl = GameSessionState.currentImageUrl,
-                            audioUrl = GameSessionState.currentAudioUrl,
-                        )
-                        navController.navigate(Screen.WordSelection.route) {
-                            popUpTo(Screen.AdventureHome.route)
-                        }
-                    } else {
-                        navController.navigate(
-                            Screen.WordScannerChallenge.createRoute(
-                                WordBank.words.indexOf(word).coerceAtLeast(0),
-                            )
-                        ) {
-                            popUpTo(Screen.AdventureHome.route)
-                        }
+                    navController.navigate(
+                        Screen.WordScannerChallenge.createRoute(word, attemptId = newGameAttemptId())
+                    ) {
+                        popUpTo(Screen.WordSelection.route)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -327,8 +272,8 @@ private fun WordDisplay(word: ChallengeWord) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Word image — show API image if available, fallback to letter
-                val imgUrl = GameSessionState.currentImageUrl
-                if (imgUrl.isNotBlank()) {
+                val imgUrl = word.imageUrl
+                if (imgUrl != null) {
                     AsyncImage(
                         model = imgUrl,
                         contentDescription = word.word,
@@ -425,12 +370,11 @@ private fun RewardsCard(
 
 @Composable
 private fun StatsCard(attempts: Int) {
-    // "Precisi\u00f3n" (100/attempts) and "Tiempo" (always "--" \u2014 nothing ever
-    // measured real elapsed time, WordScannerChallenge always passed 0)
-    // used to live here too. Parent/teacher testing found "Precisi\u00f3n"
-    // confusing regardless of whether the math was sound, and "Tiempo"
-    // never had real data to show \u2014 both removed rather than kept as
-    // decoration. Only "Intentos" survives: it's simple and self-evident.
+    // "Precisión" (100/attempts) and "Tiempo" used to live here too.
+    // Parent/teacher testing found "Precisión" confusing, and "Tiempo"
+    // had no real data back then, so both were removed. Elapsed time is now
+    // measured by the scanner and sent in the session metrics, but not
+    // shown. Only "Intentos" survives: it's simple and self-evident.
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -477,24 +421,4 @@ private fun StatItem(
             color = glassTextSecondary(),
         )
     }
-}
-
-/**
- * Calculates rewards based on number of attempts.
- *
- * - **1 attempt**: 100 coins, 3 stars
- * - **2 attempts**: 75 coins, 2 stars
- * - **3-4 attempts**: 50 coins, 1 star
- * - **5+ attempts**: 25 coins, 1 star
- */
-private data class Rewards(
-    val coins: Int,
-    val stars: Int,
-)
-
-private fun calculateRewards(attempts: Int): Rewards = when {
-    attempts <= 1 -> Rewards(coins = 100, stars = 3)
-    attempts == 2 -> Rewards(coins = 75, stars = 2)
-    attempts <= 4 -> Rewards(coins = 50, stars = 1)
-    else -> Rewards(coins = 25, stars = 1)
 }

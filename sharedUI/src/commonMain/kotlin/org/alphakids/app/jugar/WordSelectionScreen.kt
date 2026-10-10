@@ -45,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.data.remote.dto.WordDto
-import org.alphakids.app.game.domain.model.GameSessionState
+import org.alphakids.app.game.domain.model.GameWord
+import org.alphakids.app.game.domain.model.newGameAttemptId
+import org.alphakids.app.game.domain.model.ScanText
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -75,10 +77,6 @@ fun WordSelectionScreen(
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var flow by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        GameSessionState.clear()
-    }
 
     LaunchedEffect(childId) {
         try {
@@ -195,15 +193,16 @@ fun WordSelectionScreen(
                                 word = word,
                                 gradient = cardGradients[gradientIndex],
                                 onClick = {
-                                    GameSessionState.setWord(
-                                        text = word.text,
+                                    // The word travels in the route, with a
+                                    // fresh attempt id for this play.
+                                    val gameWord = GameWord(
                                         id = word.id,
+                                        text = word.text,
                                         difficulty = word.difficultyLabel,
-                                        imageUrl = word.imageUrl ?: "",
-                                        audioUrl = word.audioUrl ?: "",
+                                        imageUrl = word.imageUrl,
                                     )
                                     navController.navigate(
-                                        Screen.WordScannerChallenge.createRoute(0)
+                                        Screen.WordScannerChallenge.createRoute(gameWord, newGameAttemptId())
                                     )
                                 },
                             )
@@ -289,7 +288,7 @@ private fun WordCard(
                 )
 
                 Text(
-                    text = "${word.text.length} letras",
+                    text = "${ScanText.letters(word.text).length} letras",
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White.copy(alpha = 0.8f),
                 )
