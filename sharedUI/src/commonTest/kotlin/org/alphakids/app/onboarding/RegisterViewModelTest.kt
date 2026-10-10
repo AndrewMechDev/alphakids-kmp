@@ -84,6 +84,23 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun `password shorter than the backend minimum is rejected before submitting`() {
+        val viewModel = RegisterViewModel(MockAuthRepository())
+
+        viewModel.onNameChanged("Test")
+        viewModel.onEmailChanged("test@test.com")
+        viewModel.onPhoneChanged("123456789")
+        viewModel.onPasswordChanged("1234567")
+        viewModel.onConfirmPasswordChanged("1234567")
+        viewModel.onTermsChanged(true)
+
+        assertFalse(viewModel.uiState.value.isFormValid)
+        viewModel.onRegisterClick()
+        assertEquals("La contraseña debe tener al menos 8 caracteres", viewModel.uiState.value.error)
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
     fun `register with mismatched passwords shows error`() {
         val viewModel = RegisterViewModel(MockAuthRepository())
 

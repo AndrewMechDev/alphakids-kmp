@@ -156,7 +156,7 @@ fun RegisterScreen(navController: NavController) {
 
         // Password field
         AlphaTextField(
-            label = "Contraseña (mín. 6 caracteres)",
+            label = "Contraseña (mín. $MIN_PASSWORD_LENGTH caracteres)",
             value = state.password,
             onValueChange = viewModel::onPasswordChanged,
             enabled = !state.isLoading,

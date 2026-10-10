@@ -51,6 +51,13 @@ data class AuthResponseDto(
     val refreshToken: String,
 )
 
+/** Error body of every backend failure (AllExceptionsFilter). */
+@Serializable
+data class ApiErrorDto(
+    val statusCode: Int? = null,
+    val message: String? = null,
+)
+
 @Serializable
 data class MessageResponseDto(
     val message: String,

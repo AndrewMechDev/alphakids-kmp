@@ -10,6 +10,9 @@ import kotlinx.coroutines.launch
 import org.alphakids.app.onboarding.domain.model.RegisterRequest
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 
+/** The backend rejects shorter passwords (`z.string().min(8)` in alphakids-api). */
+const val MIN_PASSWORD_LENGTH = 8
+
 /**
  * UI state for the registration screen.
  */
@@ -29,7 +32,7 @@ data class RegisterUiState(
         get() = name.isNotBlank()
                 && email.isNotBlank()
                 && phone.isNotBlank()
-                && password.length >= 6
+                && password.length >= MIN_PASSWORD_LENGTH
                 && confirmPassword == password
                 && termsAccepted
 }
@@ -100,8 +103,8 @@ class RegisterViewModel(
         }
 
         // Validate password
-        if (state.password.length < 6) {
-            _uiState.update { it.copy(error = "La contraseña debe tener al menos 6 caracteres") }
+        if (state.password.length < MIN_PASSWORD_LENGTH) {
+            _uiState.update { it.copy(error = "La contraseña debe tener al menos $MIN_PASSWORD_LENGTH caracteres") }
             return
         }
 

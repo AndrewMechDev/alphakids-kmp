@@ -3,6 +3,7 @@ package org.alphakids.app.data.repository
 import io.ktor.client.call.*
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.*
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
 import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
@@ -22,78 +23,29 @@ import kotlin.coroutines.cancellation.CancellationException
  * - Login/Register → stores tokens via [TokenStorage]
  * - Logout → clears tokens, then revokes the refresh token (POST /auth/logout)
  * - Every change to the stored tokens also resets the client's cached bearer
- * - Token refresh delegated to [AlphaKidsApiClient.refreshTokens]
+ * - Token refresh is handled by the client's bearer Auth plugin
+ * - Failures carry friendly Spanish messages from [AuthErrorMessages]
  */
 class AuthRepositoryImpl(
     private val api: AlphaKidsApiClient,
     private val tokenStorage: TokenStorage,
 ) : AuthRepository {
 
-    override suspend fun login(request: LoginRequest): AuthResponse {
-        return try {
-            val response = api.httpClient.post(ApiConstants.LOGIN) {
-                withoutBearerAuth()
-                setBody(LoginRequestDto(email = request.email, password = request.password))
-            }
+    override suspend fun login(request: LoginRequest): AuthResponse = authenticate(
+        operation = AuthOperation.LOGIN,
+        path = ApiConstants.LOGIN,
+        body = LoginRequestDto(email = request.email, password = request.password),
+        email = request.email,
+        successMessage = "Inicio de sesión exitoso",
+    )
 
-            if (response.status.isSuccess()) {
-                val body = response.body<AuthResponseDto>()
-                storeTokens(body)
-                AuthResponse(
-                    success = true,
-                    message = "Inicio de sesión exitoso",
-                    email = request.email,
-                    accessToken = body.accessToken,
-                    refreshToken = body.refreshToken,
-                )
-            } else {
-                val errorMsg = parseErrorMessage(response)
-                AuthResponse(success = false, message = errorMsg, email = request.email)
-            }
-        } catch (e: Exception) {
-            AuthResponse(
-                success = false,
-                message = "Error de conexión: ${e.message ?: "Intente de nuevo"}",
-                email = request.email,
-            )
-        }
-    }
-
-    override suspend fun register(request: RegisterRequest): AuthResponse {
-        return try {
-            val response = api.httpClient.post(ApiConstants.REGISTER) {
-                withoutBearerAuth()
-                setBody(
-                    RegisterRequestDto(
-                        email = request.email,
-                        password = request.password,
-                        name = request.name,
-                    ),
-                )
-            }
-
-            if (response.status.isSuccess()) {
-                val body = response.body<AuthResponseDto>()
-                storeTokens(body)
-                AuthResponse(
-                    success = true,
-                    message = "Registro exitoso",
-                    email = request.email,
-                    accessToken = body.accessToken,
-                    refreshToken = body.refreshToken,
-                )
-            } else {
-                val errorMsg = parseErrorMessage(response)
-                AuthResponse(success = false, message = errorMsg, email = request.email)
-            }
-        } catch (e: Exception) {
-            AuthResponse(
-                success = false,
-                message = "Error de conexión: ${e.message ?: "Intente de nuevo"}",
-                email = request.email,
-            )
-        }
-    }
+    override suspend fun register(request: RegisterRequest): AuthResponse = authenticate(
+        operation = AuthOperation.REGISTER,
+        path = ApiConstants.REGISTER,
+        body = RegisterRequestDto(email = request.email, password = request.password, name = request.name),
+        email = request.email,
+        successMessage = "Registro exitoso",
+    )
 
     override suspend fun isLoggedIn(): Boolean = tokenStorage.isLoggedIn
 
@@ -129,13 +81,63 @@ class AuthRepositoryImpl(
         api.invalidateCachedTokens()
     }
 
-    private suspend fun parseErrorMessage(response: io.ktor.client.statement.HttpResponse): String {
-        return try {
-            val body = response.body<Map<String, String>>()
-            body["message"] ?: body["error"] ?: "Error ${response.status.value}"
-        } catch (_: Exception) {
-            "Error ${response.status.value}"
+    /**
+     * Posts credentials to [path] and stores the returned token pair. Every
+     * failure becomes an [AuthResponse] with a message from
+     * [AuthErrorMessages]; cancellation is never swallowed.
+     */
+    private suspend inline fun <reified T : Any> authenticate(
+        operation: AuthOperation,
+        path: String,
+        body: T,
+        email: String,
+        successMessage: String,
+    ): AuthResponse {
+        val response = try {
+            api.httpClient.post(path) {
+                withoutBearerAuth()
+                setBody(body)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return failure(email, AuthErrorMessages.forFailure(e))
         }
+
+        if (!response.status.isSuccess()) {
+            return failure(
+                email,
+                AuthErrorMessages.forStatus(operation, response.status.value, response.backendMessage()),
+            )
+        }
+
+        val tokens = try {
+            response.body<AuthResponseDto>()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return failure(email, AuthErrorMessages.UNEXPECTED)
+        }
+        storeTokens(tokens)
+        return AuthResponse(
+            success = true,
+            message = successMessage,
+            email = email,
+            accessToken = tokens.accessToken,
+            refreshToken = tokens.refreshToken,
+        )
+    }
+
+    private fun failure(email: String, message: String) =
+        AuthResponse(success = false, message = message, email = email)
+
+    /** The `message` of the backend's `{statusCode, message}` error body, if readable. */
+    private suspend fun HttpResponse.backendMessage(): String? = try {
+        body<ApiErrorDto>().message
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        null
     }
 
     private companion object {
