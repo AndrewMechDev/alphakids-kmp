@@ -67,10 +67,9 @@ import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.onboarding.domain.repository.AuthRepository
+import org.alphakids.app.onboarding.rememberSignOut
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.MAX_CHILDREN
-import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
@@ -111,8 +110,7 @@ fun ParentHomeScreen(
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var selectedChildId by rememberSaveable { mutableStateOf<String?>(null) }
     var showMenu by remember { mutableStateOf(false) }
-    val authRepository: AuthRepository = koinInject()
-    val scope = rememberCoroutineScope()
+    val signOut = rememberSignOut(navController)
 
     Scaffold(
         modifier = Modifier.circadianBackground(),
@@ -203,13 +201,7 @@ fun ParentHomeScreen(
                                 },
                                 onClick = {
                                     showMenu = false
-                                    scope.launch {
-                                        authRepository.logout()
-                                    }
-                                    SessionManager.clearSession()
-                                    navController.navigate(Screen.WelcomeSelection.route) {
-                                        popUpTo(0) { inclusive = true }
-                                    }
+                                    signOut()
                                 },
                             )
                         }

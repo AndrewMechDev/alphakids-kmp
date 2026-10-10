@@ -30,12 +30,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaInlineLoading
 import org.alphakids.app.components.AlphaTextButton
 import androidx.compose.ui.draw.clip
@@ -48,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.MAX_CHILDREN
 import org.alphakids.app.parent.domain.model.SessionManager
@@ -70,8 +67,7 @@ private val addProfileColor = Color(0xFF37474F)
 @Composable
 fun NetflixProfilesScreen(navController: NavController) {
     val parentRepository: ParentRepository = koinInject()
-    val authRepository: AuthRepository = koinInject()
-    val coroutineScope = rememberCoroutineScope()
+    val signOut = rememberSignOut(navController)
     var children by remember { mutableStateOf<List<ChildSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showExitConfirm by remember { mutableStateOf(false) }
@@ -100,13 +96,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                     color = MaterialTheme.colorScheme.error,
                     onClick = {
                         showExitConfirm = false
-                        coroutineScope.launch {
-                            authRepository.logout()
-                            SessionManager.clearSession()
-                            navController.navigate(Screen.WelcomeSelection.route) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
+                        signOut()
                     },
                 )
             },

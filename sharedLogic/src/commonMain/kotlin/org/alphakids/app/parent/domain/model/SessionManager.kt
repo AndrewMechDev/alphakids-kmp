@@ -1,6 +1,8 @@
 package org.alphakids.app.parent.domain.model
 
 import com.russhwolf.settings.Settings
+import org.alphakids.app.analytics.AchievementAnalytics
+import org.alphakids.app.game.domain.model.GameSessionState
 
 /**
  * In-memory session manager that holds the currently active child, plus the
@@ -12,6 +14,13 @@ import com.russhwolf.settings.Settings
  *
  * This is a singleton used to share state between the onboarding wizard,
  * the home screen, and the parent dashboard within a single app session.
+ *
+ * It also owns the lifetime of the other per-child session holders
+ * ([GameProgressManager], [AchievementAnalytics], [GameSessionState]): they
+ * are not keyed by child, so they are wiped whenever the active child
+ * changes or the session ends — otherwise the next child (or the next
+ * parent on a shared device) would briefly see the previous one's coins
+ * and history.
  */
 object SessionManager {
     private var settings: Settings? = null
@@ -27,13 +36,22 @@ object SessionManager {
     }
 
     fun setActiveChild(child: ChildSummary) {
+        if (child.id != activeChildId()) clearChildState()
         currentChild = child
         settings?.putString(KEY_ACTIVE_CHILD_ID, child.id)
     }
 
+    /** Ends the session: forgets the active child and everything cached for it. */
     fun clearSession() {
         currentChild = null
         settings?.remove(KEY_ACTIVE_CHILD_ID)
+        clearChildState()
+    }
+
+    private fun clearChildState() {
+        GameProgressManager.clear()
+        AchievementAnalytics.clear()
+        GameSessionState.clear()
     }
 
     /**
