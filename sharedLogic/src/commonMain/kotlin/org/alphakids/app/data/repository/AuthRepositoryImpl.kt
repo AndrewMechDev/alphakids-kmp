@@ -11,7 +11,6 @@ import org.alphakids.app.data.remote.dto.*
 import org.alphakids.app.data.remote.withoutBearerAuth
 import org.alphakids.app.onboarding.domain.model.AuthResponse
 import org.alphakids.app.onboarding.domain.model.LoginRequest
-import org.alphakids.app.onboarding.domain.model.OTPGenerationResult
 import org.alphakids.app.onboarding.domain.model.RegisterRequest
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import kotlin.coroutines.cancellation.CancellationException
@@ -94,24 +93,6 @@ class AuthRepositoryImpl(
                 email = request.email,
             )
         }
-    }
-
-    // ── OTP (dummy — register returns tokens directly) ──
-
-    private var dummyOtpCode: String? = null
-
-    override suspend fun sendOtp(email: String): OTPGenerationResult {
-        dummyOtpCode = "000000"
-        return OTPGenerationResult(code = dummyOtpCode!!, expiresAt = Long.MAX_VALUE)
-    }
-
-    override suspend fun verifyOtp(email: String, code: String): Boolean {
-        return code.length == 6 && code.all { it.isDigit() }
-    }
-
-    override suspend fun resendOtp(email: String): OTPGenerationResult {
-        dummyOtpCode = "000001"
-        return OTPGenerationResult(code = dummyOtpCode!!, expiresAt = Long.MAX_VALUE)
     }
 
     override suspend fun isLoggedIn(): Boolean = tokenStorage.isLoggedIn

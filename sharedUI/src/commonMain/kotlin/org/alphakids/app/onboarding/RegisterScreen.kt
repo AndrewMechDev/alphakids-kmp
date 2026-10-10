@@ -51,7 +51,8 @@ import org.alphakids.app.theme.glassTextSecondary
 
 /**
  * Registration screen with full name, email, phone, password, confirm password,
- * and terms acceptance. On success navigates to [Screen.Verification].
+ * and terms acceptance. On success the backend has already issued tokens
+ * (there is no email verification), so it goes straight to the setup wizard.
  */
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -62,11 +63,10 @@ fun RegisterScreen(navController: NavController) {
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
-    // Navigate to OTP verification on success
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
-            navController.navigate(Screen.Verification.createRoute(state.email)) {
-                popUpTo(Screen.Register.route) { inclusive = false }
+            navController.navigate(Screen.SetupWizard.route) {
+                popUpTo(Screen.Register.route) { inclusive = true }
             }
         }
     }

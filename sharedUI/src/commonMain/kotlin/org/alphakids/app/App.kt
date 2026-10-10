@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import org.alphakids.app.navigation.GameRouteArgs
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.navigation.backToWordSelection
@@ -32,7 +30,6 @@ import org.alphakids.app.onboarding.RegisterScreen
 import org.alphakids.app.onboarding.SplashScreen
 import org.alphakids.app.onboarding.WelcomeSelectionScreen
 import org.alphakids.app.onboarding.NetflixProfilesScreen
-import org.alphakids.app.onboarding.VerificationScreen
 import org.alphakids.app.onboarding.wizard.wizardGraph
 import org.alphakids.app.parent.ParentHomeScreen
 import org.alphakids.app.theme.CircadianTheme
@@ -102,21 +99,6 @@ fun App() {
                 popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
             ) {
                 RegisterScreen(navController = navController)
-            }
-
-            composable(
-                route = Screen.Verification.route,
-                arguments = listOf(navArgument("email") { type = NavType.StringType }),
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) { backStackEntry ->
-                val email = backStackEntry.arguments?.getString("email") ?: ""
-                VerificationScreen(
-                    navController = navController,
-                    email = email,
-                )
             }
 
             wizardGraph(navController)

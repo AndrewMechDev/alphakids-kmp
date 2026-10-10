@@ -87,8 +87,5 @@ class LogoutUseCaseTest {
         override suspend fun login(request: LoginRequest) = error("unused")
         override suspend fun register(request: RegisterRequest) = error("unused")
         override suspend fun isLoggedIn() = !loggedOut
-        override suspend fun sendOtp(email: String) = error("unused")
-        override suspend fun verifyOtp(email: String, code: String) = error("unused")
-        override suspend fun resendOtp(email: String) = error("unused")
     }
 }

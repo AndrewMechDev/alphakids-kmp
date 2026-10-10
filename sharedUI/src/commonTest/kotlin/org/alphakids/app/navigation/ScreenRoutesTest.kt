@@ -16,13 +16,13 @@ class ScreenRoutesTest {
     )
 
     @Test
-    fun an_email_with_spaces_slashes_and_accents_stays_one_route_segment() {
-        val email = "ana maría/x+1@correo.com"
+    fun a_child_id_with_spaces_slashes_and_accents_stays_one_route_segment() {
+        val childId = "niño 1/x+1"
 
-        val route = Screen.Verification.createRoute(email)
+        val route = Screen.ParentChildDetail.createRoute(childId)
 
-        assertEquals("verification/ana%20mar%C3%ADa%2Fx%2B1%40correo.com", route)
-        assertEquals(listOf("verification", email), route.split("/").map(::percentDecode))
+        assertEquals("parent-child-detail/ni%C3%B1o%201%2Fx%2B1", route)
+        assertEquals(listOf("parent-child-detail", childId), route.split("/").map(::percentDecode))
     }
 
     @Test

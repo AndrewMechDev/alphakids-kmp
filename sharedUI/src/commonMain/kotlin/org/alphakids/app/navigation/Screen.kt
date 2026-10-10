@@ -31,11 +31,6 @@ sealed class Screen(val route: String) {
     /** Registration form (name, email, phone, password) */
     data object Register : Screen("register")
 
-    /** OTP verification with 6-digit code */
-    data object Verification : Screen("verification/{email}") {
-        fun createRoute(email: String): String = "verification/${encodeRouteArg(email)}"
-    }
-
     /** Wizard setup intro — benefit cards + "Comenzar" */
     data object SetupWizard : Screen("setup-wizard")
 
@@ -117,7 +112,6 @@ sealed class Screen(val route: String) {
             route == NetflixProfiles.route -> NetflixProfiles
             route == Login.route -> Login
             route == Register.route -> Register
-            route.startsWith("verification/") -> Verification
             route == SetupWizard.route -> SetupWizard
             route == CreateChild.route -> CreateChild
             route == ChooseAvatar.route -> ChooseAvatar
