@@ -24,25 +24,25 @@ Existing entries in `gradle/libs.versions.toml` MUST remain untouched. New libra
 
 ### Requirement: Android Manifest Permissions
 
-`androidApp/src/main/AndroidManifest.xml` MUST declare CAMERA, RECORD_AUDIO, and READ_MEDIA_IMAGES as active permissions. INTERNET and POST_NOTIFICATIONS MUST be declared with `tools:node="remove"` (disabled until future phases). The `<manifest>` tag MUST include `xmlns:tools="http://schemas.android.com/tools"`.
+`androidApp/src/main/AndroidManifest.xml` MUST declare only the permissions the app uses: CAMERA (OCR letter scanning) and INTERNET (backend API, DiceBear avatars, word audio URLs). RECORD_AUDIO, READ_MEDIA_IMAGES, READ_EXTERNAL_STORAGE and POST_NOTIFICATIONS MUST be stripped with `tools:node="remove"` so no dependency re-adds them (Google Play Families policy). The `<manifest>` tag MUST declare `xmlns:tools="http://schemas.android.com/tools"`; any other URI turns every `tools:node="remove"` into a silent no-op. Normal permissions merged from libraries (e.g. ACCESS_NETWORK_STATE from ML Kit datatransport) are allowed.
 
 #### Scenario: Active permissions present
 
+- GIVEN the built debug APK
+- WHEN inspected with `aapt2 dump permissions`
+- THEN `android.permission.CAMERA` and `android.permission.INTERNET` are present
+
+#### Scenario: Unused sensitive permissions absent
+
+- GIVEN the built debug APK
+- WHEN inspected with `aapt2 dump permissions`
+- THEN RECORD_AUDIO, READ_MEDIA_IMAGES, READ_EXTERNAL_STORAGE and POST_NOTIFICATIONS are absent
+
+#### Scenario: App data excluded from backup
+
 - GIVEN the AndroidManifest.xml
-- WHEN inspected for permission declarations
-- THEN `android.permission.CAMERA`, `android.permission.RECORD_AUDIO`, and `android.permission.READ_MEDIA_IMAGES` are present without `tools:node="remove"`
-
-#### Scenario: Future permissions disabled
-
-- GIVEN the AndroidManifest.xml
-- WHEN `android.permission.INTERNET` and `android.permission.POST_NOTIFICATIONS` are inspected
-- THEN both carry `tools:node="remove"` and the manifest includes `xmlns:tools`
-
-#### Scenario: READ_EXTERNAL_STORAGE scoped
-
-- GIVEN the AndroidManifest.xml
-- WHEN `android.permission.READ_EXTERNAL_STORAGE` is declared
-- THEN it MUST have `android:maxSdkVersion="32"`
+- WHEN the `<application>` tag is inspected
+- THEN `android:allowBackup="false"` and both `android:dataExtractionRules` and `android:fullBackupContent` exclude all app data
 
 ### Requirement: Clean Architecture Package Scaffold
 

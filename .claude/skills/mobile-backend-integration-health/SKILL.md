@@ -4,7 +4,7 @@ description: "Trigger: backend URL, API client, token refresh, release build, si
 license: Apache-2.0
 metadata:
   author: "AndrewMechDev"
-  version: "1.1"
+  version: "1.2"
 ---
 
 ## Activation Contract
@@ -88,6 +88,18 @@ they only show up as "it works in dev, breaks in the field."
     lenient-decoded field must also check the field that makes that gate
     meaningful in the first place (here: `institutionId != null`) — never
     trust the DTO default alone to mean "this case doesn't apply."
+11. **Tokens never leave the device and never sit in plaintext.** Found: the
+    manifest's `xmlns:tools` pointed at `http://schemas.android.com/apk/tools`
+    (wrong — must be `http://schemas.android.com/tools`), so every
+    `tools:node="remove"` was a silent no-op and INTERNET, RECORD_AUDIO and
+    POST_NOTIFICATIONS shipped; and `allowBackup="true"` sent the plaintext
+    refresh token to cloud backup. Keep `allowBackup="false"` plus
+    `dataExtractionRules` excluding every domain (API 31+ device transfer
+    ignores `allowBackup`), keep Android on `EncryptedSettingsTokenStorage`
+    (Keystore AES/GCM via `TokenCipher`), and verify permissions on the built
+    APK, never by reading the source manifest alone. Note: `INTERNET` must be a
+    normal declaration — fixing the namespace while it still carries
+    `tools:node="remove"` strips networking.
 
 ## Decision Gates
 
@@ -102,6 +114,10 @@ they only show up as "it works in dev, breaks in the field."
 | Release minification | Read `androidApp/build.gradle.kts` `buildTypes.release` | `isMinifyEnabled = true`, `isShrinkResources = true`, `proguardFiles(...)` present |
 | versionCode freshness | Read `defaultConfig.versionCode` | Higher than the last value actually uploaded to Play Store (check the Play Console, not just the repo) |
 | Cleartext | `AndroidManifest.xml` | No `usesCleartextTraffic="true"` without a comment justifying it |
+| Shipped permissions | `aapt2 dump permissions androidApp/build/outputs/apk/debug/androidApp-debug.apk` (aapt2 under `$ANDROID_HOME/build-tools/<ver>/`) | Only INTERNET, CAMERA and dependency-merged ACCESS_NETWORK_STATE (ML Kit datatransport) plus androidx.core's `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`; no RECORD_AUDIO, READ_MEDIA_*, READ_EXTERNAL_STORAGE, POST_NOTIFICATIONS |
+| Tools namespace | `AndroidManifest.xml` `<manifest>` tag | `xmlns:tools="http://schemas.android.com/tools"` exactly |
+| Backup | `aapt2 dump xmltree --file AndroidManifest.xml <apk>` | `allowBackup=false` and `dataExtractionRules` set; rules exclude every domain for cloud-backup and device-transfer |
+| Token at rest | `rg 'SettingsTokenStorage\|TokenCipher' sharedLogic/src` | Android binds `TokenCipher` (`AndroidKeystoreTokenCipher`), so `dataModule` builds `EncryptedSettingsTokenStorage` |
 
 ## Execution Steps
 
