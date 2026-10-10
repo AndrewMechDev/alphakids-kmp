@@ -29,6 +29,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,7 +59,9 @@ import alphakids_kmp.sharedui.generated.resources.ic_trophy
 
 @Composable
 fun AdventureHomeScreen(navController: NavController) {
-    val viewModel = remember {
+    // Lives in this back stack entry: tab switches and configuration
+    // changes keep the loaded dashboard instead of fetching it again.
+    val viewModel = viewModel {
         HomeViewModel(
             koinInject<ParentRepository>(),
             koinInject<StudentPetRepository>(),
@@ -65,7 +69,7 @@ fun AdventureHomeScreen(navController: NavController) {
         )
     }
     val state by viewModel.state.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
     // No active child could be resolved (process restart wiped the session

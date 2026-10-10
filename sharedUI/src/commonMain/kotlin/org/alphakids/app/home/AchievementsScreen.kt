@@ -31,12 +31,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,13 +95,13 @@ private enum class AchievementsSubTab(val displayName: String, val index: Int) {
 @Composable
 fun AchievementsScreen(modifier: Modifier = Modifier) {
     var selectedSubTab by remember { mutableIntStateOf(AchievementsSubTab.Rangos.index) }
-    val viewModel = remember { AchievementsViewModel(koinInject<GameRepository>()) }
     val childId = remember { SessionManager.currentChild?.id }
-    val state by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(childId) {
-        viewModel.loadData(childId)
+    // Scoped to the AdventureHome back stack entry and loaded once on
+    // creation, so returning to this tab does not fetch the data again.
+    val viewModel = viewModel(key = "achievements:$childId") {
+        AchievementsViewModel(koinInject<GameRepository>()).apply { loadData(childId) }
     }
+    val state by viewModel.uiState.collectAsState()
 
     Column(
         modifier = modifier

@@ -28,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,7 +64,7 @@ import org.alphakids.app.theme.glassTextSecondary
 fun SubscriptionScreen(
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = remember { SubscriptionViewModel(koinInject()) }
+    val viewModel = viewModel { SubscriptionViewModel(koinInject()) }
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
