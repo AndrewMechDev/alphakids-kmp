@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.alphakids.app.domain.error.errorMessage
 import org.alphakids.app.parent.domain.model.ChildStats
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.repository.ParentRepository
@@ -40,37 +41,24 @@ class ChildDetailViewModel(
         _uiState.update { it.copy(isLoading = true, error = null) }
 
         viewModelScope.launch {
-            try {
-                val (children, stats) = coroutineScope {
-                    val children = async { parentRepository.getChildren() }
-                    val stats = async { parentRepository.getChildStats(childId) }
-                    children.await() to stats.await()
-                }
-                val child = children.find { it.id == childId }
+            val (children, stats) = coroutineScope {
+                val children = async { parentRepository.getChildren() }
+                val stats = async { parentRepository.getChildStats(childId) }
+                children.await() to stats.await()
+            }
+            val child = children.getOrNull()?.find { it.id == childId }
 
-                if (child == null) {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = "No se encontró este perfil. Puede que haya sido eliminado.",
-                        )
-                    }
-                    return@launch
-                }
-
-                _uiState.update {
-                    it.copy(
-                        child = child,
-                        stats = stats,
-                        isLoading = false,
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Error al cargar datos del niño",
-                    )
+            val error = when {
+                children.isFailure -> children.errorMessage
+                child == null -> "No se encontró este perfil. Puede que haya sido eliminado."
+                stats.isFailure -> stats.errorMessage
+                else -> null
+            }
+            _uiState.update {
+                if (error != null) {
+                    it.copy(isLoading = false, error = error)
+                } else {
+                    it.copy(child = child, stats = stats.getOrThrow(), isLoading = false)
                 }
             }
         }

@@ -1,17 +1,20 @@
 package org.alphakids.app.data.repository
 
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
+import org.alphakids.app.data.remote.apiCall
+import org.alphakids.app.data.remote.bodyOrThrow
 import org.alphakids.app.data.remote.dto.AchievementsResponseDto
 import org.alphakids.app.data.remote.dto.CreateChildRequestDto
-import org.alphakids.app.data.remote.dto.DictionaryResponseDto
-import org.alphakids.app.data.remote.dto.InventoryItemDto
-import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
 import org.alphakids.app.data.remote.dto.PublicInstitutionDto
 import org.alphakids.app.data.remote.dto.StudentResponseDto
+import org.alphakids.app.data.remote.throwIfFailed
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.domain.model.Section
@@ -28,170 +31,71 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 /**
  * Real implementation of [ParentRepository] via [AlphaKidsApiClient].
  *
- * Endpoints con soporte real:
+ * Backed by alphakids-api:
  * - [getChildren] → GET /tutors/children
- * - [createChild] → POST /tutors/children          (NUEVO)
+ * - [createChild] → POST /tutors/children
+ * - [deleteChild] → DELETE /students/:id
  * - [getChildStats] → GET /students/:id/achievements
- * Sin endpoint aún (mock por defecto):
- * - getRecentActivity, getSubscription, getFAQs, submitContactForm
+ * - [getPublicInstitutions] → GET /institutions/public
+ *
+ * Without an endpoint, stated explicitly instead of faked:
+ * - [getRecentActivity], [getFAQs], [submitContactForm] fail with
+ *   [DataError.Unsupported] — an empty list or `false` would read as "no
+ *   activity", "no FAQs" or "the message failed to send".
+ * - [getSubscription] reports the free plan: the backend has no paid plans,
+ *   so that is every account's real plan.
  */
 class ParentRepositoryImpl(
     private val api: AlphaKidsApiClient,
 ) : ParentRepository {
 
-    override suspend fun getChildren(): List<ChildSummary> {
-        return try {
-            val response = api.httpClient.get(ApiConstants.TUTORS_CHILDREN)
-            if (!response.status.isSuccess()) return emptyList()
-            response.body<List<StudentResponseDto>>().map { it.toChildSummary() }
-        } catch (_: Exception) {
-            emptyList()
-        }
+    override suspend fun getChildren(): Result<List<ChildSummary>> = apiCall {
+        api.httpClient.get(ApiConstants.TUTORS_CHILDREN)
+            .bodyOrThrow<List<StudentResponseDto>>()
+            .map { it.toChildSummary() }
     }
 
-    /**
-     * Crea un perfil de hijo desde el tutor.
-     * POST /tutors/children
-     *
-     * Returns [CreateChildResult] on success, or a failed result with
-     * the API error message on validation failure.
-     */
-    override suspend fun createChild(request: CreateChildRequest): CreateChildResult? {
-        return try {
-            val dto = CreateChildRequestDto(
-                firstName = request.firstName,
-                lastName = request.lastName,
-                birthDate = request.birthDate,
-                gender = request.gender,
-                avatarUrl = request.avatarUrl,
-                institutionId = request.institutionId,
-                sectionId = request.sectionId,
-            )
-            val response = api.httpClient.post(ApiConstants.TUTORS_CHILDREN) {
-                setBody(dto)
-            }
-            if (!response.status.isSuccess()) {
-                // Log the API error for debugging
-                val errorBody = try {
-                    response.body<Map<String, String>>()
-                } catch (_: Exception) {
-                    null
-                }
-                val message = errorBody?.get("message")
-                    ?: errorBody?.get("error")
-                    ?: "Error del servidor: ${response.status.value}"
-                // Return a failed result with the error message
-                return CreateChildResult(
-                    id = "",
-                    verificationStatus = "",
-                    studentType = "",
-                    errorMessage = message,
-                )
-            }
-            val studentDto = response.body<StudentResponseDto>()
-            CreateChildResult(
-                id = studentDto.id,
-                verificationStatus = studentDto.verificationStatus,
-                studentType = studentDto.studentType,
-            )
-        } catch (e: Exception) {
-            CreateChildResult(
-                id = "",
-                verificationStatus = "",
-                studentType = "",
-                errorMessage = "Error de conexión: ${e.message ?: "Intente de nuevo"}",
-            )
-        }
+    override suspend fun createChild(request: CreateChildRequest): Result<CreateChildResult> = apiCall {
+        val dto = CreateChildRequestDto(
+            firstName = request.firstName,
+            lastName = request.lastName,
+            birthDate = request.birthDate,
+            gender = request.gender,
+            avatarUrl = request.avatarUrl,
+            institutionId = request.institutionId,
+            sectionId = request.sectionId,
+        )
+        val student = api.httpClient.post(ApiConstants.TUTORS_CHILDREN) { setBody(dto) }
+            .bodyOrThrow<StudentResponseDto>()
+        CreateChildResult(
+            id = student.id,
+            verificationStatus = student.verificationStatus,
+            studentType = student.studentType,
+        )
     }
 
-    /**
-     * Elimina un perfil de hijo del tutor.
-     * DELETE /students/:id
-     */
-    override suspend fun deleteChild(childId: String): Boolean {
-        return try {
-            api.httpClient.delete(ApiConstants.student(childId)).status.isSuccess()
-        } catch (_: Exception) {
-            false
-        }
+    override suspend fun deleteChild(childId: String): Result<Unit> = apiCall {
+        api.httpClient.delete(ApiConstants.student(childId)).throwIfFailed()
     }
 
-    override suspend fun getChildStats(childId: String): ChildStats {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentAchievements(childId))
-            if (!response.status.isSuccess()) return ChildStats()
-            response.body<AchievementsResponseDto>().toChildStats()
-        } catch (_: Exception) {
-            ChildStats()
-        }
+    override suspend fun getChildStats(childId: String): Result<ChildStats> = apiCall {
+        api.httpClient.get(ApiConstants.studentAchievements(childId))
+            .bodyOrThrow<AchievementsResponseDto>()
+            .toChildStats()
     }
 
-    /**
-     * Obtiene las palabras jugables para un estudiante.
-     * GET /students/:id/playable-words
-     */
-    suspend fun getPlayableWords(studentId: String): PlayableWordsResponseDto? {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentPlayableWords(studentId))
-            if (!response.status.isSuccess()) return null
-            response.body<PlayableWordsResponseDto>()
-        } catch (_: Exception) {
-            null
-        }
+    override suspend fun getPublicInstitutions(): Result<List<Institution>> = apiCall {
+        api.httpClient.get(ApiConstants.INSTITUTIONS_PUBLIC)
+            .bodyOrThrow<List<PublicInstitutionDto>>()
+            .map { it.toDomain() }
     }
 
-    /**
-     * Obtiene el diccionario del estudiante.
-     * GET /students/:id/dictionary
-     */
-    suspend fun getDictionary(studentId: String): DictionaryResponseDto? {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentDictionary(studentId))
-            if (!response.status.isSuccess()) return null
-            response.body<DictionaryResponseDto>()
-        } catch (_: Exception) {
-            null
-        }
-    }
+    // ── Sin endpoint en la API ──
 
-    /**
-     * Obtiene el inventario del estudiante.
-     * GET /students/:id/inventory
-     */
-    suspend fun getInventory(studentId: String): List<InventoryItemDto> {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentInventory(studentId))
-            if (!response.status.isSuccess()) return emptyList()
-            response.body<List<InventoryItemDto>>()
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
-
-    /**
-     * Get all active institutions with their grades and sections.
-     * GET /institutions/public
-     *
-     * Returns an empty list when:
-     * - The API is unavailable
-     * - Network errors occur
-     */
-    override suspend fun getPublicInstitutions(): List<Institution> {
-        return try {
-            val response = api.httpClient.get(ApiConstants.INSTITUTIONS_PUBLIC)
-            if (!response.status.isSuccess()) return emptyList()
-            response.body<List<PublicInstitutionDto>>().map { it.toDomain() }
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
-
-    // ── Sin endpoint API — valores por defecto ──
-
-    override suspend fun getRecentActivity(): List<ChildActivity> = emptyList()
-    override suspend fun getSubscription(): SubscriptionInfo = SubscriptionInfo()
-    override suspend fun getFAQs(): List<FAQItem> = emptyList()
-    override suspend fun submitContactForm(form: ContactForm): Boolean = false
+    override suspend fun getRecentActivity(): Result<List<ChildActivity>> = dataFailure(DataError.Unsupported)
+    override suspend fun getSubscription(): Result<SubscriptionInfo> = Result.success(SubscriptionInfo())
+    override suspend fun getFAQs(): Result<List<FAQItem>> = dataFailure(DataError.Unsupported)
+    override suspend fun submitContactForm(form: ContactForm): Result<Unit> = dataFailure(DataError.Unsupported)
 
     // ── Mappers ──
 

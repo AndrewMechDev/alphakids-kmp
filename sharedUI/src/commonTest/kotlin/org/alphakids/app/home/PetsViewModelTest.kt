@@ -7,6 +7,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.alphakids.app.data.remote.dto.BuyAccessoryResponseDto
 import org.alphakids.app.data.remote.dto.InventoryItemDto
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.DataErrorMessages
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.store.domain.model.PurchaseResult
 import kotlin.test.AfterTest
@@ -15,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -40,7 +43,7 @@ class PetsViewModelTest {
         val state = viewModel().state.value
 
         assertFalse(state.isLoading)
-        assertFalse(state.loadFailed)
+        assertNull(state.loadError)
         assertEquals(0, state.coins)
     }
 
@@ -48,7 +51,32 @@ class PetsViewModelTest {
     fun a_failed_request_shows_the_error_state_instead_of_an_empty_store() {
         store.inventory = null
 
-        assertTrue(viewModel().state.value.loadFailed)
+        val state = viewModel().state.value
+
+        assertEquals(DataErrorMessages.NO_CONNECTION, state.loadError)
+        assertTrue(state.inventory.isEmpty())
+    }
+
+    @Test
+    fun an_empty_inventory_is_not_an_error() {
+        store.inventory = emptyList()
+
+        val state = viewModel().state.value
+
+        assertNull(state.loadError)
+        assertTrue(state.inventory.isEmpty())
+    }
+
+    @Test
+    fun retry_after_a_failure_loads_the_store() {
+        store.inventory = null
+        val vm = viewModel()
+
+        store.inventory = listOf(InventoryItemDto(id = "inv_1", quantity = 2, accessory = APPLE))
+        vm.load()
+
+        assertNull(vm.state.value.loadError)
+        assertEquals(1, vm.state.value.inventory.size)
     }
 
     @Test
@@ -67,7 +95,7 @@ class PetsViewModelTest {
 
     @Test
     fun a_failed_purchase_grants_nothing() {
-        store.buyPetResult = PurchaseResult.Failed
+        store.buyPetResult = PurchaseResult.Failed(DataError.Server(500))
         val vm = viewModel()
 
         vm.buyPet(CAT)

@@ -119,6 +119,16 @@ fun SupportScreen(
             )
         }
 
+        state.faqMessage?.let { message ->
+            item(key = "faq-message") {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = glassTextSecondary(),
+                )
+            }
+        }
+
         // Divider before contact form
         item(key = "divider") {
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

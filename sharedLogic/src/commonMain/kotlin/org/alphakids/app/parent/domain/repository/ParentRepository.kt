@@ -10,21 +10,41 @@ import org.alphakids.app.parent.domain.model.ContactForm
 import org.alphakids.app.parent.domain.model.FAQItem
 import org.alphakids.app.parent.domain.model.SubscriptionInfo
 
+/**
+ * Parent/tutor data.
+ *
+ * A failed [Result] carries a `DataException` with the `DataError` that
+ * explains it, so "no children yet" (an empty list) never looks like "the
+ * server is down". Cancellation of the caller is propagated, never returned.
+ */
 interface ParentRepository {
-    suspend fun getChildren(): List<ChildSummary>
-    suspend fun getChildStats(childId: String): ChildStats
-    suspend fun getRecentActivity(): List<ChildActivity>
-    suspend fun getSubscription(): SubscriptionInfo
-    suspend fun getFAQs(): List<FAQItem>
-    suspend fun submitContactForm(form: ContactForm): Boolean
+    /** Backed by: GET /tutors/children */
+    suspend fun getChildren(): Result<List<ChildSummary>>
+
+    /** Backed by: GET /students/:id/achievements */
+    suspend fun getChildStats(childId: String): Result<ChildStats>
+
+    /** No backend endpoint yet: the real implementation fails with `DataError.Unsupported`. */
+    suspend fun getRecentActivity(): Result<List<ChildActivity>>
+
+    /**
+     * No backend endpoint: the backend has no paid plans, so the real
+     * implementation reports the free plan every account is on.
+     */
+    suspend fun getSubscription(): Result<SubscriptionInfo>
+
+    /** No backend endpoint yet: the real implementation fails with `DataError.Unsupported`. */
+    suspend fun getFAQs(): Result<List<FAQItem>>
+
+    /** No backend endpoint yet: the real implementation fails with `DataError.Unsupported`. */
+    suspend fun submitContactForm(form: ContactForm): Result<Unit>
 
     /**
      * Get all active institutions with their grades and sections.
-     * Returns an empty list when the API is unavailable.
      *
      * Backed by: GET /institutions/public
      */
-    suspend fun getPublicInstitutions(): List<Institution>
+    suspend fun getPublicInstitutions(): Result<List<Institution>>
 
     /**
      * Create a child profile from the parent/tutor.
@@ -34,10 +54,11 @@ interface ParentRepository {
      * - verificationStatus becomes PENDING (awaits director approval)
      *
      * If no institution: FREEMIUM + VERIFIED (immediate access).
+     * Rejected data fails with `DataError.Validation`.
      *
      * Backed by: POST /tutors/children
      */
-    suspend fun createChild(request: CreateChildRequest): CreateChildResult?
+    suspend fun createChild(request: CreateChildRequest): Result<CreateChildResult>
 
     /**
      * Delete a child profile belonging to the current parent.
@@ -45,5 +66,5 @@ interface ParentRepository {
      * Backed by: DELETE /students/:id — the backend already restricts this
      * to the student's own registeredBy parent (or admin/director/teacher).
      */
-    suspend fun deleteChild(childId: String): Boolean
+    suspend fun deleteChild(childId: String): Result<Unit>
 }

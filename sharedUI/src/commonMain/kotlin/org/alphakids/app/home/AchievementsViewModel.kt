@@ -3,13 +3,16 @@ package org.alphakids.app.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.alphakids.app.analytics.AchievementAnalytics
+import org.alphakids.app.domain.error.DataErrorMessages
+import org.alphakids.app.domain.error.errorMessage
 import org.alphakids.app.game.domain.model.AchievementData
 import org.alphakids.app.game.domain.model.fallbackAchievementData
 import org.alphakids.app.game.domain.model.toAchievementData
@@ -54,9 +57,11 @@ class AchievementsViewModel(
      * Loads achievements for the given child.
      * Safe to call multiple times (retry).
      *
-     * Falls back to [fallbackAchievementData] if the childId is null
-     * or the API is unavailable, so the UI always has content to render.
-     * Never blocks indefinitely.
+     * With no child selected only the local analytics are shown. Otherwise
+     * the backend progress is required: if it cannot be read (offline,
+     * server error, no answer within [API_TIMEOUT_MS]) the screen shows
+     * [AchievementsUiState.Error] with a retry instead of made-up zeros.
+     * The dictionary only refines the word count, so its failure is tolerated.
      */
     fun loadData(childId: String?) {
         currentChildId = childId
@@ -69,50 +74,41 @@ class AchievementsViewModel(
         }
 
         viewModelScope.launch {
-            try {
-                // Query local analytics first (always available)
-                val ocrCount = AchievementAnalytics.ocrSessionCount()
-                val spellCount = AchievementAnalytics.spellSessionCount()
-                val recentHistory = AchievementAnalytics.getRecentHistory()
-
-                // 1. Try API with timeout; both requests are independent.
-                val (achievements, dictWordCount) = try {
-                    withTimeout(8_000L) {
-                        val ach = async { gameRepository.getAchievements(childId) }
-                        val dict = async { gameRepository.getDictionary(childId) }
-                        val dictCount = dict.await()?.dictionary?.values?.flatten()?.size ?: 0
-                        ach.await() to dictCount
-                    }
-                } catch (_: Exception) {
-                    null to 0
+            // Both requests are independent.
+            val responses = withTimeoutOrNull(API_TIMEOUT_MS) {
+                coroutineScope {
+                    val ach = async { gameRepository.getAchievements(childId) }
+                    val dict = async { gameRepository.getDictionary(childId) }
+                    ach.await() to dict.await()
                 }
-
-                // 2. Build from real data if available, otherwise fallback
-                val achievementData = if (achievements != null && achievements.progress != null) {
-                    GameProgressManager.applyServerProgress(achievements.progress)
-                    achievements.toAchievementData(
-                        ocrCount = ocrCount,
-                        spellCount = spellCount,
-                        historyEntries = recentHistory,
-                        dictionaryWordCount = dictWordCount,
-                    )
-                } else {
-                    // Offline / API unavailable → last progress the backend reported
-                    fallbackData(childId)
-                }
-
-                _uiState.update { AchievementsUiState.Success(achievementData) }
-
-            } catch (e: Exception) {
-                // Last resort: show fallback instead of error
-                _uiState.update { AchievementsUiState.Success(fallbackData(childId)) }
             }
+            if (responses == null) {
+                _uiState.update { AchievementsUiState.Error(DataErrorMessages.TIMEOUT) }
+                return@launch
+            }
+            val (achievements, dictionary) = responses
+            val state = achievements.fold(
+                onSuccess = { response ->
+                    GameProgressManager.applyServerProgress(response.progress)
+                    AchievementsUiState.Success(
+                        response.toAchievementData(
+                            ocrCount = AchievementAnalytics.ocrSessionCount(),
+                            spellCount = AchievementAnalytics.spellSessionCount(),
+                            historyEntries = AchievementAnalytics.getRecentHistory(),
+                            dictionaryWordCount = dictionary.getOrNull()?.dictionary?.values?.sumOf { it.size } ?: 0,
+                        ),
+                    )
+                },
+                onFailure = { AchievementsUiState.Error(achievements.errorMessage) },
+            )
+            _uiState.update { state }
         }
     }
 
     /**
      * Local analytics plus the last progress the backend reported for
      * [childId] (zeros if none was received yet) — never locally counted coins.
+     * Only used when no child is selected.
      */
     private fun fallbackData(childId: String?): AchievementData {
         val economy = childId?.let(GameProgressManager::economyFor)
@@ -129,5 +125,10 @@ class AchievementsViewModel(
     /** Retry loading with the cached child ID. */
     fun retry() {
         currentChildId?.let { loadData(it) }
+    }
+
+    private companion object {
+        /** Longest the screen waits for the backend before offering a retry. */
+        const val API_TIMEOUT_MS = 8_000L
     }
 }

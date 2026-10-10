@@ -14,10 +14,13 @@ import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
  * - GET /students/:id/dictionary
  * - GET /students/:id/achievements
  * - POST /game-sessions/complete
+ *
+ * A failed [Result] carries a `DataException` with the `DataError` that
+ * explains it; cancellation of the caller is propagated, never returned.
  */
 interface GameRepository {
-    suspend fun getPlayableWords(studentId: String): PlayableWordsResponseDto?
-    suspend fun getDictionary(studentId: String): DictionaryResponseDto?
-    suspend fun getAchievements(studentId: String): AchievementsResponseDto?
-    suspend fun completeSession(request: GameSessionCompleteRequestDto): GameSessionResultDto?
+    suspend fun getPlayableWords(studentId: String): Result<PlayableWordsResponseDto>
+    suspend fun getDictionary(studentId: String): Result<DictionaryResponseDto>
+    suspend fun getAchievements(studentId: String): Result<AchievementsResponseDto>
+    suspend fun completeSession(request: GameSessionCompleteRequestDto): Result<GameSessionResultDto>
 }

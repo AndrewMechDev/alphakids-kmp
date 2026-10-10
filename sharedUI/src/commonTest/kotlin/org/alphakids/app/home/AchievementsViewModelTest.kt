@@ -13,6 +13,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.alphakids.app.data.remote.dto.AchievementsResponseDto
 import org.alphakids.app.data.remote.dto.DictionaryResponseDto
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.DataErrorMessages
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import kotlin.test.AfterTest
@@ -28,12 +30,12 @@ class AchievementsViewModelTest {
     private class SlowGameRepository(
         private val base: GameRepository = FakeGameRepository(progress(coins = 30)),
     ) : GameRepository by base {
-        override suspend fun getAchievements(studentId: String): AchievementsResponseDto? {
+        override suspend fun getAchievements(studentId: String): Result<AchievementsResponseDto> {
             delay(LATENCY_MS)
             return base.getAchievements(studentId)
         }
 
-        override suspend fun getDictionary(studentId: String): DictionaryResponseDto? {
+        override suspend fun getDictionary(studentId: String): Result<DictionaryResponseDto> {
             delay(LATENCY_MS)
             return base.getDictionary(studentId)
         }
@@ -64,6 +66,32 @@ class AchievementsViewModelTest {
         assertEquals(LATENCY_MS, currentTime)
         val state = assertIs<AchievementsUiState.Success>(viewModel.uiState.value)
         assertEquals(30, state.data.coins)
+    }
+
+    @Test
+    fun a_failed_progress_request_shows_an_error_instead_of_zero_progress() = runTest {
+        val game = FakeGameRepository(progress = null, progressError = DataError.Server(503))
+        val viewModel = AchievementsViewModel(game).also { created += it }
+
+        viewModel.loadData(STUDENT)
+        advanceUntilIdle()
+
+        val state = assertIs<AchievementsUiState.Error>(viewModel.uiState.value)
+        assertEquals(DataErrorMessages.SERVER_UNAVAILABLE, state.message)
+    }
+
+    @Test
+    fun retry_after_a_failure_shows_the_backend_progress() = runTest {
+        val game = FakeGameRepository(progress = null)
+        val viewModel = AchievementsViewModel(game).also { created += it }
+        viewModel.loadData(STUDENT)
+        advanceUntilIdle()
+
+        game.progress = progress(coins = 12)
+        viewModel.retry()
+        advanceUntilIdle()
+
+        assertEquals(12, assertIs<AchievementsUiState.Success>(viewModel.uiState.value).data.coins)
     }
 
     private companion object {

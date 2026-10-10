@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.alphakids.app.domain.error.firstErrorMessage
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.GameProgressManager
@@ -43,7 +44,8 @@ import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
  * @param dailyObjective Today's objective text.
  * @param alphiMessage Greeting / tip from Alphi.
  * @param pendingActivities List of in-progress word activities.
- * @param error Non-null when an error occurred.
+ * @param error Friendly message when part of the dashboard could not be
+ *   loaded, so missing data is not mistaken for "nothing yet".
  */
 data class UiState(
     val isLoading: Boolean = false,
@@ -123,7 +125,9 @@ class HomeViewModel(
         if (child == null) {
             val persistedId = SessionManager.persistedActiveChildId()
             if (persistedId != null) {
-                val children = parentRepository.getChildren()
+                // A failed request also ends in sessionExpired: Splash then
+                // routes to the profile picker, which shows the error and a retry.
+                val children = parentRepository.getChildren().getOrNull().orEmpty()
                 val matched = children.find { it.id == persistedId }
                 if (matched != null) {
                     SessionManager.setActiveChild(matched)
@@ -140,14 +144,15 @@ class HomeViewModel(
         applyChild(child)
         val childId = child.id
 
-        val (pets, playable) = coroutineScope {
+        val (pets, playable, progress) = coroutineScope {
             val pets = async { studentPetRepository.getPets(childId) }
             val playable = async { gameRepository.getPlayableWords(childId) }
-            val progress = async { gameRepository.getAchievements(childId)?.progress }
-            progress.await()?.let(GameProgressManager::applyServerProgress)
-            pets.await() to playable.await()
+            val progress = async { gameRepository.getAchievements(childId) }
+            Triple(pets.await(), playable.await(), progress.await())
         }
-        val pet = pets.orEmpty().firstOrNull { it.isActive }
+        progress.onSuccess { GameProgressManager.applyServerProgress(it.progress) }
+        val pet = pets.getOrNull().orEmpty().firstOrNull { it.isActive }
+        val words = playable.getOrNull()?.words.orEmpty()
 
         _state.update {
             it.copy(
@@ -155,10 +160,11 @@ class HomeViewModel(
                 petType = pet?.petCatalog?.species ?: "",
                 petHunger = pet?.hungerLevel ?: 0,
                 petHappiness = pet?.happinessLevel ?: 0,
-                wordsPending = playable?.words?.size ?: 0,
-                pendingActivities = playable?.words.orEmpty().take(3).map { word ->
+                wordsPending = words.size,
+                pendingActivities = words.take(3).map { word ->
                     PendingActivity(wordName = word.text, imageName = word.imageUrl ?: "", progress = 0f)
                 },
+                error = firstErrorMessage(listOf(progress, playable, pets)),
             )
         }
     }

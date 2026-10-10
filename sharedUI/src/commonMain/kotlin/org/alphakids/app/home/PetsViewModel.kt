@@ -13,6 +13,7 @@ import org.alphakids.app.data.remote.dto.InventoryItemDto
 import org.alphakids.app.data.remote.dto.PetCatalogDto
 import org.alphakids.app.data.remote.dto.StudentPetDto
 import org.alphakids.app.data.remote.dto.StudentProgressDto
+import org.alphakids.app.domain.error.firstErrorMessage
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.store.domain.model.PurchaseResult
@@ -42,15 +43,15 @@ sealed class PetsNotice(val text: String, val isError: Boolean) {
  * locally except the derived views ([ownedCatalogIds]).
  *
  * @param isLoading True while the initial load runs.
- * @param loadFailed True when any required request failed; the screen shows
- *   a retry state instead of a partial or stale store.
+ * @param loadError Friendly message when any required request failed; the
+ *   screen shows it with a retry instead of a partial or stale store.
  * @param coins Server balance of the active child, as last read by this screen.
  * @param childLevel Server level of the active child, drives pet locks.
  * @param isBusy True while a purchase or feed request is in flight.
  */
 data class PetsUiState(
     val isLoading: Boolean = true,
-    val loadFailed: Boolean = false,
+    val loadError: String? = null,
     val coins: Int = 0,
     val childLevel: Int = 1,
     val pets: List<StudentPetDto> = emptyList(),
@@ -90,27 +91,28 @@ class PetsViewModel(
 
     /** Loads pets, catalogs, inventory and progress in parallel. Safe to call again (retry). */
     fun load() {
-        _state.update { it.copy(isLoading = true, loadFailed = false) }
+        _state.update { it.copy(isLoading = true, loadError = null) }
         viewModelScope.launch {
             val pets = async { studentPetRepository.getPets(studentId) }
             val petCatalog = async { storeRepository.getPetsCatalog(studentId) }
             val accessories = async { storeRepository.getAccessoriesCatalog(studentId) }
             val inventory = async { storeRepository.getInventory(studentId) }
-            val progress = async { gameRepository.getAchievements(studentId)?.progress }
+            val progress = async { gameRepository.getAchievements(studentId) }
 
-            val serverProgress = progress.await()?.also(::applyProgress)
-            val loaded = listOf(pets.await(), petCatalog.await(), accessories.await(), inventory.await())
-            if (loaded.any { it == null } || serverProgress == null) {
-                _state.update { it.copy(isLoading = false, loadFailed = true) }
+            progress.await().getOrNull()?.progress?.let(::applyProgress)
+            val loaded = listOf(progress.await(), pets.await(), petCatalog.await(), accessories.await(), inventory.await())
+            val error = firstErrorMessage(loaded)
+            if (error != null) {
+                _state.update { it.copy(isLoading = false, loadError = error) }
                 return@launch
             }
             _state.update {
                 it.copy(
                     isLoading = false,
-                    pets = pets.await().orEmpty(),
-                    petCatalog = petCatalog.await().orEmpty().filter { pet -> pet.isActive },
-                    accessories = accessories.await().orEmpty().filter { acc -> acc.isActive },
-                    inventory = inventory.await().orEmpty(),
+                    pets = pets.await().getOrThrow(),
+                    petCatalog = petCatalog.await().getOrThrow().filter { pet -> pet.isActive },
+                    accessories = accessories.await().getOrThrow().filter { acc -> acc.isActive },
+                    inventory = inventory.await().getOrThrow(),
                 )
             }
         }
@@ -144,7 +146,7 @@ class PetsViewModel(
      */
     fun feed(pet: StudentPetDto, item: InventoryItemDto) = runExclusive {
         val accessory = item.accessory ?: return@runExclusive
-        val fed = studentPetRepository.feedPet(studentId, pet.id, accessory.id)
+        val fed = studentPetRepository.feedPet(studentId, pet.id, accessory.id).getOrNull()
         if (fed == null) {
             _state.update { it.copy(notice = PetsNotice.FeedFailed) }
             return@runExclusive
@@ -183,13 +185,13 @@ class PetsViewModel(
             is PurchaseResult.Success -> if (refreshed) PetsNotice.Purchased(itemName) else PetsNotice.BalanceOutdated
             PurchaseResult.NotEnoughCoins -> PetsNotice.NotEnoughCoins
             PurchaseResult.LevelTooLow -> PetsNotice.LevelTooLow
-            PurchaseResult.Failed -> PetsNotice.PurchaseFailed
+            is PurchaseResult.Failed -> PetsNotice.PurchaseFailed
         }
         _state.update { it.copy(notice = notice) }
     }
 
     private suspend fun refreshEconomy(): Boolean {
-        val progress = gameRepository.getAchievements(studentId)?.progress ?: return false
+        val progress = gameRepository.getAchievements(studentId).getOrNull()?.progress ?: return false
         applyProgress(progress)
         return true
     }

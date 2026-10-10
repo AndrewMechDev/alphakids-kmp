@@ -1,5 +1,7 @@
 package org.alphakids.app.parent.data.mock
 
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.domain.model.Section
@@ -26,9 +28,9 @@ class MockParentRepository : ParentRepository {
         children.add(child)
     }
 
-    override suspend fun getChildren(): List<ChildSummary> = children.toList()
+    override suspend fun getChildren(): Result<List<ChildSummary>> = Result.success(children.toList())
 
-    override suspend fun getChildStats(childId: String): ChildStats = ChildStats(
+    override suspend fun getChildStats(childId: String): Result<ChildStats> = Result.success(ChildStats(
         wordsLearned = if (childId == "1") 15 else 5,
         ocrCompleted = if (childId == "1") 10 else 3,
         spellingCompleted = if (childId == "1") 5 else 2,
@@ -36,17 +38,17 @@ class MockParentRepository : ParentRepository {
         coinsEarned = if (childId == "1") 250 else 80,
         starsEarned = if (childId == "1") 8 else 2,
         weeklyProgress = listOf(true, true, false, true, false, false, true),
-    )
+    ))
 
-    override suspend fun getRecentActivity(): List<ChildActivity> = listOf(
+    override suspend fun getRecentActivity(): Result<List<ChildActivity>> = Result.success(listOf(
         ChildActivity("Hoy 10:30", "Sofía aprendió 'CASA'", "word", "3 estrellas ⭐⭐⭐"),
         ChildActivity("Hoy 09:15", "Mateo escaneó 'SOL'", "ocr", "2 estrellas ⭐⭐"),
         ChildActivity("Ayer 16:00", "Sofía completó 5 palabras", "achievement", "Nuevo récord 🎉"),
         ChildActivity("Ayer 14:30", "Mateo deletreó 'LUNA'", "spelling", "1 estrella ⭐"),
         ChildActivity("Lun 10:00", "Sofía obtuvo trofeo 'Primera palabra'", "achievement", "Trofeo desbloqueado 🏆"),
-    )
+    ))
 
-    override suspend fun getSubscription(): SubscriptionInfo = SubscriptionInfo(
+    override suspend fun getSubscription(): Result<SubscriptionInfo> = Result.success(SubscriptionInfo(
         planType = PlanType.FREE,
         planName = "Gratuito",
         isActive = true,
@@ -59,19 +61,19 @@ class MockParentRepository : ParentRepository {
             PlanBenefit("Panel de padres detallado", false, true),
             PlanBenefit("Sin anuncios", false, true),
         ),
-    )
+    ))
 
-    override suspend fun getFAQs(): List<FAQItem> = listOf(
+    override suspend fun getFAQs(): Result<List<FAQItem>> = Result.success(listOf(
         FAQItem("¿Cómo agrego un nuevo hijo?", "Ve al panel de padres, selecciona 'Crear perfil' y sigue los pasos del asistente."),
         FAQItem("¿Qué beneficios tiene Premium?", "Acceso a mascotas ilimitadas, actividades avanzadas, panel detallado y sin anuncios."),
         FAQItem("¿Cómo se calculan las monedas?", "Por cada palabra completada: 50 monedas. Por racha de 7 días: bonus de 100 monedas."),
         FAQItem("¿Puedo tener varios hijos?", "Sí, puedes crear perfiles ilimitados desde el panel de padres."),
         FAQItem("¿Cómo restablezco el progreso?", "Contacta a soporte desde esta misma sección y te ayudaremos."),
-    )
+    ))
 
-    override suspend fun submitContactForm(form: ContactForm): Boolean = true
+    override suspend fun submitContactForm(form: ContactForm): Result<Unit> = Result.success(Unit)
 
-    override suspend fun getPublicInstitutions(): List<Institution> = listOf(
+    override suspend fun getPublicInstitutions(): Result<List<Institution>> = Result.success(listOf(
         Institution(
             id = "mock-inst-001",
             name = "Colegio San Martín",
@@ -112,9 +114,9 @@ class MockParentRepository : ParentRepository {
             name = "I.E.P. Santa María",
             grades = emptyList(),
         ),
-    )
+    ))
 
-    override suspend fun createChild(request: CreateChildRequest): CreateChildResult? {
+    override suspend fun createChild(request: CreateChildRequest): Result<CreateChildResult> {
         val fullName = "${request.firstName} ${request.lastName}"
         val verificationStatus = if (request.institutionId != null) "PENDING" else "VERIFIED"
         val studentType = if (request.institutionId != null) "INSTITUTIONAL" else "FREEMIUM"
@@ -131,14 +133,13 @@ class MockParentRepository : ParentRepository {
             stars = 0,
         ))
 
-        return CreateChildResult(
+        return Result.success(CreateChildResult(
             id = mockId,
             verificationStatus = verificationStatus,
             studentType = studentType,
-        )
+        ))
     }
 
-    override suspend fun deleteChild(childId: String): Boolean {
-        return children.removeAll { it.id == childId }
-    }
+    override suspend fun deleteChild(childId: String): Result<Unit> =
+        if (children.removeAll { it.id == childId }) Result.success(Unit) else dataFailure(DataError.NotFound)
 }

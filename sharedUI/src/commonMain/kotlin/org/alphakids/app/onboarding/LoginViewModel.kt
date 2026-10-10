@@ -72,9 +72,12 @@ class LoginViewModel(
             )
 
             if (response.success) {
-                val children = parentRepository.getChildren()
+                // If the children cannot be read, go to the profile picker (it
+                // shows the error with a retry) rather than sending a parent
+                // who may have children into the create-child wizard.
+                val hasChildren = parentRepository.getChildren().getOrNull()?.isNotEmpty() ?: true
                 _uiState.update {
-                    it.copy(isLoading = false, isSuccess = true, hasChildren = children.isNotEmpty())
+                    it.copy(isLoading = false, isSuccess = true, hasChildren = hasChildren)
                 }
             } else {
                 _uiState.update { it.copy(isLoading = false, error = response.message) }

@@ -12,6 +12,8 @@ import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.data.remote.dto.GameSessionResultDto
 import org.alphakids.app.data.remote.dto.GameSessionSummaryDto
 import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.game.domain.model.GameRewards
 import org.alphakids.app.game.domain.model.GameWord
 import org.alphakids.app.game.domain.repository.GameRepository
@@ -133,14 +135,14 @@ private class RecordingGameRepository : GameRepository {
     var fail = false
     var progressAfter = progress(coins = 100)
 
-    override suspend fun getPlayableWords(studentId: String): PlayableWordsResponseDto? = null
-    override suspend fun getDictionary(studentId: String): DictionaryResponseDto? = null
-    override suspend fun getAchievements(studentId: String): AchievementsResponseDto? = null
+    override suspend fun getPlayableWords(studentId: String): Result<PlayableWordsResponseDto> = unused()
+    override suspend fun getDictionary(studentId: String): Result<DictionaryResponseDto> = unused()
+    override suspend fun getAchievements(studentId: String): Result<AchievementsResponseDto> = unused()
 
-    override suspend fun completeSession(request: GameSessionCompleteRequestDto): GameSessionResultDto? {
+    override suspend fun completeSession(request: GameSessionCompleteRequestDto): Result<GameSessionResultDto> {
         requests += request
-        if (fail) return null
-        return GameSessionResultDto(
+        if (fail) return dataFailure(DataError.Network)
+        return Result.success(GameSessionResultDto(
             summary = GameSessionSummaryDto(
                 id = "session_${requests.size}",
                 studentId = request.studentId,
@@ -152,6 +154,8 @@ private class RecordingGameRepository : GameRepository {
                 status = request.status,
             ),
             progress = progressAfter,
-        )
+        ))
     }
+
+    private fun unused(): Result<Nothing> = dataFailure(DataError.Unknown)
 }

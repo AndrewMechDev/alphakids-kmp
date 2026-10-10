@@ -9,6 +9,9 @@ import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.DataErrorMessages
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.parent.data.mock.MockParentRepository
 import org.alphakids.app.parent.domain.model.ChildActivity
 import org.alphakids.app.parent.domain.model.ChildStats
@@ -28,19 +31,21 @@ class ParentLoadsConcurrencyTest {
     /** Each request takes [LATENCY_MS] of virtual time. */
     private class SlowParentRepository(
         private val base: ParentRepository = MockParentRepository(),
+        private val failingStatsFor: String? = null,
     ) : ParentRepository by base {
-        override suspend fun getChildren(): List<ChildSummary> {
+        override suspend fun getChildren(): Result<List<ChildSummary>> {
             delay(LATENCY_MS)
             return base.getChildren()
         }
 
-        override suspend fun getRecentActivity(): List<ChildActivity> {
+        override suspend fun getRecentActivity(): Result<List<ChildActivity>> {
             delay(LATENCY_MS)
             return base.getRecentActivity()
         }
 
-        override suspend fun getChildStats(childId: String): ChildStats {
+        override suspend fun getChildStats(childId: String): Result<ChildStats> {
             delay(LATENCY_MS)
+            if (childId == failingStatsFor) return dataFailure(DataError.Server(500))
             return base.getChildStats(childId)
         }
     }
@@ -72,7 +77,7 @@ class ParentLoadsConcurrencyTest {
 
     @Test
     fun child_detail_loads_the_child_and_its_stats_concurrently() = runTest {
-        val childId = MockParentRepository().getChildren().first().id
+        val childId = MockParentRepository().getChildren().getOrThrow().first().id
         val viewModel = ChildDetailViewModel(SlowParentRepository())
 
         viewModel.loadData(childId)
@@ -95,6 +100,29 @@ class ParentLoadsConcurrencyTest {
         val state = viewModel.uiState.value
         assertEquals(null, state.child)
         assertNotNull(state.error)
+    }
+
+    @Test
+    fun insight_center_shows_an_error_instead_of_totals_missing_a_child() = runTest {
+        val childId = MockParentRepository().getChildren().getOrThrow().first().id
+        val viewModel = ParentInsightViewModel(SlowParentRepository(failingStatsFor = childId))
+
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(DataErrorMessages.SERVER_UNAVAILABLE, state.error)
+        assertEquals(0, state.aggregated.totalChildren)
+    }
+
+    @Test
+    fun child_detail_reports_why_the_stats_failed() = runTest {
+        val childId = MockParentRepository().getChildren().getOrThrow().first().id
+        val viewModel = ChildDetailViewModel(SlowParentRepository(failingStatsFor = childId))
+
+        viewModel.loadData(childId)
+        advanceUntilIdle()
+
+        assertEquals(DataErrorMessages.SERVER_UNAVAILABLE, viewModel.uiState.value.error)
     }
 
     private companion object {
