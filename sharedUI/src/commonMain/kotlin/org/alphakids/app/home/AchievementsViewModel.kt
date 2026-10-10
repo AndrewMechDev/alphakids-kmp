@@ -2,6 +2,7 @@ package org.alphakids.app.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,15 +75,14 @@ class AchievementsViewModel(
                 val spellCount = AchievementAnalytics.spellSessionCount()
                 val recentHistory = AchievementAnalytics.getRecentHistory()
 
-                // 1. Try API with timeout
+                // 1. Try API with timeout; both requests are independent.
                 val (achievements, dictWordCount) = try {
-                    val apiResult = withTimeout(8_000L) {
-                        val ach = gameRepository.getAchievements(childId)
-                        val dict = gameRepository.getDictionary(childId)
-                        val dictCount = dict?.dictionary?.values?.flatten()?.size ?: 0
-                        ach to dictCount
+                    withTimeout(8_000L) {
+                        val ach = async { gameRepository.getAchievements(childId) }
+                        val dict = async { gameRepository.getDictionary(childId) }
+                        val dictCount = dict.await()?.dictionary?.values?.flatten()?.size ?: 0
+                        ach.await() to dictCount
                     }
-                    apiResult
                 } catch (_: Exception) {
                     null to 0
                 }
