@@ -1,13 +1,11 @@
 package org.alphakids.app.game.domain.model
 
 /**
- * Holds the currently selected word from the API-based word picker
- * so [org.alphakids.app.jugar.WordScannerChallenge] can use it
- * instead of the hardcoded [org.alphakids.app.domain.model.WordBank].
+ * Holds the currently selected word from the API-based word picker.
  *
- * This is a simple singleton because navigation arguments cannot carry
- * complex objects, and we need to pass the API word data through the
- * WordScannerChallenge → OCRResultScreen → WordScannerChallenge loop.
+ * Only the iOS app still reads this. It is in-memory, so it is lost when the
+ * OS kills the process: the Android game carries the word in its navigation
+ * routes instead (see [GameWord]).
  */
 object GameSessionState {
     /**

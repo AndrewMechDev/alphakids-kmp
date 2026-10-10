@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +58,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
+import kotlin.time.TimeSource
 import org.alphakids.app.domain.model.ChallengeWord
-import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.game.domain.model.GameWord
 import org.alphakids.app.game.domain.model.ScanStabilityVote
 import org.alphakids.app.game.domain.model.ScanText
 import org.alphakids.app.navigation.Screen
@@ -89,12 +91,21 @@ data class OcrResult(
     val detectedText: String,
 )
 
+/**
+ * Camera + OCR scan of one word.
+ *
+ * @param gameWord  The word to scan, restored from the route.
+ * @param attemptId Id of this play, handed to the result screen so the
+ *   session is reported exactly once.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordScannerChallenge(
     navController: NavController,
-    word: ChallengeWord = WordBank.words.first(),
+    gameWord: GameWord,
+    attemptId: String,
 ) {
+    val word = remember(gameWord) { gameWord.toChallengeWord() }
     // Slots follow the shared scan rule (letters only), the same rule the
     // camera read goes through, so words with spaces can complete.
     val letters = ScanText.letters(word.word).map { it.toString() }
@@ -102,6 +113,10 @@ fun WordScannerChallenge(
     var attempts by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<OcrResult?>(null) }
     var showResult by remember { mutableStateOf(false) }
+
+    // Real time to solve: from the scanner opening to the matching read.
+    val startMark = remember { TimeSource.Monotonic.markNow() }
+    var elapsedMs by remember { mutableLongStateOf(0L) }
 
     // Frame-stability voting (see ScanStabilityVote): only a streak of
     // identical frames gets locked in as a result.
@@ -135,16 +150,18 @@ fun WordScannerChallenge(
         if (showResult && r != null) {
             if (r.success) {
                 delay(CELEBRATION_DELAY_MS)
-                val wordText = word.word.uppercase()
-                val wordIndex = WordBank.words.indexOf(word).coerceAtLeast(0)
+                // Replace the scanner: this attempt is over, so back from the
+                // result returns to the word list instead of a used attempt.
                 navController.navigate(
                     Screen.OcrResult.createRoute(
-                        wordIndex = wordIndex,
+                        word = gameWord,
+                        attemptId = attemptId,
                         attempts = attempts,
-                        time = 0L,
-                        wordText = wordText,
+                        elapsedMs = elapsedMs,
                     )
-                )
+                ) {
+                    popUpTo(Screen.WordScannerChallenge.route) { inclusive = true }
+                }
             } else {
                 delay(AUTO_RETRY_DELAY_MS)
                 resetScan()
@@ -178,6 +195,7 @@ fun WordScannerChallenge(
                 showResult = true
 
                 if (isMatch) {
+                    elapsedMs = startMark.elapsedNow().inWholeMilliseconds
                     audioService.play(AudioCategory.CHEER)
                 } else {
                     audioService.play(AudioCategory.ENCOURAGE)

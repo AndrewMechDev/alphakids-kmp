@@ -1,8 +1,18 @@
 package org.alphakids.app.navigation
 
+import org.alphakids.app.game.domain.model.GameWord
+import org.alphakids.app.navigation.GameRouteArgs.ATTEMPTS
+import org.alphakids.app.navigation.GameRouteArgs.ATTEMPT_ID
+import org.alphakids.app.navigation.GameRouteArgs.DIFFICULTY
+import org.alphakids.app.navigation.GameRouteArgs.ELAPSED_MS
+import org.alphakids.app.navigation.GameRouteArgs.IMAGE_URL
+import org.alphakids.app.navigation.GameRouteArgs.WORD_ID
+import org.alphakids.app.navigation.GameRouteArgs.WORD_TEXT
+
 /**
  * Sealed class representing all onboarding screen routes.
  * Each screen defines its own [route] string for NavHost navigation.
+ * Every `createRoute` encodes its arguments with [encodeRouteArg].
  */
 sealed class Screen(val route: String) {
 
@@ -23,7 +33,7 @@ sealed class Screen(val route: String) {
 
     /** OTP verification with 6-digit code */
     data object Verification : Screen("verification/{email}") {
-        fun createRoute(email: String): String = "verification/$email"
+        fun createRoute(email: String): String = "verification/${encodeRouteArg(email)}"
     }
 
     /** Wizard setup intro — benefit cards + "Comenzar" */
@@ -57,7 +67,7 @@ sealed class Screen(val route: String) {
 
     /** Child detail from parent dashboard */
     data object ParentChildDetail : Screen("parent-child-detail/{childId}") {
-        fun createRoute(childId: String): String = "parent-child-detail/$childId"
+        fun createRoute(childId: String): String = "parent-child-detail/${encodeRouteArg(childId)}"
     }
 
     /** Subscription management for parents */
@@ -71,18 +81,26 @@ sealed class Screen(val route: String) {
     /** LearningAdventureHub — activity picker (Scan / Spell) */
     data object LearningAdventureHub : Screen("learning-adventure-hub")
 
-    /** Word Scanner Challenge with camera + OCR (uses WordBank index) */
-    data object WordScannerChallenge : Screen("word-scanner-challenge/{wordIndex}") {
-        fun createRoute(wordIndex: Int): String = "word-scanner-challenge/$wordIndex"
+    /** Word Scanner Challenge with camera + OCR for one play ([attemptId]) of an API word */
+    data object WordScannerChallenge : Screen(
+        "word-scanner-challenge/{$ATTEMPT_ID}/{$WORD_ID}/{$WORD_TEXT}" +
+            "?$DIFFICULTY={$DIFFICULTY}&$IMAGE_URL={$IMAGE_URL}",
+    ) {
+        fun createRoute(word: GameWord, attemptId: String): String =
+            "word-scanner-challenge/" + GameRouteArgs.wordPath(word, attemptId) + GameRouteArgs.wordQuery(word)
     }
 
     /** Word picker before starting a game — fetches from API */
     data object WordSelection : Screen("word-selection")
 
-    /** OCR result with rewards and stats */
-    data object OcrResult : Screen("ocr-result/{wordIndex}/{attempts}/{time}/{wordText}") {
-        fun createRoute(wordIndex: Int, attempts: Int, time: Long, wordText: String = ""): String =
-            "ocr-result/$wordIndex/$attempts/$time/$wordText"
+    /** OCR result with rewards and stats for one play of an API word */
+    data object OcrResult : Screen(
+        "ocr-result/{$ATTEMPT_ID}/{$WORD_ID}/{$WORD_TEXT}/{$ATTEMPTS}/{$ELAPSED_MS}" +
+            "?$DIFFICULTY={$DIFFICULTY}&$IMAGE_URL={$IMAGE_URL}",
+    ) {
+        fun createRoute(word: GameWord, attemptId: String, attempts: Int, elapsedMs: Long): String =
+            "ocr-result/" + GameRouteArgs.wordPath(word, attemptId) + "/$attempts/$elapsedMs" +
+                GameRouteArgs.wordQuery(word)
     }
 
     /** Dictionary of learned words */
