@@ -44,7 +44,7 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 - [x] T6 `perf/ocr-pipeline`: M4 (recognizer never closed, no throttling, per-frame recomposition).
 - [x] T7 `fix/auth-session-isolation`: H1 (Ktor bearer cache), H2 (singletons not reset), M5 (logout cancelled), L1 (fake OTP), L4 (raw e.message shown), M11 (auth refresh tests with MockEngine).
 - [x] T8 `fix/manifest-permissions-backup`: H5 (unused sensitive permissions), H6 (wrong tools namespace), H7 (allowBackup with plain tokens).
-- [ ] T9 `fix/repository-errors`: M3 (swallowed exceptions incl. CancellationException), M12 (duplicate repo methods).
+- [x] T9 `fix/repository-errors`: M3 (swallowed exceptions incl. CancellationException), M12 (duplicate repo methods).
 - [ ] T10 `chore/release-hygiene`: L5 (dead code), L6 (emoji in UI), L7 (versionCode, pre-release deps).
 
 ## Acceptance criteria
@@ -75,6 +75,7 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 ## iOS debt (out of scope)
 
 - T3 changed `StoreRepository`, `StudentPetRepository` and `GameProgressManager`; `iosApp` Swift bridges (`StoreRepository+Async.swift`, `StudentPetRepository+Async.swift`) and `PetsScreen.swift`, `StoreScreen.swift`, `AchievementsScreen.swift`, `OCRResultScreen.swift` must be updated before iOS builds again.
+- T9 changed all repository signatures to Kotlin `Result<T>` (opaque in Swift): `Bridge/*Repository+Async.swift`, `WizardViewModel.swift` and screens using them need rework.
 - iOS stores tokens in plaintext Settings; move to Keychain.
 - T7 removed OTP APIs used by `RegisterViewModel.swift`, `RegisterScreen.swift`, `AuthRepository+Async.swift`.
 
@@ -87,10 +88,13 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 | T2 | delegated (same writer) | 49a0a02, f68aea5; merge 5a45892 | assembleDebug + allTests green (re-run by parent on develop) | medium, under budget |
 | T3 | delegated (multi-file writer trigger) | 340f82c, 536d9f7, a5f4ca0; merge 59fa3a1 | MockEngine contract tests RED on old routes then GREEN; assembleDebug + allTests green (re-run by parent) | medium, slice budget reached; consent granted, reviewer unavailable (provider auth disabled for org), lineage abandoned by user decision |
 | T4 | delegated (multi-file writer trigger) | 9bd28c0, 6e4ba94, 3cdf880, 909fb9c; merge 76b9c5e | RED on space normalization and route encoding, then GREEN; assembleDebug + allTests green (146 tests; re-run by parent) | medium, slice budget reached; consent declined by user |
+| T9 | delegated (multi-file writer trigger) | bd8f190, bfd271a, 932f90b, 0d2f7e3, 9fd2413; merge 47f339b | cancellation test RED in all 4 repositories then GREEN; assembleDebug + allTests green with --rerun-tasks (235 tests) | medium, slice budget reached; consent declined by user |
 | T8 | delegated (multi-file writer trigger) | fb4b360, dafac09, 2195f82, 51fac52; merge 1c4ae3a | cipher/migration tests RED (missing types) then GREEN; aapt2 permissions: INTERNET, CAMERA, ACCESS_NETWORK_STATE; packageRelease OK; assembleDebug + allTests green with --rerun-tasks (195 tests) | medium, slice budget reached; consent declined by user |
 | T7 | delegated (multi-file writer trigger) | 1afb47b, 9cd300e, aed5148, 817e040, a2a96aa; merge 2b7e954 | H1 regression, session and error tests RED then GREEN; assembleDebug + allTests green with --rerun-tasks (184 tests) | medium, slice budget reached; consent declined by user |
 | T6 | delegated (multi-file writer trigger) | a94a0d7, 8b088a6, 94855d6; merge 394c187 | gate/stats/session tests RED (missing types) then GREEN; assembleDebug + allTests green (171 tests) | medium, slice budget reached; consent declined by user |
 | T5 | delegated (multi-file writer trigger) | 082be66, 56e3a90, 0209afa; merge 60c1c4e | concurrency tests RED (200/400/200 ms) then GREEN (100/200/100 ms); assembleDebug + allTests green (152 tests) | medium, slice budget reached; consent declined by user |
+
+Notes: T9 repositories return `Result<T>` failing with `DataException(DataError)`; single Ktor mapping in `data/remote/ApiCall.kt` (always rethrows CancellationException); Spanish texts in `DataErrorMessages`. Activity/FAQs/contact form fail with `Unsupported` (no backend endpoint); subscription shows the free plan. Not device-tested.
 
 Notes: T8 fixed tools namespace (INTERNET declared, unused sensitive permissions stripped), allowBackup=false + dataExtractionRules/fullBackupContent exclude all, tokens AES-256/GCM with Android Keystore key under `auth_*_token_enc`, transparent plaintext migration. iOS tokens still plaintext (Keychain debt). Not device-tested.
 
@@ -108,4 +112,4 @@ Notes: T1 keeps sounds playing across screen changes on purpose (Dashboard plays
 
 ## Next step
 
-T9.
+T10.
