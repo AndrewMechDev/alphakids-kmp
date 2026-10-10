@@ -57,19 +57,24 @@ class FakeGameRepository(
         dataFailure(DataError.Unknown)
 }
 
+/** A successful result for a non-null value; a null value stands for a failed request. */
+fun <T> T?.orFailure(error: DataError = DataError.Network): Result<T> =
+    if (this != null) Result.success(this) else dataFailure(error)
+
+/** Store stand-in; a null list means that request fails with a network error. */
 class FakeStoreRepository(
     var petCatalog: List<PetCatalogDto>? = listOf(CAT),
     var accessories: List<AccessoryCatalogDto>? = listOf(APPLE),
     var inventory: List<InventoryItemDto>? = emptyList(),
-    var buyPetResult: PurchaseResult<StudentPetDto> = PurchaseResult.Failed,
-    var buyAccessoryResult: PurchaseResult<BuyAccessoryResponseDto> = PurchaseResult.Failed,
+    var buyPetResult: PurchaseResult<StudentPetDto> = PurchaseResult.Failed(DataError.Unknown),
+    var buyAccessoryResult: PurchaseResult<BuyAccessoryResponseDto> = PurchaseResult.Failed(DataError.Unknown),
 ) : StoreRepository {
     var purchases = 0
         private set
 
-    override suspend fun getPetsCatalog(studentId: String) = petCatalog
-    override suspend fun getAccessoriesCatalog(studentId: String) = accessories
-    override suspend fun getInventory(studentId: String) = inventory
+    override suspend fun getPetsCatalog(studentId: String) = petCatalog.orFailure()
+    override suspend fun getAccessoriesCatalog(studentId: String) = accessories.orFailure()
+    override suspend fun getInventory(studentId: String) = inventory.orFailure()
     override suspend fun buyPet(studentId: String, petCatalogId: String): PurchaseResult<StudentPetDto> {
         purchases++
         return buyPetResult
@@ -84,6 +89,7 @@ class FakeStoreRepository(
     }
 }
 
+/** Pets stand-in; a null [pets] or [fedPet] means that request fails. */
 class FakeStudentPetRepository(
     var pets: List<StudentPetDto>? = emptyList(),
     var fedPet: StudentPetDto? = null,
@@ -91,9 +97,9 @@ class FakeStudentPetRepository(
     var lastFedAccessoryId: String? = null
         private set
 
-    override suspend fun getPets(studentId: String) = pets
-    override suspend fun feedPet(studentId: String, petId: String, accessoryId: String): StudentPetDto? {
+    override suspend fun getPets(studentId: String) = pets.orFailure()
+    override suspend fun feedPet(studentId: String, petId: String, accessoryId: String): Result<StudentPetDto> {
         lastFedAccessoryId = accessoryId
-        return fedPet
+        return fedPet.orFailure(DataError.Validation("Not enough accessories in inventory"))
     }
 }

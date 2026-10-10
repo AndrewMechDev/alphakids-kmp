@@ -131,9 +131,9 @@ fun PetsScreen(
                 modifier = Modifier.fillMaxSize(),
                 message = "Cargando tus mascotas...",
             )
-            state.loadFailed -> EmptyStateView(
+            state.loadError != null -> EmptyStateView(
                 title = "No pudimos cargar tus mascotas",
-                subtitle = "¿Quieres intentarlo de nuevo?",
+                subtitle = state.loadError.orEmpty(),
                 modifier = Modifier.fillMaxSize(),
                 actionText = "Reintentar",
                 onAction = viewModel::load,

@@ -1,21 +1,24 @@
 package org.alphakids.app.store.data
 
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
+import kotlinx.io.IOException
 import org.alphakids.app.data.remote.BackendFixtures
 import org.alphakids.app.data.remote.RecordedRequests
+import org.alphakids.app.data.remote.assertCancellationPropagates
 import org.alphakids.app.data.remote.dto.BuyAccessoryResponseDto
 import org.alphakids.app.data.remote.dto.StudentPetDto
 import org.alphakids.app.data.remote.jsonBody
 import org.alphakids.app.data.remote.mockApi
 import org.alphakids.app.data.remote.respondJson
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataError
 import org.alphakids.app.store.domain.model.PurchaseResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 /**
  * Contract tests against alphakids-api `src/store/store.controller.ts`,
@@ -36,8 +39,8 @@ class StoreRepositoryContractTest {
             }
         })
 
-        val pets = assertNotNull(repo.getPetsCatalog("stu_1"))
-        val accessories = assertNotNull(repo.getAccessoriesCatalog("stu_1"))
+        val pets = repo.getPetsCatalog("stu_1").getOrThrow()
+        val accessories = repo.getAccessoriesCatalog("stu_1").getOrThrow()
 
         assertEquals(listOf("Cat", "Owl"), pets.map { it.species })
         assertEquals(2, pets.last().minLevelRequired)
@@ -49,7 +52,7 @@ class StoreRepositoryContractTest {
         val recorded = RecordedRequests()
         val repo = StoreRepositoryImpl(mockApi(recorded) { respondJson(BackendFixtures.INVENTORY) })
 
-        val inventory = assertNotNull(repo.getInventory("stu_1"))
+        val inventory = repo.getInventory("stu_1").getOrThrow()
 
         assertEquals("/students/stu_1/inventory", recorded.last.url.encodedPath)
         assertEquals(2, inventory.single().quantity)
@@ -57,12 +60,32 @@ class StoreRepositoryContractTest {
     }
 
     @Test
-    fun read_failures_return_null_rather_than_an_empty_list() = runTest {
+    fun an_empty_inventory_is_a_success() = runTest {
+        val repo = StoreRepositoryImpl(mockApi { respondJson("[]") })
+
+        assertEquals(emptyList(), repo.getInventory("stu_1").getOrThrow())
+    }
+
+    @Test
+    fun read_failures_carry_the_reason_rather_than_an_empty_list() = runTest {
         val repo = StoreRepositoryImpl(mockApi { respondJson("{}", HttpStatusCode.InternalServerError) })
 
-        assertNull(repo.getPetsCatalog("stu_1"))
-        assertNull(repo.getAccessoriesCatalog("stu_1"))
-        assertNull(repo.getInventory("stu_1"))
+        assertEquals(DataError.Server(500), repo.getPetsCatalog("stu_1").dataError)
+        assertEquals(DataError.Server(500), repo.getAccessoriesCatalog("stu_1").dataError)
+        assertEquals(DataError.Server(500), repo.getInventory("stu_1").dataError)
+        assertEquals(
+            DataError.NotFound,
+            StoreRepositoryImpl(mockApi { respondJson("{}", HttpStatusCode.NotFound) }).getInventory("stu_1").dataError,
+        )
+        assertEquals(
+            DataError.Network,
+            StoreRepositoryImpl(mockApi { throw IOException("offline") }).getPetsCatalog("stu_1").dataError,
+        )
+        assertEquals(
+            DataError.Timeout,
+            StoreRepositoryImpl(mockApi { throw HttpRequestTimeoutException("https://api.test", 30_000) })
+                .getAccessoriesCatalog("stu_1").dataError,
+        )
     }
 
     @Test
@@ -102,14 +125,33 @@ class StoreRepositoryContractTest {
         assertEquals(PurchaseResult.NotEnoughCoins, repoAnswering("Not enough coins").buyPet("stu_1", "cat_1"))
         assertEquals(PurchaseResult.NotEnoughCoins, repoAnswering("Not enough coins").buyAccessory("stu_1", "acc_1"))
         assertEquals(PurchaseResult.LevelTooLow, repoAnswering("Level too low to buy this pet").buyPet("stu_1", "cat_3"))
-        assertEquals(PurchaseResult.Failed, repoAnswering("Quantity must be positive").buyAccessory("stu_1", "acc_1"))
+        assertEquals(
+            PurchaseResult.Failed(DataError.Validation("Quantity must be positive")),
+            repoAnswering("Quantity must be positive").buyAccessory("stu_1", "acc_1"),
+        )
     }
 
     @Test
     fun server_errors_never_report_success() = runTest {
         val repo = StoreRepositoryImpl(mockApi { respondJson("{}", HttpStatusCode.InternalServerError) })
 
-        assertEquals(PurchaseResult.Failed, repo.buyPet("stu_1", "cat_1"))
-        assertEquals(PurchaseResult.Failed, repo.buyAccessory("stu_1", "acc_1"))
+        assertEquals(PurchaseResult.Failed(DataError.Server(500)), repo.buyPet("stu_1", "cat_1"))
+        assertEquals(PurchaseResult.Failed(DataError.Server(500)), repo.buyAccessory("stu_1", "acc_1"))
+    }
+
+    @Test
+    fun a_purchase_without_connection_fails_with_a_network_error() = runTest {
+        val repo = StoreRepositoryImpl(mockApi { throw IOException("offline") })
+
+        assertEquals(PurchaseResult.Failed(DataError.Network), repo.buyPet("stu_1", "cat_1"))
+    }
+
+    @Test
+    fun cancellation_propagates_from_every_call() = runTest {
+        assertCancellationPropagates { StoreRepositoryImpl(it).getPetsCatalog("stu_1") }
+        assertCancellationPropagates { StoreRepositoryImpl(it).getAccessoriesCatalog("stu_1") }
+        assertCancellationPropagates { StoreRepositoryImpl(it).getInventory("stu_1") }
+        assertCancellationPropagates { StoreRepositoryImpl(it).buyPet("stu_1", "cat_1") }
+        assertCancellationPropagates { StoreRepositoryImpl(it).buyAccessory("stu_1", "acc_1") }
     }
 }

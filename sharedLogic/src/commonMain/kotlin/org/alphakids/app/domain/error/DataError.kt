@@ -53,4 +53,8 @@ fun dataFailure(error: DataError): Result<Nothing> = Result.failure(DataExceptio
  * not a [DataException] (not produced by a repository) reads as [DataError.Unknown].
  */
 val Result<*>.dataError: DataError?
-    get() = exceptionOrNull()?.let { (it as? DataException)?.error ?: DataError.Unknown }
+    get() = exceptionOrNull()?.asDataError
+
+/** The [DataError] this exception carries; [DataError.Unknown] if it is not a [DataException]. */
+val Throwable.asDataError: DataError
+    get() = (this as? DataException)?.error ?: DataError.Unknown

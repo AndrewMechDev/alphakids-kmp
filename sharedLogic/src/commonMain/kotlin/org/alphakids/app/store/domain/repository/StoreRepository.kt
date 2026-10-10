@@ -18,13 +18,14 @@ import org.alphakids.app.store.domain.model.PurchaseResult
  * - POST /students/:studentId/store/accessories/buy `{ accessoryCatalogId, quantity }`
  * - GET /students/:studentId/inventory
  *
- * Read methods return null when the request failed, so callers can tell a
- * failure apart from a genuinely empty catalog or inventory.
+ * Reads return a failed [Result] (a `DataException` with its `DataError`)
+ * when the request failed, so callers can tell a failure apart from a
+ * genuinely empty catalog or inventory. Cancellation is propagated.
  */
 interface StoreRepository {
-    suspend fun getPetsCatalog(studentId: String): List<PetCatalogDto>?
-    suspend fun getAccessoriesCatalog(studentId: String): List<AccessoryCatalogDto>?
-    suspend fun getInventory(studentId: String): List<InventoryItemDto>?
+    suspend fun getPetsCatalog(studentId: String): Result<List<PetCatalogDto>>
+    suspend fun getAccessoriesCatalog(studentId: String): Result<List<AccessoryCatalogDto>>
+    suspend fun getInventory(studentId: String): Result<List<InventoryItemDto>>
     suspend fun buyPet(studentId: String, petCatalogId: String): PurchaseResult<StudentPetDto>
     suspend fun buyAccessory(
         studentId: String,

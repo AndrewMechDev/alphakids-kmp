@@ -149,7 +149,7 @@ class HomeViewModel(
             Triple(pets.await(), playable.await(), progress.await())
         }
         progress.onSuccess { GameProgressManager.applyServerProgress(it.progress) }
-        val pet = pets.orEmpty().firstOrNull { it.isActive }
+        val pet = pets.getOrNull().orEmpty().firstOrNull { it.isActive }
         val words = playable.getOrNull()?.words.orEmpty()
 
         _state.update {
@@ -162,7 +162,7 @@ class HomeViewModel(
                 pendingActivities = words.take(3).map { word ->
                     PendingActivity(wordName = word.text, imageName = word.imageUrl ?: "", progress = 0f)
                 },
-                error = firstErrorMessage(listOf(progress, playable)),
+                error = firstErrorMessage(listOf(progress, playable, pets)),
             )
         }
     }
