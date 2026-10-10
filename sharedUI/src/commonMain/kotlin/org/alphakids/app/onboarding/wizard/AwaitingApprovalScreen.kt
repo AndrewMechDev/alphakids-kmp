@@ -38,8 +38,8 @@ import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.koinInject
+import org.alphakids.app.onboarding.rememberSignOut
 import org.alphakids.app.navigation.Screen
-import org.alphakids.app.onboarding.domain.repository.AuthRepository
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
@@ -65,7 +65,7 @@ private val POLL_INTERVAL_MS = 15_000L
 @Composable
 fun AwaitingApprovalScreen(navController: NavController) {
     val parentRepository: ParentRepository = koinInject()
-    val authRepository: AuthRepository = koinInject()
+    val signOut = rememberSignOut(navController)
     val coroutineScope = rememberCoroutineScope()
 
     var status by remember { mutableStateOf(SessionManager.currentChild?.verificationStatus ?: "PENDING") }
@@ -230,15 +230,7 @@ fun AwaitingApprovalScreen(navController: NavController) {
 
             AlphaTextButton(
                 text = "Cerrar sesión",
-                onClick = {
-                    coroutineScope.launch {
-                        authRepository.logout()
-                        SessionManager.clearSession()
-                        navController.navigate(Screen.WelcomeSelection.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                },
+                onClick = signOut,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -318,15 +310,7 @@ fun AwaitingApprovalScreen(navController: NavController) {
             dismissButton = {
                 AlphaTextButton(
                     text = "Cerrar sesión",
-                    onClick = {
-                        coroutineScope.launch {
-                            authRepository.logout()
-                            SessionManager.clearSession()
-                            navController.navigate(Screen.WelcomeSelection.route) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
-                    },
+                    onClick = signOut,
                 )
             },
         )

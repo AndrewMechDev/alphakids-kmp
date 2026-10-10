@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Parent sign-up, OTP verification, child profile wizard (avatar + pet), welcome celebration, and placeholder home for AlphaKids. 10 sequential screens managed by a single NavHost with shared wizard state.
+Parent sign-up, child profile wizard (avatar + pet), welcome celebration, and placeholder home for AlphaKids. 9 sequential screens managed by a single NavHost with shared wizard state.
+
+There is no email/OTP verification step: the backend (`POST /auth/register`) returns access and refresh tokens immediately and has no verification endpoints, so the former client-only OTP screen was removed (it accepted any 6 digits and verified nothing).
 
 ## Requirements
 
@@ -10,7 +12,7 @@ Parent sign-up, OTP verification, child profile wizard (avatar + pet), welcome c
 
 | # | Requirement | Strength |
 |---|------------|----------|
-| NR1 | NavHost SHALL define sealed `Screen` routes for all 10 screens | MUST |
+| NR1 | NavHost SHALL define sealed `Screen` routes for all 9 screens | MUST |
 | NR2 | Back navigation SHALL be blocked on WelcomeAdventure and PlaceholderHome after forward navigation | MUST |
 | NR3 | Wizard state (child name, avatar seed, pet selection) SHALL survive process recreation via `SavedStateHandle` | MUST |
 
@@ -24,7 +26,7 @@ Parent sign-up, OTP verification, child profile wizard (avatar + pet), welcome c
 - WHEN pressing system back
 - THEN the navigator does not pop the back stack
 
-### Authentication (Splash → Login → Register → OTP)
+### Authentication (Splash → Login → Register)
 
 | # | Requirement | Strength |
 |---|------------|----------|
@@ -33,28 +35,19 @@ Parent sign-up, OTP verification, child profile wizard (avatar + pet), welcome c
 | AU3 | Login SHALL validate email format and require non-empty password | MUST |
 | AU4 | Login SHALL show "Credenciales inválidas" on mismatch against mock data | MUST |
 | AU5 | Login "¿Olvidaste tu contraseña?" SHALL display a toast "Función próximamente" | SHOULD |
-| AU6 | Register SHALL require name, email, phone, password (≥6 chars), confirm, and terms checkbox | MUST |
+| AU6 | Register SHALL require name, email, phone, password (≥8 chars, backend minimum), confirm, and terms checkbox | MUST |
 | AU7 | Register SHALL show inline validation per field on failed submit | MUST |
-| AU8 | Register on success SHALL navigate to OTP verification screen | MUST |
-| AU9 | OTP SHALL provide 6 individual digit inputs that auto-advance on entry | MUST |
-| AU10 | OTP "Verificar" SHALL be enabled only when all 6 digits are entered | MUST |
-| AU11 | OTP SHALL compare entered code against in-memory generated 6-digit code | MUST |
-| AU12 | OTP "Reenviar código" SHALL regenerate code with 30s cooldown timer | SHOULD |
+| AU8 | Register on success SHALL store the returned tokens and navigate straight to ParentSetupWizard (no verification step) | MUST |
 
 #### Scenario: Login invalid credentials
 - GIVEN the user is on ParentLogin with email "bad@test.com" and password "wrong"
 - WHEN "Iniciar sesión" is tapped
 - THEN the UI shows "Credenciales inválidas"
 
-#### Scenario: OTP verification success
-- GIVEN the user has entered all 6 digits matching the generated code
-- WHEN "Verificar" is tapped
-- THEN navigation proceeds to ParentSetupWizard
-
-#### Scenario: OTP resend cooldown active
-- GIVEN the user tapped "Reenviar código"
-- WHEN 15 seconds have elapsed
-- THEN the resend link is still disabled (30s total cooldown)
+#### Scenario: Register success goes straight to the wizard
+- GIVEN the user submitted a valid registration form
+- WHEN the backend returns access and refresh tokens
+- THEN the tokens are stored and navigation proceeds to ParentSetupWizard, removing Register from the back stack
 
 ### Onboarding Wizard (Steps 1–5)
 
@@ -93,7 +86,7 @@ Parent sign-up, OTP verification, child profile wizard (avatar + pet), welcome c
 
 | Area | Screens | Happy | Edge | Error |
 |------|---------|-------|------|-------|
-| Navigation & Routing | All 10 | ✅ Forward nav | ✅ Blocked back | ✅ Process recreation |
-| Authentication | 4 (Splash→OTP) | ✅ Register→OTP | ✅ OTP resend cooldown | ✅ Invalid credentials |
+| Navigation & Routing | All 9 | ✅ Forward nav | ✅ Blocked back | ✅ Process recreation |
+| Authentication | 3 (Splash→Register) | ✅ Register→Wizard | — | ✅ Invalid credentials |
 | Onboarding Wizard | 5 (Setup→Welcome) | ✅ Full wizard complete | ✅ Avatar fallback | ✅ Pet name validation |
 | PlaceholderHome | 1 | ✅ Display | ✅ Flow restart | — |

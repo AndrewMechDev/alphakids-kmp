@@ -2,25 +2,19 @@ package org.alphakids.app.onboarding.data.mock
 
 import org.alphakids.app.onboarding.domain.model.AuthResponse
 import org.alphakids.app.onboarding.domain.model.LoginRequest
-import org.alphakids.app.onboarding.domain.model.OTPGenerationResult
 import org.alphakids.app.onboarding.domain.model.RegisterRequest
 import org.alphakids.app.onboarding.domain.model.ValidationResult
 import org.alphakids.app.onboarding.domain.repository.AuthRepository
-import kotlin.random.Random
 
 /**
  * In-memory mock implementation of [AuthRepository].
  *
- * Stores registered users in a mutable map and simulates OTP generation/verification
- * with a cooldown timer and attempt limit.
+ * Stores registered users in a mutable map.
  */
 class MockAuthRepository : AuthRepository {
 
     // In-memory user store: email → hashed password
     private val users = mutableMapOf<String, UserRecord>()
-
-    // OTP store: email → OtpRecord
-    private val otpStore = mutableMapOf<String, OtpRecord>()
 
     // Login session flag
     private var loggedIn = false
@@ -126,61 +120,6 @@ class MockAuthRepository : AuthRepository {
         )
     }
 
-    override suspend fun sendOtp(email: String): OTPGenerationResult {
-        val code = generateOtpCode()
-        val now = tickCount()
-        val expiresAt = now + OTP_EXPIRY_TICKS
-        otpStore[email] = OtpRecord(
-            code = code,
-            createdAt = now,
-            expiresAt = expiresAt,
-            attempts = 0,
-        )
-        return OTPGenerationResult(code = code, expiresAt = expiresAt)
-    }
-
-    override suspend fun verifyOtp(email: String, code: String): Boolean {
-        val record = otpStore[email] ?: return false
-        val now = tickCount()
-
-        // Check expiry
-        if (now > record.expiresAt) {
-            return false
-        }
-
-        // Check attempt limit
-        if (record.attempts >= MAX_OTP_ATTEMPTS) {
-            return false
-        }
-
-        // Increment attempts
-        otpStore[email] = record.copy(attempts = record.attempts + 1)
-
-        return record.code == code
-    }
-
-    override suspend fun resendOtp(email: String): OTPGenerationResult {
-        val now = tickCount()
-        val existing = otpStore[email]
-
-        // Cooldown check: must wait COOLDOWN_TICKS between resends
-        if (existing != null && (now - existing.createdAt) < OTP_COOLDOWN_TICKS) {
-            // Still in cooldown — return existing code
-            return OTPGenerationResult(code = existing.code, expiresAt = existing.expiresAt)
-        }
-
-        // Generate new code
-        val code = generateOtpCode()
-        val expiresAt = now + OTP_EXPIRY_TICKS
-        otpStore[email] = OtpRecord(
-            code = code,
-            createdAt = now,
-            expiresAt = expiresAt,
-            attempts = 0,
-        )
-        return OTPGenerationResult(code = code, expiresAt = expiresAt)
-    }
-
     override suspend fun isLoggedIn(): Boolean = loggedIn
 
     override suspend fun logout() {
@@ -188,20 +127,6 @@ class MockAuthRepository : AuthRepository {
     }
 
     // ── Helpers ──
-
-    private fun generateOtpCode(): String {
-        return (1..6).map { Random.nextInt(0, 10).toString() }.joinToString("")
-    }
-
-    /**
-     * Simple monotonic tick counter for relative time (no kotlinx-datetime dependency).
-     * Used only for relative comparisons (expiry, cooldown), not absolute time.
-     */
-    private var counter = 0L
-    private fun tickCount(): Long {
-        counter++
-        return counter
-    }
 
     private fun validateEmail(email: String): ValidationResult {
         if (email.isBlank()) return ValidationResult.invalid("El email es requerido")
@@ -229,23 +154,7 @@ class MockAuthRepository : AuthRepository {
         val password: String,
     )
 
-    private data class OtpRecord(
-        val code: String,
-        val createdAt: Long,
-        val expiresAt: Long,
-        val attempts: Int,
-    )
-
     companion object {
-        /** Expiry in relative ticks (~5 minutes of operations). */
-        const val OTP_EXPIRY_TICKS = 300L
-
-        /** Cooldown in relative ticks (~30 seconds). */
-        const val OTP_COOLDOWN_TICKS = 30L
-
-        /** Maximum OTP verification attempts before requiring resend. */
-        const val MAX_OTP_ATTEMPTS = 3
-
         /** Demo credentials for testing. */
         val DEMO_EMAIL = "test@alphakids.com"
         val DEMO_PASSWORD = "123456"

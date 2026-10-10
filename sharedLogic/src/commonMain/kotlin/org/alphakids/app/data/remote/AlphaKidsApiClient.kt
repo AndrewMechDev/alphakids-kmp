@@ -12,6 +12,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.alphakids.app.data.remote.dto.AuthResponseDto
+import org.alphakids.app.data.remote.dto.RefreshRequestDto
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * HTTP client for the AlphaKids API following the mobile integration guide.
@@ -23,6 +25,7 @@ import org.alphakids.app.data.remote.dto.AuthResponseDto
  *   repositories (Store, StudentPet) shipped without that manual block
  *   before this was centralized, which meant purchases/pet-feeding just
  *   silently stopped working once the access token expired mid-session.
+ * - Credential calls opt out of the bearer with [withoutBearerAuth].
  * - JSON serialization via kotlinx (lenient, ignores unknown keys)
  * - 30s request timeout
  * - Content-Type: application/json by default
@@ -43,6 +46,18 @@ class AlphaKidsApiClient(
 ) {
     val httpClient: HttpClient =
         if (engine != null) HttpClient(engine) { configure() } else HttpClient { configure() }
+
+    /**
+     * Drops the bearer tokens the [Auth] plugin cached from [TokenStorage].
+     *
+     * The plugin reads `loadTokens` once and keeps the result until a refresh,
+     * so after the stored tokens change (login, register, logout) the next
+     * request would still send the previous session's access token. Call this
+     * right after writing or clearing [TokenStorage].
+     */
+    fun invalidateCachedTokens() {
+        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
+    }
 
     private fun HttpClientConfig<*>.configure() {
         install(ContentNegotiation) {
@@ -69,23 +84,31 @@ class AlphaKidsApiClient(
                     BearerTokens(access, tokenStorage.refreshToken ?: "")
                 }
 
+                // Ktor runs this under the provider's lock and skips it for
+                // requests that were sent with an already-replaced token, so
+                // concurrent 401s share one refresh. That matters because the
+                // backend rotates the refresh token on every call.
                 refreshTokens {
                     val refreshToken = tokenStorage.refreshToken ?: return@refreshTokens null
                     try {
-                        val response = client.post(ApiConstants.REFRESH) {
+                        val refreshResponse = client.post(ApiConstants.REFRESH) {
                             markAsRefreshTokenRequest()
-                            setBody(mapOf("refresh_token" to refreshToken))
+                            setBody(RefreshRequestDto(refreshToken))
                         }
-                        if (!response.status.isSuccess()) {
+                        if (!refreshResponse.status.isSuccess()) {
                             // The server itself rejected the refresh token —
                             // it's genuinely invalid/expired. Log out for real.
                             tokenStorage.clear()
                             return@refreshTokens null
                         }
-                        val body = response.body<AuthResponseDto>()
+                        val body = refreshResponse.body<AuthResponseDto>()
+                        // Persist the rotated pair before Ktor retries the
+                        // original request with it.
                         tokenStorage.accessToken = body.accessToken
                         tokenStorage.refreshToken = body.refreshToken
                         BearerTokens(body.accessToken, body.refreshToken)
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (_: Exception) {
                         // A network failure while refreshing is NOT the same
                         // as an invalid refresh token — don't clear it, or a
@@ -104,4 +127,14 @@ class AlphaKidsApiClient(
             accept(ContentType.Application.Json)
         }
     }
+}
+
+/**
+ * Sends this request without a bearer and returns its 401 as-is instead of
+ * refreshing. For the credential endpoints (login, register, logout): a stale
+ * token from a previous session must not ride along, and a 401 there means
+ * wrong credentials, not an expired session.
+ */
+fun HttpRequestBuilder.withoutBearerAuth() {
+    attributes.put(AuthCircuitBreaker, Unit)
 }

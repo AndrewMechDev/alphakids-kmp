@@ -57,6 +57,7 @@ import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
+import kotlin.coroutines.cancellation.CancellationException
 
 private val cardGradients = listOf(
     AlphaGradients.Nature,
@@ -92,8 +93,10 @@ fun WordSelectionScreen(
             } else {
                 error = "No hay un niño activo. Selecciona un perfil primero."
             }
-        } catch (e: Exception) {
-            error = "Error inesperado: ${e.message ?: "Intenta de nuevo"}"
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            error = "No pudimos cargar las palabras. Inténtalo de nuevo."
         } finally {
             isLoading = false
         }

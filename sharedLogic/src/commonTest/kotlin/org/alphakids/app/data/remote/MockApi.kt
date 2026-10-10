@@ -27,13 +27,14 @@ val HttpRequestData.jsonBody: String
  */
 fun mockApi(
     recorded: RecordedRequests = RecordedRequests(),
+    tokenStorage: TokenStorage = InMemoryTokenStorage(access = "access", refresh = "refresh"),
     handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData,
 ): AlphaKidsApiClient {
     val engine = MockEngine { request ->
         recorded.all += request
         handler(request)
     }
-    return AlphaKidsApiClient(FakeTokenStorage(), baseUrl = "https://api.test", engine = engine)
+    return AlphaKidsApiClient(tokenStorage, baseUrl = "https://api.test", engine = engine)
 }
 
 fun MockRequestHandleScope.respondJson(
@@ -45,9 +46,10 @@ fun MockRequestHandleScope.respondJson(
     headers = headersOf(HttpHeaders.ContentType, "application/json"),
 )
 
-private class FakeTokenStorage : TokenStorage {
-    override var accessToken: String? = "access"
-    override var refreshToken: String? = "refresh"
+/** In-memory [TokenStorage] so tests can seed and inspect the persisted tokens. */
+class InMemoryTokenStorage(access: String? = null, refresh: String? = null) : TokenStorage {
+    override var accessToken: String? = access
+    override var refreshToken: String? = refresh
     override val isLoggedIn: Boolean get() = accessToken != null
     override fun clear() {
         accessToken = null
