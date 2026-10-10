@@ -4,9 +4,7 @@ import android.app.Application
 import com.russhwolf.settings.Settings
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.alphakids.app.di.commonModule
 import org.alphakids.app.di.dataModule
-import org.alphakids.app.di.domainModule
 import org.alphakids.app.di.platformSettingsModule
 import org.alphakids.app.game.di.gameModule
 import org.alphakids.app.onboarding.di.onboardingModule
@@ -22,8 +20,6 @@ class AlphaKidsApp : Application() {
             androidContext(this@AlphaKidsApp)
             properties(mapOf("apiBaseUrl" to BuildConfig.API_BASE_URL))
             modules(
-                commonModule,
-                domainModule,
                 platformSettingsModule,
                 dataModule,
                 onboardingModule,

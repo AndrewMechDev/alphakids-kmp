@@ -25,12 +25,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
-
-    // CameraX + ML Kit OCR
-    implementation(libs.camera.camera2)
-    implementation(libs.camera.lifecycle)
-    implementation(libs.camera.view)
-    implementation(libs.mlkit.text.recognition)
+    // CameraX + ML Kit OCR come from sharedUI's androidMain (OcrPipeline).
 }
 
 // Resolution order: -PapiBaseUrl=... (CI/local override) > ALPHAKIDS_API_BASE_URL
