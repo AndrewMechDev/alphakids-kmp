@@ -16,13 +16,13 @@ class ScreenRoutesTest {
     )
 
     @Test
-    fun a_child_id_with_spaces_slashes_and_accents_stays_one_route_segment() {
-        val childId = "niño 1/x+1"
+    fun an_argument_with_spaces_slashes_plus_and_accents_stays_one_route_segment() {
+        val value = "niño 1/x+1"
 
-        val route = Screen.ParentChildDetail.createRoute(childId)
+        val segment = encodeRouteArg(value)
 
-        assertEquals("parent-child-detail/ni%C3%B1o%201%2Fx%2B1", route)
-        assertEquals(listOf("parent-child-detail", childId), route.split("/").map(::percentDecode))
+        assertEquals("ni%C3%B1o%201%2Fx%2B1", segment)
+        assertEquals(value, percentDecode(segment))
     }
 
     @Test

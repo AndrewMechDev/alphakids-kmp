@@ -364,7 +364,7 @@ fun WelcomeScreen(
                                 name = fullName,
                                 avatarSeed = avatarUrl ?: "",
                                 level = 1,
-                                rank = "Semillita 🌱",
+                                rank = "Semillita",
                                 lastActivity = "Recién creado",
                                 wordsLearned = 0,
                                 stars = 0,

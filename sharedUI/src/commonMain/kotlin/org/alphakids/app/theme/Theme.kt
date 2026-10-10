@@ -36,24 +36,3 @@ fun CircadianTheme(
         )
     }
 }
-
-/**
- * AlphaKids M3 theme — manual override.
- *
- * Only use when you need to force a specific theme (e.g., splash screen).
- * For normal usage, prefer [CircadianTheme].
- */
-@Composable
-fun AlphaKidsTheme(
-    darkTheme: Boolean = false,
-    content: @Composable () -> Unit,
-) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AlphaKidsTypography,
-        shapes = AlphaKidsShapes,
-        content = content,
-    )
-}

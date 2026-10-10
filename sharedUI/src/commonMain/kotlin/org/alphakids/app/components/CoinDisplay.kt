@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import org.alphakids.app.theme.AlphaMotion
@@ -106,36 +105,5 @@ fun CoinCounter(
                 }
             }
         }
-    }
-}
-
-/**
- * Small reward pill showing an earned coin amount.
- */
-@Composable
-fun CoinRewardTag(
-    amount: Int,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .clip(RadiusFull)
-            .background(MaterialTheme.colorScheme.tertiaryContainer)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(14.dp)
-                .clip(CircleShape)
-                .background(CoinGold),
-        )
-
-        Text(
-            text = "+$amount",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onTertiaryContainer,
-        )
     }
 }

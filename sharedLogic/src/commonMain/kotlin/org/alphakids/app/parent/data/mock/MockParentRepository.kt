@@ -19,8 +19,8 @@ import org.alphakids.app.parent.domain.repository.ParentRepository
 
 class MockParentRepository : ParentRepository {
     private val children = mutableListOf(
-        ChildSummary("1", "Sofía", "sofia-seed", 3, "Hoja Verde 🍃", "Hoy: 2 palabras", 15, 8),
-        ChildSummary("2", "Mateo", "mateo-seed", 1, "Semillita 🌱", "Ayer: 1 palabra", 5, 2),
+        ChildSummary("1", "Sofía", "sofia-seed", 3, "Hoja Verde", "Hoy: 2 palabras", 15, 8),
+        ChildSummary("2", "Mateo", "mateo-seed", 1, "Semillita", "Ayer: 1 palabra", 5, 2),
     )
     private val nextId = 3
 
@@ -127,7 +127,7 @@ class MockParentRepository : ParentRepository {
             name = fullName,
             avatarSeed = request.avatarUrl ?: mockId,
             level = 1,
-            rank = "Semillita 🌱",
+            rank = "Semillita",
             lastActivity = "Recién creado",
             wordsLearned = 0,
             stars = 0,

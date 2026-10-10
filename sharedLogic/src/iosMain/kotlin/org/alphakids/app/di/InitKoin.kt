@@ -26,8 +26,6 @@ object AppKoin {
     val koin = run {
         startKoin {
             modules(
-                commonModule,
-                domainModule,
                 platformSettingsModule,
                 dataModule,
                 onboardingModule,

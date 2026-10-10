@@ -60,17 +60,6 @@ sealed class Screen(val route: String) {
     /** Parent dashboard hub with bottom navigation */
     data object ParentDashboard : Screen("parent-dashboard")
 
-    /** Child detail from parent dashboard */
-    data object ParentChildDetail : Screen("parent-child-detail/{childId}") {
-        fun createRoute(childId: String): String = "parent-child-detail/${encodeRouteArg(childId)}"
-    }
-
-    /** Subscription management for parents */
-    data object ParentSubscription : Screen("parent-subscription")
-
-    /** Support / FAQ screen for parents */
-    data object ParentSupport : Screen("parent-support")
-
     // ── Jugar / Activity Screens ──
 
     /** LearningAdventureHub — activity picker (Scan / Spell) */
@@ -100,36 +89,4 @@ sealed class Screen(val route: String) {
 
     /** Dictionary of learned words */
     data object Dictionary : Screen("dictionary")
-
-    companion object {
-        /**
-         * Resolves a route string back to a Screen.
-         * Returns null if the route does not match any known screen.
-         */
-        fun fromRoute(route: String): Screen? = when {
-            route == Splash.route -> Splash
-            route == WelcomeSelection.route -> WelcomeSelection
-            route == NetflixProfiles.route -> NetflixProfiles
-            route == Login.route -> Login
-            route == Register.route -> Register
-            route == SetupWizard.route -> SetupWizard
-            route == CreateChild.route -> CreateChild
-            route == ChooseAvatar.route -> ChooseAvatar
-            route == AssignInstitution.route -> AssignInstitution
-            route == ChooseFirstPet.route -> ChooseFirstPet
-            route == Welcome.route -> Welcome
-            route == AwaitingApproval.route -> AwaitingApproval
-            route == AdventureHome.route -> AdventureHome
-            route == LearningAdventureHub.route -> LearningAdventureHub
-            route == WordSelection.route -> WordSelection
-            route.startsWith("word-scanner-challenge/") -> WordScannerChallenge
-            route.startsWith("ocr-result/") -> OcrResult
-            route == ParentDashboard.route -> ParentDashboard
-            route.startsWith("parent-child-detail/") -> ParentChildDetail
-            route == ParentSubscription.route -> ParentSubscription
-            route == ParentSupport.route -> ParentSupport
-            route == Dictionary.route -> Dictionary
-            else -> null
-        }
-    }
 }
