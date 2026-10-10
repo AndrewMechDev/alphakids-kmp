@@ -56,6 +56,7 @@ import alphakids_kmp.sharedui.generated.resources.Res
 import alphakids_kmp.sharedui.generated.resources.ic_home
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_trophy
+import alphakids_kmp.sharedui.generated.resources.ic_wave
 
 @Composable
 fun AdventureHomeScreen(navController: NavController) {
@@ -91,9 +92,16 @@ fun AdventureHomeScreen(navController: NavController) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
             shape = MaterialTheme.shapes.large,
+            icon = {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_wave),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                )
+            },
             title = {
                 Text(
-                    text = "👋 ¿Salir de AlphaKids?",
+                    text = "¿Salir de AlphaKids?",
                     style = MaterialTheme.typography.headlineSmall,
                 )
             },
