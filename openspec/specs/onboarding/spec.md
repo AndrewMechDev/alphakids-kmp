@@ -35,7 +35,7 @@ There is no email/OTP verification step: the backend (`POST /auth/register`) ret
 | AU3 | Login SHALL validate email format and require non-empty password | MUST |
 | AU4 | Login SHALL show "Credenciales inválidas" on mismatch against mock data | MUST |
 | AU5 | Login "¿Olvidaste tu contraseña?" SHALL display a toast "Función próximamente" | SHOULD |
-| AU6 | Register SHALL require name, email, phone, password (≥6 chars), confirm, and terms checkbox | MUST |
+| AU6 | Register SHALL require name, email, phone, password (≥8 chars, backend minimum), confirm, and terms checkbox | MUST |
 | AU7 | Register SHALL show inline validation per field on failed submit | MUST |
 | AU8 | Register on success SHALL store the returned tokens and navigate straight to ParentSetupWizard (no verification step) | MUST |
 
