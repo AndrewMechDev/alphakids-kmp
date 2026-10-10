@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.domain.error.errorMessageOrNull
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.MAX_CHILDREN
 import org.alphakids.app.parent.domain.model.SessionManager
@@ -70,10 +72,15 @@ fun NetflixProfilesScreen(navController: NavController) {
     val signOut = rememberSignOut(navController)
     var children by remember { mutableStateOf<List<ChildSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var loadError by remember { mutableStateOf<String?>(null) }
+    var loadAttempt by remember { mutableIntStateOf(0) }
     var showExitConfirm by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        children = parentRepository.getChildren()
+    LaunchedEffect(loadAttempt) {
+        isLoading = true
+        val result = parentRepository.getChildren()
+        children = result.getOrDefault(emptyList())
+        loadError = result.errorMessageOrNull
         isLoading = false
     }
 
@@ -142,6 +149,19 @@ fun NetflixProfilesScreen(navController: NavController) {
             if (isLoading) {
                 AlphaInlineLoading(message = "Cargando perfiles...")
             } else {
+                // The children could not be loaded: say so (it is not "no
+                // children") and offer a retry; the parent profile stays usable.
+                loadError?.let { message ->
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                    )
+                    AlphaTextButton(text = "Reintentar", onClick = { loadAttempt++ })
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 130.dp),
                     modifier = Modifier.fillMaxWidth(),
@@ -196,7 +216,7 @@ fun NetflixProfilesScreen(navController: NavController) {
                     }
 
                     // 3. Add profile card last — hidden once the child limit is reached.
-                    if (children.size < MAX_CHILDREN) {
+                    if (loadError == null && children.size < MAX_CHILDREN) {
                         item(key = "add-profile") {
                             ProfileItem(
                                 initial = "+",

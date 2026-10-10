@@ -68,6 +68,7 @@ import org.alphakids.app.components.resolveAvatarUrl
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.rememberSignOut
+import org.alphakids.app.domain.error.errorMessageOrNull
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.MAX_CHILDREN
 import org.alphakids.app.parent.domain.repository.ParentRepository
@@ -272,10 +273,16 @@ private fun ChildrenListTab(
     val coroutineScope = rememberCoroutineScope()
     var children by remember { mutableStateOf<List<ChildSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var loadError by remember { mutableStateOf<String?>(null) }
+    var deleteError by remember { mutableStateOf<String?>(null) }
+    var loadAttempt by remember { mutableIntStateOf(0) }
     var childPendingDelete by remember { mutableStateOf<ChildSummary?>(null) }
 
-    LaunchedEffect(Unit) {
-        children = parentRepository.getChildren()
+    LaunchedEffect(loadAttempt) {
+        isLoading = true
+        val result = parentRepository.getChildren()
+        children = result.getOrDefault(emptyList())
+        loadError = result.errorMessageOrNull
         isLoading = false
     }
 
@@ -291,9 +298,11 @@ private fun ChildrenListTab(
                     color = MaterialTheme.colorScheme.error,
                     onClick = {
                         coroutineScope.launch {
-                            if (parentRepository.deleteChild(child.id)) {
+                            val result = parentRepository.deleteChild(child.id)
+                            if (result.isSuccess) {
                                 children = children.filterNot { it.id == child.id }
                             }
+                            deleteError = result.errorMessageOrNull
                             childPendingDelete = null
                         }
                     },
@@ -319,7 +328,30 @@ private fun ChildrenListTab(
             )
         }
 
-        if (children.isEmpty() && !isLoading) {
+        (loadError ?: deleteError)?.let { message ->
+            item(key = "error") {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small,
+                    colors = CardDefaults.cardColors(
+                        containerColor = glassCardColor(),
+                    ),
+                ) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp),
+                    )
+                    if (loadError != null) {
+                        AlphaTextButton(text = "Reintentar", onClick = { loadAttempt++ })
+                    }
+                }
+            }
+        }
+
+        // A failed load is not an empty list.
+        if (children.isEmpty() && !isLoading && loadError == null) {
             item(key = "empty") {
                 Card(
                     modifier = Modifier.fillMaxWidth(),

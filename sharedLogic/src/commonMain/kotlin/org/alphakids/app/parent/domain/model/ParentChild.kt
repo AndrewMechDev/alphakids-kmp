@@ -49,16 +49,9 @@ data class CreateChildRequest(
     val sectionId: String? = null,
 )
 
-/**
- * Domain result from creating a child profile.
- *
- * When [id] is blank, the creation failed and [errorMessage] describes why.
- */
+/** The child profile the backend created (failures are a failed `Result`). */
 data class CreateChildResult(
     val id: String,
     val verificationStatus: String,
     val studentType: String,
-    val errorMessage: String? = null,
-) {
-    val isSuccess: Boolean get() = id.isNotBlank()
-}
+)

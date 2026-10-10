@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.alphakids.app.domain.error.errorMessageOrNull
 import org.alphakids.app.domain.model.Grade
 import org.alphakids.app.domain.model.Institution
 import org.alphakids.app.parent.domain.repository.ParentRepository
@@ -49,11 +50,11 @@ class AssignInstitutionViewModel(
             val result = parentRepository.getPublicInstitutions()
             _uiState.update {
                 it.copy(
-                    institutions = result,
+                    institutions = result.getOrDefault(emptyList()),
                     isLoading = false,
-                    error = if (result.isEmpty() && it.wantsInstitution) {
-                        "No se pudieron cargar los colegios. Verifica tu conexión."
-                    } else null,
+                    // An empty list is a valid answer ("no schools yet"); only a
+                    // failed request is an error.
+                    error = result.errorMessageOrNull,
                 )
             }
         }
@@ -68,7 +69,8 @@ class AssignInstitutionViewModel(
      */
     private fun loadSiblingInstitutions() {
         viewModelScope.launch {
-            val siblings = parentRepository.getChildren()
+            // Purely visual: if the children cannot be read, no badge is shown.
+            val siblings = parentRepository.getChildren().getOrDefault(emptyList())
                 .filter { it.institutionId != null && it.institutionName != null }
                 .associate { it.institutionId!! to it.name }
             _uiState.update { it.copy(siblingInstitutions = siblings) }

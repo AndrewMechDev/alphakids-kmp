@@ -40,6 +40,7 @@ import org.alphakids.app.components.AlphaTextButton
 import org.alphakids.app.koinInject
 import org.alphakids.app.onboarding.rememberSignOut
 import org.alphakids.app.navigation.Screen
+import org.alphakids.app.domain.error.errorMessageOrNull
 import org.alphakids.app.parent.domain.model.SessionManager
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.jetbrains.compose.resources.painterResource
@@ -72,6 +73,7 @@ fun AwaitingApprovalScreen(navController: NavController) {
     var isChecking by remember { mutableStateOf(false) }
     var contentVisible by remember { mutableStateOf(false) }
     var showStillPendingDialog by remember { mutableStateOf(false) }
+    var checkError by remember { mutableStateOf<String?>(null) }
     var showBackConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { contentVisible = true }
@@ -114,6 +116,21 @@ fun AwaitingApprovalScreen(navController: NavController) {
         )
     }
 
+    checkError?.let { message ->
+        AlertDialog(
+            onDismissRequest = { checkError = null },
+            shape = MaterialTheme.shapes.large,
+            title = { Text("No pudimos verificar") },
+            text = { Text(message) },
+            confirmButton = {
+                AlphaPrimaryButton(
+                    text = "Cerrar",
+                    onClick = { checkError = null },
+                )
+            },
+        )
+    }
+
     if (showStillPendingDialog) {
         AlertDialog(
             onDismissRequest = { showStillPendingDialog = false },
@@ -134,7 +151,8 @@ fun AwaitingApprovalScreen(navController: NavController) {
         while (status == "PENDING") {
             delay(POLL_INTERVAL_MS)
             isChecking = true
-            val children = parentRepository.getChildren()
+            // A failed poll is simply retried at the next interval.
+            val children = parentRepository.getChildren().getOrDefault(emptyList())
             val matched = children.find { it.id == childId }
             if (matched != null) {
                 SessionManager.setActiveChild(matched)
@@ -202,15 +220,18 @@ fun AwaitingApprovalScreen(navController: NavController) {
                     coroutineScope.launch {
                         isChecking = true
                         val childId = SessionManager.currentChild?.id
-                        val matched = childId?.let { id ->
-                            parentRepository.getChildren().find { it.id == id }
-                        }
+                        val result = childId?.let { parentRepository.getChildren() }
+                        val matched = result?.getOrNull()?.find { it.id == childId }
                         if (matched != null) {
                             SessionManager.setActiveChild(matched)
                             status = matched.verificationStatus
                         }
                         isChecking = false
-                        if (status == "PENDING") {
+                        // A failed check is not "still in review".
+                        val error = result?.errorMessageOrNull
+                        if (error != null) {
+                            checkError = error
+                        } else if (status == "PENDING") {
                             showStillPendingDialog = true
                         }
                     }

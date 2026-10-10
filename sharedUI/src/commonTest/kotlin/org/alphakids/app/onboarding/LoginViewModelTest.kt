@@ -6,7 +6,11 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.alphakids.app.onboarding.data.mock.MockAuthRepository
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.parent.data.mock.MockParentRepository
+import org.alphakids.app.parent.domain.model.ChildSummary
+import org.alphakids.app.parent.domain.repository.ParentRepository
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -69,6 +73,22 @@ class LoginViewModelTest {
 
         assertTrue(viewModel.uiState.value.isSuccess)
         assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun `a failed children request after login opens the profile picker, not the wizard`() {
+        val failingChildren = object : ParentRepository by MockParentRepository() {
+            override suspend fun getChildren(): Result<List<ChildSummary>> = dataFailure(DataError.Network)
+        }
+        val viewModel = LoginViewModel(MockAuthRepository.createWithDemoUser(), failingChildren)
+
+        viewModel.onEmailChanged("test@alphakids.com")
+        viewModel.onPasswordChanged("123456")
+        viewModel.onLoginClick()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.isSuccess)
+        assertTrue(viewModel.uiState.value.hasChildren)
     }
 
     @Test

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.alphakids.app.domain.error.errorMessageOrNull
 import org.alphakids.app.parent.domain.model.SubscriptionInfo
 import org.alphakids.app.parent.domain.repository.ParentRepository
 
@@ -40,21 +41,13 @@ class SubscriptionViewModel(
         _uiState.update { it.copy(isLoading = true, error = null) }
 
         viewModelScope.launch {
-            try {
-                val subscription = parentRepository.getSubscription()
-                _uiState.update {
-                    it.copy(
-                        subscription = subscription,
-                        isLoading = false,
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Error al cargar suscripción",
-                    )
-                }
+            val result = parentRepository.getSubscription()
+            _uiState.update {
+                it.copy(
+                    subscription = result.getOrNull(),
+                    isLoading = false,
+                    error = result.errorMessageOrNull,
+                )
             }
         }
     }

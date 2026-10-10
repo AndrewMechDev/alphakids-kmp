@@ -99,7 +99,9 @@ fun SplashScreen(navController: NavController) {
         val destination = awaitAtLeast(SPLASH_MIN_DISPLAY) {
             resolveSplashDestination(
                 isLoggedIn = { authRepository.isLoggedIn() },
-                hasChildren = { parentRepository.getChildren().isNotEmpty() },
+                // A failed request goes to the profile picker, which shows
+                // the error with a retry, not to the first-run welcome flow.
+                hasChildren = { parentRepository.getChildren().getOrNull()?.isNotEmpty() ?: true },
             )
         }
         navController.navigate(destination) {

@@ -38,3 +38,7 @@ val Result<*>.errorMessage: String
 /** The message of the first failed result, or null when every result succeeded. */
 fun firstErrorMessage(results: List<Result<*>>): String? =
     results.firstOrNull { it.isFailure }?.errorMessage
+
+/** The message to show for a failed result, or null when it succeeded. */
+val Result<*>.errorMessageOrNull: String?
+    get() = if (isFailure) errorMessage else null

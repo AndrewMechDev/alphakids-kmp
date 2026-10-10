@@ -125,7 +125,9 @@ class HomeViewModel(
         if (child == null) {
             val persistedId = SessionManager.persistedActiveChildId()
             if (persistedId != null) {
-                val children = parentRepository.getChildren()
+                // A failed request also ends in sessionExpired: Splash then
+                // routes to the profile picker, which shows the error and a retry.
+                val children = parentRepository.getChildren().getOrNull().orEmpty()
                 val matched = children.find { it.id == persistedId }
                 if (matched != null) {
                     SessionManager.setActiveChild(matched)

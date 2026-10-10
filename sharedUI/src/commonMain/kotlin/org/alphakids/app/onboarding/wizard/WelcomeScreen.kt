@@ -47,6 +47,9 @@ import kotlinx.coroutines.launch
 import org.alphakids.app.components.AlphaBackIcon
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataError
+import org.alphakids.app.domain.error.errorMessage
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.onboarding.data.mock.Pet
@@ -349,10 +352,11 @@ fun WelcomeScreen(
 
                     val repo = koinInject<ParentRepository>()
                     scope.launch {
-                        val result = repo.createChild(request)
+                        val outcome = repo.createChild(request)
                         isCreating = false
+                        val result = outcome.getOrNull()
 
-                        if (result != null && result.isSuccess) {
+                        if (result != null) {
                             // Build child summary for session
                             val fullName = "$firstName $lastName"
                             val childSummary = ChildSummary(
@@ -379,9 +383,12 @@ fun WelcomeScreen(
                                 }
                             }
                         } else {
-                            // Show the actual API error message
-                            creationError = result?.errorMessage
-                                ?: "No se pudo crear el perfil. Verifica los datos e intenta de nuevo."
+                            // The backend's own text is English/technical, never shown.
+                            creationError = if (outcome.dataError is DataError.Validation) {
+                                "No se pudo crear el perfil. Verifica los datos e intenta de nuevo."
+                            } else {
+                                outcome.errorMessage
+                            }
                         }
                     }
                 })
