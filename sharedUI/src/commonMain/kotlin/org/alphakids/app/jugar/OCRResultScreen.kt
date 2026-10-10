@@ -42,20 +42,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
-import org.alphakids.app.analytics.AchievementAnalytics
-import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.game.domain.model.GameWord
 import org.alphakids.app.game.domain.model.newGameAttemptId
-import org.alphakids.app.game.domain.model.rewardsForAttempts
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.navigation.backToWordSelection
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.LocalAudioService
-import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.theme.AlphaGradients
 import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.WarningYellow
@@ -92,56 +91,25 @@ fun OCRResultScreen(
     elapsedMs: Long,
 ) {
     val challenge = remember(word) { word.toChallengeWord() }
-    val rewards = rewardsForAttempts(attempts)
+    // Scoped to this back stack entry: reports the play once, even if the
+    // screen is recreated or restored after process death.
+    val viewModel = viewModel(key = attemptId) {
+        OCRResultViewModel(
+            word = word,
+            attemptId = attemptId,
+            attempts = attempts,
+            elapsedMs = elapsedMs,
+            gameRepository = koinInject<GameRepository>(),
+            savedStateHandle = createSavedStateHandle(),
+        )
+    }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val rewards = state.rewards
     val audioService = LocalAudioService.current
 
     // Play celebration sound on screen launch
     LaunchedEffect(Unit) {
         audioService.play(AudioCategory.CHEER)
-    }
-
-    // Report game session completion to the API
-    val gameRepo: GameRepository = remember { koinInject() }
-    val studentId = org.alphakids.app.parent.domain.model.SessionManager.currentChild?.id
-    LaunchedEffect(Unit) {
-        // 1. Track analytics for achievements / history.
-        AchievementAnalytics.trackSessionCompleted(
-            gameType = "OCR_SCAN",
-            wordId = word.id,
-            status = "COMPLETED",
-            attempts = attempts,
-        )
-        AchievementAnalytics.trackWordCompleted(
-            wordId = word.id,
-            wordText = word.text,
-            attempts = attempts,
-            coins = rewards.coins,
-        )
-        if (rewards.stars > 0) {
-            AchievementAnalytics.trackStarsEarned(
-                amount = rewards.stars,
-                source = word.text,
-            )
-        }
-
-        // 2. Report the session. The backend credits the rewards and answers
-        // with the child's updated progress, which becomes the balance shown
-        // everywhere; if the call fails, no coins are invented locally.
-        if (studentId != null && studentId.isNotBlank()) {
-            val result = gameRepo.completeSession(
-                GameSessionCompleteRequestDto(
-                    studentId = studentId,
-                    wordId = word.id,
-                    gameType = "OCR_SCAN",
-                    status = "COMPLETED",
-                    attempts = attempts,
-                    coinsEarned = rewards.coins,
-                    starsEarned = rewards.stars,
-                    metrics = mapOf("attemptId" to attemptId, "elapsedMs" to elapsedMs.toString()),
-                )
-            )
-            result?.progress?.let(GameProgressManager::applyServerProgress)
-        }
     }
 
     Scaffold(
@@ -200,6 +168,17 @@ fun OCRResultScreen(
                 coins = rewards.coins,
                 stars = rewards.stars,
             )
+
+            if (state.sync == OCRResultViewModel.ProgressSync.NOT_SAVED) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "No pudimos guardar tus recompensas. Revisa tu conexión.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = glassTextSecondary(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

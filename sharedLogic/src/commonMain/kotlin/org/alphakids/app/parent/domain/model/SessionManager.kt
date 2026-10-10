@@ -43,5 +43,13 @@ object SessionManager {
      */
     fun persistedActiveChildId(): String? = settings?.getStringOrNull(KEY_ACTIVE_CHILD_ID)
 
+    /**
+     * The active child's id, falling back to the persisted one when the
+     * in-memory [currentChild] was wiped by a process restart. Use this for
+     * anything that must reach the backend for the right child (e.g.
+     * reporting a finished game) rather than [currentChild] alone.
+     */
+    fun activeChildId(): String? = currentChild?.id ?: persistedActiveChildId()
+
     private const val KEY_ACTIVE_CHILD_ID = "session_active_child_id"
 }
