@@ -42,9 +42,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,10 +55,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
-import kotlin.time.TimeSource
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.game.domain.model.GameWord
-import org.alphakids.app.game.domain.model.ScanStabilityVote
 import org.alphakids.app.game.domain.model.ScanText
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
@@ -86,11 +81,6 @@ import org.alphakids.app.theme.circadianBackground
 private const val CELEBRATION_DELAY_MS = 2200L
 private const val AUTO_RETRY_DELAY_MS = 2600L
 
-data class OcrResult(
-    val success: Boolean,
-    val detectedText: String,
-)
-
 /**
  * Camera + OCR scan of one word.
  *
@@ -108,19 +98,20 @@ fun WordScannerChallenge(
     val word = remember(gameWord) { gameWord.toChallengeWord() }
     // Slots follow the shared scan rule (letters only), the same rule the
     // camera read goes through, so words with spaces can complete.
-    val letters = ScanText.letters(word.word).map { it.toString() }
-    val letterSlots = remember { mutableStateListOf(*Array(letters.size) { "" }) }
-    var attempts by remember { mutableIntStateOf(0) }
-    var result by remember { mutableStateOf<OcrResult?>(null) }
-    var showResult by remember { mutableStateOf(false) }
+    val letters = remember(word) { ScanText.letters(word.word).map { it.toString() } }
 
-    // Real time to solve: from the scanner opening to the matching read.
-    val startMark = remember { TimeSource.Monotonic.markNow() }
-    var elapsedMs by remember { mutableLongStateOf(0L) }
-
-    // Frame-stability voting (see ScanStabilityVote): only a streak of
-    // identical frames gets locked in as a result.
-    val vote = remember(letters.size) { ScanStabilityVote(targetLength = letters.size) }
+    // Frame-stability voting (ScanStabilityVote, inside the session): only a
+    // streak of identical frames gets locked in as a result. The session
+    // also measures the real time to solve and hands back a new state only
+    // when the read actually changed — one Compose write per change, not
+    // several per camera frame.
+    val session = remember(word) { WordScanSession(targetWord = word.word) }
+    var scanState by remember(session) { mutableStateOf(session.state) }
+    val result = scanState.result
+    val showResult = result != null
+    val filledSlots = remember(letters, scanState.liveLetters) {
+        List(letters.size) { i -> scanState.liveLetters.getOrNull(i)?.toString() ?: "" }
+    }
 
     val audioService = LocalAudioService.current
 
@@ -134,10 +125,7 @@ fun WordScannerChallenge(
     }
 
     fun resetScan() {
-        showResult = false
-        result = null
-        vote.reset()
-        letterSlots.forEachIndexed { index, _ -> letterSlots[index] = "" }
+        scanState = session.reset()
     }
 
     // Fully automatic flow, guided only by voice/animation — no button for
@@ -145,9 +133,9 @@ fun WordScannerChallenge(
     // celebration to read, then moves on to the results screen by itself. A
     // mismatch plays ENCOURAGE, waits long enough for the "detectamos X"
     // message to be read, then resets the scan on its own.
-    LaunchedEffect(showResult) {
+    LaunchedEffect(result) {
         val r = result
-        if (showResult && r != null) {
+        if (r != null) {
             if (r.success) {
                 delay(CELEBRATION_DELAY_MS)
                 // Replace the scanner: this attempt is over, so back from the
@@ -156,8 +144,8 @@ fun WordScannerChallenge(
                     Screen.OcrResult.createRoute(
                         word = gameWord,
                         attemptId = attemptId,
-                        attempts = attempts,
-                        elapsedMs = elapsedMs,
+                        attempts = scanState.attempts,
+                        elapsedMs = scanState.elapsedMs,
                     )
                 ) {
                     popUpTo(Screen.WordScannerChallenge.route) { inclusive = true }
@@ -176,30 +164,14 @@ fun WordScannerChallenge(
     // just mis-read one character. The slots always mirror the current raw
     // candidate (so what's shown is always what the camera is actually
     // seeing), but a result is only locked in once the SAME cleaned text
-    // repeats for ScanStabilityVote.STABILITY_FRAMES frames in a row.
+    // repeats for ScanStabilityVote.STABILITY_FRAMES frames in a row. Frames
+    // arriving while a result is shown are ignored by the session.
     val onTextDetected: (String) -> Unit = { raw ->
-        if (!showResult) {
-            val outcome = vote.onFrame(raw)
-
-            val liveChars = outcome.liveLetters
-            for (i in letterSlots.indices) {
-                letterSlots[i] = liveChars.getOrNull(i)?.toString() ?: ""
-            }
-
-            val fullWord = outcome.lockedIn
-            if (fullWord != null) {
-                attempts++
-
-                val isMatch = ScanText.matches(detected = fullWord, target = word.word)
-                result = OcrResult(success = isMatch, detectedText = fullWord)
-                showResult = true
-
-                if (isMatch) {
-                    elapsedMs = startMark.elapsedNow().inWholeMilliseconds
-                    audioService.play(AudioCategory.CHEER)
-                } else {
-                    audioService.play(AudioCategory.ENCOURAGE)
-                }
+        val next = session.onFrame(raw)
+        if (next != null) {
+            scanState = next
+            next.result?.let { locked ->
+                audioService.play(if (locked.success) AudioCategory.CHEER else AudioCategory.ENCOURAGE)
             }
         }
     }
@@ -279,7 +251,7 @@ fun WordScannerChallenge(
 
                 LetterSlotsRow(
                     letters = letters,
-                    filledSlots = letterSlots.toList(),
+                    filledSlots = filledSlots,
                 )
             }
 
@@ -315,7 +287,7 @@ fun WordScannerChallenge(
                 // retries on its own once the message has had time to be
                 // read.
                 AnimatedVisibility(
-                    visible = showResult && result != null,
+                    visible = showResult,
                     enter = fadeIn() + scaleIn(initialScale = 0.85f),
                     exit = fadeOut(),
                 ) {
