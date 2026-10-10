@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/apk/tools">
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Backend API, DiceBear avatars and remote audio URLs. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Letter scanning (CameraX + ML Kit OCR). Requested at runtime. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!--
+        Kids app (Google Play Families policy): no feature records audio, reads the
+        gallery or posts notifications. Strip these even if a dependency's manifest
+        re-adds them. tools:node only works with the tools namespace URI above.
+    -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.INTERNET"
         tools:node="remove" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
         tools:node="remove" />
