@@ -9,8 +9,8 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 - **SwiftUI nativo** — UI para iOS
 - **Clean Architecture** (Hexagonal) + MVVM por plataforma
 - **Koin** — Inyección de dependencias multiplatform
-- **Ktor** — Networking REST (preparado, desactivado por ahora)
-- **SQLDelight** — Base de datos local
+- **Ktor** — Networking REST contra `alphakids-api` (bearer + refresh, errores tipados `Result<T>`)
+- **multiplatform-settings** — Preferencias y sesión (tokens cifrados con Android Keystore)
 
 ## Módulos
 
@@ -35,7 +35,7 @@ Aplicación educativa infantil (4-8 años) desarrollada con Kotlin Multiplatform
 Vista 1 — Splash (carga + validación de sesión)
 ┌───────────────────────────────────────────┐
 │      🖼️ Logo + 🦊 Alphi grande            │
-│      ⏳ Cargando... (2.5s)                │
+│      ⏳ Cargando... (sin espera fija)     │
 │      → Valida sesión + tokens             │
 └───────────────────────────────────────────┘
         │
@@ -74,8 +74,8 @@ Vista 2 — Welcome Selection (bienvenida)
         │
         ├── "Crear cuenta gratis"
         │   ▼
-        │  RegisterScreen → Verificación OTP (auto-6 dígitos)
-        │   → Login automático
+        │  RegisterScreen → sesión iniciada (sin paso OTP:
+        │   el backend no verifica email)
         │   ▼
         │
         └── SetupWizard (6 pasos, 1 opcional)
@@ -92,14 +92,14 @@ Vista 2 — Welcome Selection (bienvenida)
             └─────────────────────────────────┘
              → AdventureHome 🏠
 
-AdventureHome 🏠 (5 tabs — glassmorphic navbar con SVG icons)
+AdventureHome 🏠 (3 tabs — glassmorphic navbar con SVG icons)
   ┌──────────────────────────────────────────────────────────┐
   │  Header: Avatar circular + nombre + nivel + monedas      │
-  │  ┌────────┬────────────┬────────┬────────┬────────┐     │
-  │  │ 🏠    │ 📖        │ 🛒    │ 🐾    │ 🏆    │     │
-  │  │Inicio  │Diccionario │ Tienda│Mascotas│ Logros │     │
-  │  └────────┴────────────┴────────┴────────┴────────┘     │
-  │  Glassmorphic navbar (semi-transparent, rounded top)     │
+  │  ┌────────┬────────┬────────┐                            │
+  │  │ 🏠    │ 🐾    │ 🏆    │                            │
+  │  │Inicio  │Mascotas│ Logros │                            │
+  │  └────────┴────────┴────────┘                            │
+  │  Diccionario: desde Inicio · Tienda: dentro de Mascotas  │
   └──────────────────────────────────────────────────────────┘
         │
         ├── Inicio 🏠
@@ -110,7 +110,7 @@ AdventureHome 🏠 (5 tabs — glassmorphic navbar con SVG icons)
         │  │  │ 🎮 ¡A Jugar! (gradiente)    │  │
         │  │  └──────────────────────────────┘  │
         │  │  Card con press animation (0.98)   │
-        │  │  Monedas: GameProgressManager      │
+        │  │  Monedas: saldo real del API       │
         │  └────────────────────────────────────┘
         │
         ├── Diccionario 📖 (scroll-sync A–Z + imágenes + audio)
@@ -125,10 +125,7 @@ AdventureHome 🏠 (5 tabs — glassmorphic navbar con SVG icons)
         │  │     Palabras: jugables + aprendidas API  │
         │  └──────────────────────────────────────────┘
         │
-        ├── Tienda 🛒 — Mascotas, alimentos, accesorios
-        │   Inventario: GameProgressManager.inventory
-        │
-        ├── Mascotas 🐾 — Perfiles + desbloqueo por nivel
+        ├── Mascotas 🐾 — Mascotas del niño + Tienda 🛒 (catálogo y compras vía API)
         │
         ├── Logros 🏆 — 4 sub-tabs:
         │   ├── Rangos: nivel actual + XP + todos los rangos
@@ -220,9 +217,9 @@ Parent Dashboard (3 tabs) 🧑‍👩‍👧‍👦
 | 🔊 | **Audio en Diccionario** | Botón de reproducción en cada palabra con audioUrl de la API (36-40dp) | F7 |
 | 📖 | **Diccionario API** | Merge de palabras jugables + palabras aprendidas del endpoint dictionary | F7 |
 | 🎉 | **Imagen en Resultado** | OCRResultScreen muestra la imagen real de la palabra completada | F7 |
-| 🏆 | **Logros API + Analytics** | AchievementsScreen con 4 sub-tabs (Rangos/Trofeos/Estad\u00EDsticas/Historial), datos desde GET /students/:id/achievements con fallback offline, analytics en vivo v\u00EDa AchievementAnalytics | F8 |
-| \uD83E\uDE99 | **GameProgressManager** | Estado de monedas, inventario y progreso persistente en toda la sesi\u00F3n. OCRResultScreen actualiza coins + words + stars. HomeViewModel y StoreScreen consumen del mismo manager. | F8 |
-| \uD83D\uDED2 | **Inventario persistente** | Las compras en la Tienda sobreviven al cambiar de pesta\u00F1a gracias a GameProgressManager.inventory | F8 |
+| 🏆 | **Logros API + Analytics** | AchievementsScreen con 4 sub-tabs (Rangos/Trofeos/Estadísticas/Historial), datos desde GET /students/:id/achievements con fallback offline, analytics en vivo vía AchievementAnalytics | F8 |
+| 🪙 | **GameProgressManager** | Estado de monedas, inventario y progreso persistente en toda la sesión. OCRResultScreen actualiza coins + words + stars. HomeViewModel y StoreScreen consumen del mismo manager. | F8 |
+| 🛒 | **Inventario persistente** | Las compras en la Tienda sobreviven al cambiar de pestaña gracias a GameProgressManager.inventory | F8 |
 
 ## Comandos
 
@@ -231,16 +228,33 @@ Parent Dashboard (3 tabs) 🧑‍👩‍👧‍👦
 ./gradlew :androidApp:installDebug          # Instalar en dispositivo
 ./gradlew :androidApp:assembleDebug          # Build APK
 ./gradlew allTests                           # Tests compartidos
+./gradlew :androidApp:packageRelease         # APK release (R8) sin firmar, para verificar
+./gradlew :androidApp:assembleRelease        # APK release firmado (requiere keystore)
 
 # iOS
 Abrir iosApp/ en Xcode y compilar
 ```
 
+## Correcciones para el benchmark KMP vs Flutter
+
+Una auditoría (2026-10-09) encontró defectos que distorsionaban la comparación; se
+corrigieron en las tareas T0–T10 de [`odd/tasks/kmp-benchmark-fixes.md`](./odd/tasks/kmp-benchmark-fixes.md):
+
+- **Arranque y audio** — sin espera fija en el splash; los audios de `R.raw` sobreviven a R8 en release y el `MediaPlayer` se libera.
+- **Datos reales** — monedas, tienda y mascotas vienen del API; la palabra jugada viaja en la ruta (sobrevive a la muerte del proceso) y la recompensa se reporta una sola vez por intento.
+- **Ciclo de vida** — ViewModels con scope de navegación y llamadas de red en paralelo.
+- **Pipeline OCR** — parámetros en `OcrPipelineConfig` (1280x720, keep-only-latest, como mucho un análisis cada 200 ms); el recognizer se cierra con el ViewModel. La réplica Flutter debe usar los mismos valores.
+- **Sesión y seguridad** — se eliminó el OTP falso; logout único que no se cancela; caché bearer de Ktor invalidada al cambiar de token; tokens cifrados (AES-256/GCM, Android Keystore); `allowBackup=false`; permisos reducidos a `INTERNET`, `CAMERA` y `ACCESS_NETWORK_STATE`.
+- **Errores tipados** — los repositorios devuelven `Result<T>` con `DataError` y mensajes en español; nunca se muestra `e.message` crudo.
+- **Higiene** — código muerto eliminado, emoji usados como íconos reemplazados por SVG del proyecto, versión de la app en `gradle.properties` y dependencias pre-release movidas a estable donde existe una versión compatible.
+
+Pendiente: keystore de release, deuda de iOS (los bridges Swift no compilan tras T3/T7/T9) y deuda del backend; ver las secciones correspondientes en [`odd/tasks/kmp-benchmark-fixes.md`](./odd/tasks/kmp-benchmark-fixes.md).
+
 ## Estado del proyecto
 
 - ✅ **Phase 0** — Infraestructura (arquitectura, DI, skills, tooling)
-- ✅ **Phase 1** — Onboarding completo (login, registro, OTP, wizard 6 pasos)
-- ✅ **Phase 2** — AdventureHome (5 tabs: Inicio, Diccionario, Tienda, Mascotas, Logros)
+- ✅ **Phase 1** — Onboarding completo (login, registro, wizard 6 pasos)
+- ✅ **Phase 2** — AdventureHome (3 tabs: Inicio, Mascotas, Logros; Diccionario y Tienda se abren desde ellas)
 - ✅ **Jugar OCR** — Escaneo de letras con cámara real (CameraX + ML Kit)
 - ✅ **Panel de Padres** — Dashboard, detalle hijos, suscripción, soporte
 - ✅ **UX/UI Fase 1** — Sistema de diseño global (circadian backgrounds, cards consistentes, safe areas)
@@ -252,7 +266,6 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **Welcome Selection** — Pantalla de bienvenida con 2 cards (tutor / registro)
 - ✅ **Netflix de Perfiles** — Selector visual multiusuario post-login
 - ✅ **Back buttons** — Botones de retroceso en Login, Register, wizard y AdventureHome
-- ✅ **Auto-OTP** — Verificación automática al completar 6 dígitos
 - ✅ **Screen transitions** — Animaciones slide + fade entre pantallas
 - ✅ **Empty states** — Componente reutilizable con Alphi para estados vacíos
 - ✅ **Settings → Netflix** — Gear del Home ahora va al selector de perfiles
@@ -263,7 +276,7 @@ Abrir iosApp/ en Xcode y compilar
 - ✅ **POST /tutors/children con API** — Creación real de perfiles con verificación (PENDING/VERIFIED)
 - ✅ **Palabras del API** — `GET /students/:id/playable-words` con flujo ASSIGNED/CATALOG
 - ✅ **Imagen Cloudinary** — Muestra imagen de referencia del profesor en el juego
-- ✅ **GameSessionState** — Singleton para pasar palabra API → juego → resultado
+- ✅ **Palabra en la ruta** — La palabra API viaja en la ruta juego → resultado (`GameSessionState` solo lo usa iOS)
 - ✅ **POST /game-sessions/complete** — Reporta resultados al API con coins y stars
 - ✅ **Scroll-sync alphabet** — Navegador A–Z sincronizado con scroll progresivo (Apple Wheel style)
 - ✅ **Imágenes en Diccionario** — Muestra imagen asignada vía API (AsyncImage) en grid y detalle
@@ -294,7 +307,7 @@ Abrir iosApp/ en Xcode y compilar
 - 💡 **Sistema inactividad** — Alphi reacciona al idle (futuro)
 - ⏳ **Spelling (STT/TTS)** — Pendiente
 - ⏳ **Rive Animations** — Al final
-- ⏳ **iOS (SwiftUI)** — Próxima fase
-- ⏳ **Tests del plugin Auth (Ktor)** — Cubrir 401→refresh→reintento, refresh rechazado por el servidor vs. falla de red, con `MockEngine`
+- ⏳ **iOS (SwiftUI)** — Próxima fase; antes hay que adaptar los bridges Swift a los cambios de T3/T7/T9
+- ✅ **Tests del plugin Auth (Ktor)** — 401→refresh→reintento, refresh rechazado vs. falla de red, con `MockEngine`
 - ⏳ **Keystore de release** — Generar con `keytool`, completar `androidApp/keystore.properties` (ver `keystore.properties.example`)
-- ⏳ **Bump de `versionCode`/`versionName`** — Antes de la primera subida real a Play Store (hoy siguen en `1`/`"1.0"`)
+- ✅ **Versión de la app** — `alphakids.versionCode` / `alphakids.versionName` en `gradle.properties` (hoy `1` / `1.0.0`); subir `versionCode` en cada subida a Play Store
