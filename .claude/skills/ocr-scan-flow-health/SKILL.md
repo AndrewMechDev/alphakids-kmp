@@ -91,6 +91,28 @@ there unused for this purpose.
    leveled up"). It is not the same "XP" problem as Hard Rule #7 and
    wasn't part of the testing feedback that removed the child-facing XP —
    don't remove it without a separate, explicit reason.
+10. **One recognizer per scanner screen, closed when it leaves.** The ML
+    Kit `TextRecognizer` holds native memory. `OcrPipeline` (a ViewModel
+    scoped to the scanner's back stack entry) is its single owner: it
+    survives the portrait/landscape layout switch and calls
+    `recognizer.close()` + `analysisExecutor.shutdown()` in `onCleared()`.
+    `CameraView` unbinds exactly the use cases it bound and clears the
+    analyzer in `onDispose`. Never create a recognizer inside an
+    `AndroidView` factory or a layout branch.
+11. **Throttle before recognizing, close every frame.** `OcrFrameGate`
+    drops frames while a recognition is in flight or within
+    `OcrPipelineConfig.MIN_ANALYSIS_INTERVAL` (200 ms) of the previous
+    analyzed frame; every `ImageProxy` is closed on every path (skipped,
+    failed, recognized). Pipeline values live only in `OcrPipelineConfig`
+    — the Flutter benchmark replica must use the same ones.
+12. **Push UI state only when the read changes.** `WordScanSession`
+    returns a new immutable `ScannerUiState` only when the live letters or
+    the result change; every frame still feeds the stability vote. Don't
+    go back to writing several Compose states per camera frame.
+13. **Instrumentation is numbers only.** `OcrFrameStats` (analyzed /
+    skipped / failed, latency) plus the `ocr.recognize` trace section and
+    `ocr.frames.*` counters are the benchmark hooks. Never log the
+    recognized text (kids app, privacy).
 
 ## Decision Gates
 
@@ -104,6 +126,11 @@ there unused for this purpose.
 | No nested double-scroll | `rg -c 'verticalScroll' sharedUI/src -g '*.kt'` | Every matching file shows exactly 2 (one import + one usage) — see `consistent-back-button`'s note on the same class of bug |
 | No fabricated reward metric | `rg '\bxp\b' sharedLogic sharedUI --glob '!*Pets*'` outside `PetsScreen.kt`/pet models | No hits — any progression display should trace back to `stars`/`level`/`currentRank` |
 | No permanently-fake stat | Read any `StatItem`/stat card added | Every value is either real (has a code path that can produce something other than a placeholder) or removed |
+| Recognizer closed | `rg 'TextRecognition.getClient\|recognizer.close' sharedUI/src/androidMain` | Exactly one `getClient` (in `OcrPipeline`) and a matching `close()` in `onCleared()` |
+| Camera unbound on dispose | Read `CameraBinding.release()` in `CameraView.kt` | Clears the analyzer and unbinds its use cases; called from `onDispose` |
+| Frame gate + interval | Read `TextRecognitionAnalyzer.analyze` | `gate.tryAcquire()` first; `imageProxy.close()` on the skip path and in `finally`; interval comes from `OcrPipelineConfig` |
+| Emit on change | Read `onTextDetected` in `WordScannerChallenge.kt` | Writes `scanState` only when `session.onFrame()` returns non-null |
+| No recognized text logged | `rg 'Log\.' sharedUI/src/androidMain/kotlin/org/alphakids/app/jugar` | Only numeric session stats, never the read text |
 
 ## Execution Steps
 
