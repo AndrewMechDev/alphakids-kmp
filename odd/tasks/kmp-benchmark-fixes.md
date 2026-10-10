@@ -39,7 +39,7 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 - [x] T1 `fix/release-audio-crash`: C1 (R.raw reflection stripped by R8), M8 (MediaPlayer on main thread, never released, one service per screen).
 - [x] T2 `perf/startup-assets`: H8 (fixed 4 s splash delay), L8 (Calendar per glass color call). Image re-encoding deferred (assets untouched).
 - [x] T3 `fix/economy-api-wiring`: H3 (coins never loaded from API), H4 (store/pets hardcoded, wrong pets routes and feed body), M10 (item granted without enough coins).
-- [ ] T4 `fix/game-flow-state`: H9 (word lost on process death), M1 (rewards granted twice), M9 (spaces in words), L2 (unencoded route args), L3 (repeat flow, time = 0), M11 (tests for rewards and OCR vote).
+- [x] T4 `fix/game-flow-state`: H9 (word lost on process death), M1 (rewards granted twice), M9 (spaces in words), L2 (unencoded route args), L3 (repeat flow, time = 0), M11 (tests for rewards and OCR vote).
 - [ ] T5 `fix/viewmodel-lifecycle`: M2 (ViewModels via remember{}, leaked scope), M6 (sequential network calls).
 - [ ] T6 `perf/ocr-pipeline`: M4 (recognizer never closed, no throttling, per-frame recomposition).
 - [ ] T7 `fix/auth-session-isolation`: H1 (Ktor bearer cache), H2 (singletons not reset), M5 (logout cancelled), L1 (fake OTP), L4 (raw e.message shown), M11 (auth refresh tests with MockEngine).
@@ -70,6 +70,7 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 - `POST /email/send` reachable by any authenticated user.
 - Store balance check and game-session progress update outside transactions.
 - Purchase responses carry no coin balance; catalogs not filtered by `isActive`; same pet can be bought twice; no endpoint for pet play or active pet.
+- `POST /game-sessions/complete` should deduplicate on `metrics.attemptId`.
 
 ## iOS debt (out of scope)
 
@@ -83,6 +84,9 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 | T1 | delegated (multi-file writer trigger) | 9c4b0cc; merge ebfdc22 | assembleDebug + allTests green; packageRelease keeps 48/48 mp3 (was 1) | medium, under budget |
 | T2 | delegated (same writer) | 49a0a02, f68aea5; merge 5a45892 | assembleDebug + allTests green (re-run by parent on develop) | medium, under budget |
 | T3 | delegated (multi-file writer trigger) | 340f82c, 536d9f7, a5f4ca0; merge 59fa3a1 | MockEngine contract tests RED on old routes then GREEN; assembleDebug + allTests green (re-run by parent) | medium, slice budget reached; consent granted, reviewer unavailable (provider auth disabled for org), lineage abandoned by user decision |
+| T4 | delegated (multi-file writer trigger) | 9bd28c0, 6e4ba94, 3cdf880, 909fb9c; merge 76b9c5e | RED on space normalization and route encoding, then GREEN; assembleDebug + allTests green (146 tests; re-run by parent) | medium, slice budget reached; consent declined by user |
+
+Notes: T4 matching ignores Spanish vowel accents but keeps Ñ distinct; slots show letters only (accents kept). Result is reported once per attempt id (SavedStateHandle); an interrupted request is not retried. `GameSessionState` kept because iOS still uses it. Not device-tested (camera, real process death).
 
 Notes: T3 removed pet stats/actions with no backend endpoint (energy, XP, pet level, "Interactuar", "main pet"); "Jugar" is visual only. T3 breaks `iosApp` compilation (Swift bridges and 4 screens use changed/removed APIs) — iOS is out of scope, recorded as debt.
 
@@ -90,4 +94,4 @@ Notes: T1 keeps sounds playing across screen changes on purpose (Dashboard plays
 
 ## Next step
 
-T4.
+T5.
