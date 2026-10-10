@@ -68,10 +68,6 @@ fun AdventureHomeScreen(navController: NavController) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(selectedTab) {
-        viewModel.refreshCoins()
-    }
-
     // No active child could be resolved (process restart wiped the session
     // and re-hydration found nothing) — send back to Splash instead of
     // showing placeholder data for a child that isn't real.
@@ -150,12 +146,12 @@ fun AdventureHomeScreen(navController: NavController) {
                 },
                 modifier = Modifier.padding(innerPadding),
             )
-            1 -> PetsScreen(
-                coins = state.coins,
-                onSpendCoins = { amount -> viewModel.spendCoins(amount) },
-                childLevel = state.childLevel,
-                modifier = Modifier.padding(innerPadding),
-            )
+            1 -> if (state.childId.isNotBlank()) {
+                PetsScreen(
+                    studentId = state.childId,
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
             2 -> AchievementsScreen(
                 modifier = Modifier.padding(innerPadding),
             )

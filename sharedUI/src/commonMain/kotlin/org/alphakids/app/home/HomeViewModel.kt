@@ -2,16 +2,18 @@ package org.alphakids.app.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.alphakids.app.data.remote.dto.FeedPetRequestDto
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.GameProgressManager
 import org.alphakids.app.parent.domain.model.SessionManager
+import org.alphakids.app.parent.domain.model.StudentEconomy
 import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
 
@@ -21,9 +23,10 @@ import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
  * @param isLoading True while initial data loads.
  * @param childId The active child's stable id, used to derive a consistent avatar color.
  * @param childName The child's display name.
- * @param childLevel Current level (1–MAX).
+ * @param childLevel Current level (1–MAX), from the backend progress.
  * @param childRank Display rank title (Semillita, Brotito, etc.).
- * @param coins Currency for the in-app shop.
+ * @param coins Coin balance reported by the backend; null until the backend
+ *   has answered, so the dashboard never shows an invented balance.
  * @param stars Stars earned from activities — the real progression currency
  *   that drives rank/level (see AchievementModels.kt); there is no separate
  *   XP system, that was a locally-invented number nothing else used.
@@ -49,7 +52,7 @@ data class UiState(
     val childAvatarSeed: String = "",
     val childLevel: Int = 1,
     val childRank: String = "Semillita",
-    val coins: Int = 50,
+    val coins: Int? = null,
     val stars: Int = 0,
     val wordsLearned: Int = 0,
     val wordsPending: Int = 0,
@@ -89,8 +92,10 @@ data class PendingActivity(
  *
  * Pulls the child summary from [ParentRepository], the active pet's real
  * hunger/happiness from [StudentPetRepository], and the pending word list
- * from [GameRepository]. XP/leveling and daily-streak are not backed by any
- * API yet — see [UiState.xp]/[UiState.streak].
+ * and progress (coins, stars, level) from [GameRepository]. Coins, stars and
+ * level follow [GameProgressManager], so a balance reported by another
+ * screen (game result, store purchase) shows up here too. Daily streak is
+ * not backed by any API yet — see [UiState.streak].
  */
 class HomeViewModel(
     private val parentRepository: ParentRepository,
@@ -101,15 +106,8 @@ class HomeViewModel(
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     init {
+        viewModelScope.launch { GameProgressManager.economy.collect(::applyEconomy) }
         viewModelScope.launch { loadData() }
-    }
-
-    /**
-     * Reloads coins from [GameProgressManager] — call after game completions
-     * or store purchases to refresh the dashboard balance.
-     */
-    fun refreshCoins() {
-        _state.update { it.copy(coins = GameProgressManager.coinsBalance) }
     }
 
     /**
@@ -140,9 +138,16 @@ class HomeViewModel(
         }
 
         applyChild(child)
+        val childId = child.id
 
-        val pet = studentPetRepository.getPets(child.id).firstOrNull { it.isActive }
-        val playable = gameRepository.getPlayableWords(child.id)
+        val (pets, playable) = coroutineScope {
+            val pets = async { studentPetRepository.getPets(childId) }
+            val playable = async { gameRepository.getPlayableWords(childId) }
+            val progress = async { gameRepository.getAchievements(childId)?.progress }
+            progress.await()?.let(GameProgressManager::applyServerProgress)
+            pets.await() to playable.await()
+        }
+        val pet = pets.orEmpty().firstOrNull { it.isActive }
 
         _state.update {
             it.copy(
@@ -166,26 +171,23 @@ class HomeViewModel(
                 childAvatarSeed = child.avatarSeed,
                 childLevel = child.level,
                 childRank = child.rank,
-                coins = GameProgressManager.coinsBalance,
                 stars = child.stars,
                 wordsLearned = child.wordsLearned,
             )
         }
+        applyEconomy(GameProgressManager.economy.value)
     }
 
-    /** Feed the pet: increases hunger by 10 (capped at 100). */
-    fun feedPet() {
-        _state.update { it.copy(petHunger = minOf(100, it.petHunger + 10)) }
-    }
-
-    /** Play with the pet: increases happiness by 10 (capped at 100). */
-    fun playWithPet() {
-        _state.update { it.copy(petHappiness = minOf(100, it.petHappiness + 10)) }
-    }
-
-    /** Deduct coins when the child buys something from the Tienda. */
-    fun spendCoins(amount: Int) {
-        GameProgressManager.spendCoins(amount)
-        _state.update { it.copy(coins = GameProgressManager.coinsBalance) }
+    /** Takes coins, stars and level from the backend progress of the active child. */
+    private fun applyEconomy(economy: StudentEconomy?) {
+        if (economy == null || economy.studentId != _state.value.childId) return
+        _state.update {
+            it.copy(
+                coins = economy.coinsBalance,
+                stars = economy.totalStars,
+                childLevel = economy.currentLevel,
+                wordsLearned = economy.wordsCompleted,
+            )
+        }
     }
 }

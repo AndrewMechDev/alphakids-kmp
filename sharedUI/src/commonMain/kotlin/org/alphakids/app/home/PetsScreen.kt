@@ -21,15 +21,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,232 +42,155 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.alphakids.app.components.AlphaPrimaryButton
-import org.alphakids.app.theme.PetDrakoCyan
-import org.alphakids.app.theme.PetLunaOrange
-import org.alphakids.app.theme.PetTitoGreen
-import org.alphakids.app.theme.PrimaryIndigo
-import org.alphakids.app.theme.SuccessGreen
-import org.alphakids.app.theme.XpBarStart
-import androidx.compose.material3.Icon
-import org.jetbrains.compose.resources.painterResource
 import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_bone
+import alphakids_kmp.sharedui.generated.resources.ic_football
 import alphakids_kmp.sharedui.generated.resources.ic_lock
 import alphakids_kmp.sharedui.generated.resources.ic_paw
 import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
-import alphakids_kmp.sharedui.generated.resources.ic_bone
-import alphakids_kmp.sharedui.generated.resources.ic_football
-import alphakids_kmp.sharedui.generated.resources.ic_handshake
-import alphakids_kmp.sharedui.generated.resources.ic_close
-import alphakids_kmp.sharedui.generated.resources.ic_check_circle
-import org.jetbrains.compose.resources.DrawableResource
-import alphakids_kmp.sharedui.generated.resources.mascota_inti_sol
-import alphakids_kmp.sharedui.generated.resources.mascota_piedra_doce
-import alphakids_kmp.sharedui.generated.resources.mascota_triangulo
+import kotlinx.coroutines.delay
+import org.alphakids.app.components.AlphaInlineLoading
+import org.alphakids.app.components.AlphaTextButton
+import org.alphakids.app.components.EmptyStateView
+import org.alphakids.app.data.remote.dto.InventoryItemDto
+import org.alphakids.app.data.remote.dto.PetCatalogDto
+import org.alphakids.app.data.remote.dto.StudentPetDto
+import org.alphakids.app.game.domain.repository.GameRepository
+import org.alphakids.app.koinInject
+import org.alphakids.app.store.domain.model.PetAvailability
+import org.alphakids.app.store.domain.model.availability
+import org.alphakids.app.store.domain.repository.StoreRepository
+import org.alphakids.app.studentpet.domain.repository.StudentPetRepository
+import org.alphakids.app.theme.ErrorRed
+import org.alphakids.app.theme.PetDrakoCyan
+import org.alphakids.app.theme.PetLunaOrange
+import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassCardColor
 import org.alphakids.app.theme.glassChipUnselectedLabel
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
-
-// ── Data Model ──
-
-/**
- * Rich pet profile with stats for the Mascotas management screen.
- *
- * @param id Unique pet identifier matching the onboarding pet id.
- * @param name Display name.
- * @param imageName Resource name for the pet drawable.
- * @param description Short flavour text.
- * @param unlockLevel Minimum child level to unlock this pet.
- * @param level Current pet level.
- * @param xp Current experience points.
- * @param xpToNextLevel XP required for next pet level.
- * @param hunger 0–100 stat representing nourishment.
- * @param happiness 0–100 stat representing joy.
- * @param energy 0–100 stat representing vitality.
- */
-private data class PetProfile(
-    val id: String,
-    val name: String,
-    val imageName: String,
-    val description: String,
-    val unlockLevel: Int,
-    val level: Int,
-    val xp: Int,
-    val xpToNextLevel: Int,
-    val hunger: Int,
-    val happiness: Int,
-    val energy: Int,
-)
-
-// ── Pet Image Resolver ──
-
-private fun petImageResource(petId: String) = when (petId) {
-    "inti-sol" -> Res.drawable.mascota_inti_sol
-    "piedra-doce" -> Res.drawable.mascota_piedra_doce
-    "triangulo" -> Res.drawable.mascota_triangulo
-    else -> Res.drawable.mascota_inti_sol
-}
-
-// ── Mock Data ──
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 /**
- * The 3 starter pets from MockPetsRepository, enriched with stats.
- *
- * Unlock schedule (based on child level):
- * - Nivel 0: 1 mascota (Inti Sol)
- * - Nivel 10: 2 mascotas (+ Piedra Doce)
- * - Nivel 20: 3 mascotas (+ Triángulo)
- */
-private val allPets = listOf(
-    PetProfile(
-        id = "inti-sol",
-        name = "Inti Sol",
-        imageName = "mascota_inti_sol",
-        description = "Un peque\u00F1o sol lleno de energ\u00EDa",
-        unlockLevel = 0,
-        level = 1,
-        xp = 30,
-        xpToNextLevel = 100,
-        hunger = 65,
-        happiness = 70,
-        energy = 88,
-    ),
-    PetProfile(
-        id = "piedra-doce",
-        name = "Piedra Doce",
-        imageName = "mascota_piedra_doce",
-        description = "Una mascota dulce y tranquila",
-        unlockLevel = 10,
-        level = 1,
-        xp = 15,
-        xpToNextLevel = 100,
-        hunger = 80,
-        happiness = 60,
-        energy = 75,
-    ),
-    PetProfile(
-        id = "triangulo",
-        name = "Tri\u00E1ngulo",
-        imageName = "mascota_triangulo",
-        description = "Aventurero y curioso",
-        unlockLevel = 20,
-        level = 1,
-        xp = 5,
-        xpToNextLevel = 100,
-        hunger = 45,
-        happiness = 90,
-        energy = 95,
-    ),
-)
-
-// ── Public Composable ──
-
-/**
- * Full Mascotas (Pets) screen for Tab 5 of AdventureHome.
+ * Mascotas tab of AdventureHome, backed by the pets and store API.
  *
  * Two sub-tabs:
- * 1. **Mis Mascotas** — active pet card, unlocked/locked pet lists, expanded profiles.
- * 2. **Tienda** — embeds the existing [StoreScreen] for quick shopping access.
+ * 1. **Mis Mascotas** — the child's real pets (hunger/happiness from the
+ *    backend), feeding with inventory items, and catalog pets still locked
+ *    by level.
+ * 2. **Tienda** — [StoreScreen] with the real catalogs and purchases.
  *
- * @param coins Current coin balance (passed through to embedded StoreScreen).
- * @param onSpendCoins Called when the child buys something in the embedded store.
- * @param childLevel Current child level — determines which pets are unlockable.
+ * @param studentId The active child's id.
  * @param modifier Modifier for the root layout.
  */
 @Composable
 fun PetsScreen(
-    coins: Int,
-    onSpendCoins: (Int) -> Unit,
-    childLevel: Int = 1,
+    studentId: String,
     modifier: Modifier = Modifier,
 ) {
-    // ── Pet session state (mock) ──
-    var activePetId by remember { mutableStateOf("inti-sol") }
-    var selectedPetId by remember { mutableStateOf<String?>(null) }
-    var selectedSubTab by remember { mutableStateOf(0) } // 0 = Mis Mascotas, 1 = Tienda
-
-    // Per-pet stat overrides so feed/play/interact have visible effect
-    var hungerOverrides by remember {
-        mutableStateOf(allPets.associate { it.id to it.hunger })
+    // Created like the app's other screen ViewModels; lifecycle-scoped
+    // ViewModel creation is a separate fix.
+    val viewModel = remember(studentId) {
+        PetsViewModel(
+            studentId = studentId,
+            storeRepository = koinInject<StoreRepository>(),
+            studentPetRepository = koinInject<StudentPetRepository>(),
+            gameRepository = koinInject<GameRepository>(),
+        )
     }
-    var happinessOverrides by remember {
-        mutableStateOf(allPets.associate { it.id to it.happiness })
-    }
-    var energyOverrides by remember {
-        mutableStateOf(allPets.associate { it.id to it.energy })
-    }
-
-    fun resolveHunger(pet: PetProfile) = hungerOverrides[pet.id] ?: pet.hunger
-    fun resolveHappiness(pet: PetProfile) = happinessOverrides[pet.id] ?: pet.happiness
-    fun resolveEnergy(pet: PetProfile) = energyOverrides[pet.id] ?: pet.energy
-
-    // Unlock filter
-    val unlockedPets = allPets.filter { childLevel >= it.unlockLevel }
-    val lockedPets = allPets.filter { childLevel < it.unlockLevel }
+    val state by viewModel.state.collectAsState()
+    var selectedSubTab by remember { mutableIntStateOf(0) } // 0 = Mis Mascotas, 1 = Tienda
+    var feedingPet by remember { mutableStateOf<StudentPetDto?>(null) }
 
     Column(
         modifier = modifier
             .circadianBackground()
             .fillMaxSize(),
     ) {
-        // ── Sub-tab bar ──
         SubTabBar(
             selectedIndex = selectedSubTab,
             onTabSelected = { selectedSubTab = it },
         )
 
-        when (selectedSubTab) {
-            0 -> MisMascotasContent(
-                allPets = allPets,
-                unlockedPets = unlockedPets,
-                lockedPets = lockedPets,
-                activePetId = activePetId,
-                selectedPetId = selectedPetId,
-                hunger = { pet -> resolveHunger(pet) },
-                happiness = { pet -> resolveHappiness(pet) },
-                energy = { pet -> resolveEnergy(pet) },
-                childLevel = childLevel,
-                onSelectPet = { id ->
-                    selectedPetId = if (selectedPetId == id) null else id
-                },
-                onSetActive = { id ->
-                    activePetId = id
-                    selectedPetId = null
-                },
-                onFeed = { id ->
-                    hungerOverrides = hungerOverrides.toMutableMap().apply {
-                        put(id, minOf(100, (this[id] ?: 50) + 10))
-                    }
-                },
-                onPlay = { id ->
-                    happinessOverrides = happinessOverrides.toMutableMap().apply {
-                        put(id, minOf(100, (this[id] ?: 50) + 10))
-                    }
-                },
-                onInteract = { id ->
-                    energyOverrides = energyOverrides.toMutableMap().apply {
-                        put(id, minOf(100, (this[id] ?: 50) + 10))
-                    }
-                },
+        state.notice?.let { notice ->
+            NoticeBanner(notice = notice, onDismiss = viewModel::dismissNotice)
+        }
+
+        when {
+            state.isLoading -> AlphaInlineLoading(
+                modifier = Modifier.fillMaxSize(),
+                message = "Cargando tus mascotas...",
             )
-            1 -> StoreScreen(
-                coins = coins,
-                onSpendCoins = onSpendCoins,
-                childLevel = childLevel,
+            state.loadFailed -> EmptyStateView(
+                title = "No pudimos cargar tus mascotas",
+                subtitle = "¿Quieres intentarlo de nuevo?",
+                modifier = Modifier.fillMaxSize(),
+                actionText = "Reintentar",
+                onAction = viewModel::load,
+            )
+            selectedSubTab == 0 -> MisMascotasContent(
+                state = state,
+                onFeed = { feedingPet = it },
+                onPlay = viewModel::play,
+            )
+            else -> StoreScreen(
+                state = state,
+                onBuyPet = viewModel::buyPet,
+                onBuyAccessory = viewModel::buyAccessory,
                 modifier = Modifier.fillMaxSize(),
             )
         }
-    }  // ← cierra Column
+    }
+
+    feedingPet?.let { pet ->
+        FeedDialog(
+            pet = pet,
+            items = state.usableInventory,
+            onPick = { item ->
+                viewModel.feed(pet, item)
+                feedingPet = null
+            },
+            onDismiss = { feedingPet = null },
+        )
+    }
+}
+
+// ── Notice Banner ──
+
+@Composable
+private fun NoticeBanner(notice: PetsNotice, onDismiss: () -> Unit) {
+    LaunchedEffect(notice) {
+        delay(3_500)
+        onDismiss()
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clickable(onClick = onDismiss),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
+    ) {
+        Text(
+            text = notice.text,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = if (notice.isError) ErrorRed else SuccessGreen,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+        )
+    }
 }
 
 // ── Sub-Tab Bar ──
@@ -329,28 +257,24 @@ private fun SubTabBar(
 // ── Mis Mascotas Content ──
 
 /**
- * Scrollable content for the "Mis Mascotas" sub-tab.
- *
- * Shows the expanded profile when a pet card is tapped, or the default
- * layout with the active pet card + unlocked/locked pet lists.
+ * The child's pets: one featured card (the backend's active pet unless the
+ * child taps another one), the rest in a row, and catalog pets still locked
+ * by level.
  */
 @Composable
 private fun MisMascotasContent(
-    allPets: List<PetProfile>,
-    unlockedPets: List<PetProfile>,
-    lockedPets: List<PetProfile>,
-    activePetId: String,
-    selectedPetId: String?,
-    hunger: (PetProfile) -> Int,
-    happiness: (PetProfile) -> Int,
-    energy: (PetProfile) -> Int,
-    childLevel: Int,
-    onSelectPet: (String) -> Unit,
-    onSetActive: (String) -> Unit,
-    onFeed: (String) -> Unit,
-    onPlay: (String) -> Unit,
-    onInteract: (String) -> Unit,
+    state: PetsUiState,
+    onFeed: (StudentPetDto) -> Unit,
+    onPlay: (StudentPetDto) -> Unit,
 ) {
+    var featuredPetId by remember { mutableStateOf<String?>(null) }
+    val featured = state.pets.firstOrNull { it.id == featuredPetId }
+        ?: state.pets.firstOrNull { it.isActive }
+        ?: state.pets.firstOrNull()
+    val lockedPets = state.petCatalog.filter {
+        it.availability(state.childLevel, state.ownedCatalogIds) == PetAvailability.Locked
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -358,89 +282,56 @@ private fun MisMascotasContent(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // ── Expanded profile (tapped pet card) ──
-        selectedPetId?.let { id ->
-            val pet = allPets.first { it.id == id }
-            PetProfileCard(
-                pet = pet,
-                currentHunger = hunger(pet),
-                currentHappiness = happiness(pet),
-                currentEnergy = energy(pet),
-                isActive = id == activePetId,
-                onClose = { onSelectPet(id) },
-                onSetActive = { onSetActive(id) },
-                onFeed = { onFeed(id) },
-                onPlay = { onPlay(id) },
-                onInteract = { onInteract(id) },
+        if (featured == null) {
+            Text(
+                text = "Aún no tienes mascotas. ¡Adopta una en la Tienda!",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = glassTextColor(),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
             )
-        }
-
-        if (selectedPetId == null) {
-            // ── Active pet card (large, prominent) ──
-            val activePet = allPets.first { it.id == activePetId }
+        } else {
             ActivePetCard(
-                pet = activePet,
-                currentHunger = hunger(activePet),
-                currentHappiness = happiness(activePet),
-                currentEnergy = energy(activePet),
-                onFeed = { onFeed(activePet.id) },
-                onPlay = { onPlay(activePet.id) },
-                onInteract = { onInteract(activePet.id) },
-                onClick = { onSelectPet(activePet.id) },
+                pet = featured,
+                actionsEnabled = !state.isBusy,
+                onFeed = { onFeed(featured) },
+                onPlay = { onPlay(featured) },
             )
 
-            // ── Other unlocked pets ──
-            val otherUnlocked = unlockedPets.filter { it.id != activePetId }
-            if (otherUnlocked.isNotEmpty()) {
+            val others = state.pets.filter { it.id != featured.id }
+            if (others.isNotEmpty()) {
                 SectionHeader(text = "Tus Mascotas")
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    otherUnlocked.forEach { pet ->
-                        SmallPetCard(
-                            pet = pet,
-                            currentHunger = hunger(pet),
-                            currentHappiness = happiness(pet),
-                            currentEnergy = energy(pet),
-                            onClick = { onSelectPet(pet.id) },
-                        )
+                    others.forEach { pet ->
+                        SmallPetCard(pet = pet, onClick = { featuredPetId = pet.id })
                     }
                 }
             }
         }
 
-        // ── Locked pets ──
         if (lockedPets.isNotEmpty()) {
             SectionHeader(text = "Bloqueadas")
-
-            // Grid layout for locked pets (centered)
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    lockedPets.forEach { pet ->
-                        LockedPetCard(
-                            pet = pet,
-                            childLevel = childLevel,
-                        )
-                    }
-                }
+                lockedPets.forEach { LockedPetCard(pet = it) }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
-// ── Section Header ──
 
 @Composable
 private fun SectionHeader(text: String) {
@@ -456,14 +347,10 @@ private fun SectionHeader(text: String) {
 
 @Composable
 private fun ActivePetCard(
-    pet: PetProfile,
-    currentHunger: Int,
-    currentHappiness: Int,
-    currentEnergy: Int,
+    pet: StudentPetDto,
+    actionsEnabled: Boolean,
     onFeed: () -> Unit,
     onPlay: () -> Unit,
-    onInteract: () -> Unit,
-    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -474,196 +361,39 @@ private fun ActivePetCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Pet image (large)
             Image(
-                painter = painterResource(petImageResource(pet.id)),
-                contentDescription = pet.name,
+                painter = painterResource(petImage(pet.petCatalog?.species.orEmpty())),
+                contentDescription = pet.displayName,
                 modifier = Modifier.size(96.dp),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Name + Level badge
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = pet.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = glassTextColor(),
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                LevelBadge(level = pet.level)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // XP progress
-            XpProgressBar(xp = pet.xp, xpToNextLevel = pet.xpToNextLevel)
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Stat bars
-            PetStatBar(
-                label = "Hambre",
-                value = currentHunger,
-                color = PetLunaOrange,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            PetStatBar(
-                label = "Felicidad",
-                value = currentHappiness,
-                color = PetDrakoCyan,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            PetStatBar(
-                label = "Energ\u00EDa",
-                value = currentEnergy,
-                color = PetTitoGreen,
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Action buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                PetActionButton(
-                    text = "Alimentar",
-                    icon = Res.drawable.ic_bone,
-                    onClick = onFeed,
-                    containerColor = PetLunaOrange,
-                    modifier = Modifier.weight(1f),
-                )
-                PetActionButton(
-                    text = "Jugar",
-                    icon = Res.drawable.ic_football,
-                    onClick = onPlay,
-                    containerColor = PetDrakoCyan,
-                    modifier = Modifier.weight(1f),
-                )
-                PetActionButton(
-                    text = "Interactuar",
-                    icon = Res.drawable.ic_handshake,
-                    onClick = onInteract,
-                    containerColor = PetTitoGreen,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-    }
-}
-
-// ── Expanded Pet Profile Card ──
-
-@Composable
-private fun PetProfileCard(
-    pet: PetProfile,
-    currentHunger: Int,
-    currentHappiness: Int,
-    currentEnergy: Int,
-    isActive: Boolean,
-    onClose: () -> Unit,
-    onSetActive: () -> Unit,
-    onFeed: () -> Unit,
-    onPlay: () -> Unit,
-    onInteract: () -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Close button (top-right)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .clickable(onClick = onClose),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_close),
-                        contentDescription = "Cerrar",
-                        tint = glassTextColor(),
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
-
-            // Large pet image
-            Image(
-                painter = painterResource(petImageResource(pet.id)),
-                contentDescription = pet.name,
-                modifier = Modifier.size(100.dp),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Name + Level
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = pet.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = glassTextColor(),
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                LevelBadge(level = pet.level)
-            }
-
-            // Description
             Text(
-                text = pet.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = glassTextSecondary(),
-                modifier = Modifier.padding(top = 4.dp),
+                text = pet.displayName,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = glassTextColor(),
             )
+            pet.petCatalog?.name?.takeIf { it != pet.displayName }?.let { catalogName ->
+                Text(
+                    text = catalogName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = glassTextSecondary(),
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // XP progress
-            XpProgressBar(xp = pet.xp, xpToNextLevel = pet.xpToNextLevel)
+            PetStatBar(label = "Hambre", value = pet.hungerLevel, color = PetLunaOrange)
+            Spacer(modifier = Modifier.height(6.dp))
+            PetStatBar(label = "Felicidad", value = pet.happinessLevel, color = PetDrakoCyan)
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // All stats
-            PetStatBar(
-                label = "Hambre",
-                value = currentHunger,
-                color = PetLunaOrange,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            PetStatBar(
-                label = "Felicidad",
-                value = currentHappiness,
-                color = PetDrakoCyan,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            PetStatBar(
-                label = "Energ\u00EDa",
-                value = currentEnergy,
-                color = PetTitoGreen,
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -672,6 +402,7 @@ private fun PetProfileCard(
                     text = "Alimentar",
                     icon = Res.drawable.ic_bone,
                     onClick = onFeed,
+                    enabled = actionsEnabled,
                     containerColor = PetLunaOrange,
                     modifier = Modifier.weight(1f),
                 )
@@ -679,42 +410,9 @@ private fun PetProfileCard(
                     text = "Jugar",
                     icon = Res.drawable.ic_football,
                     onClick = onPlay,
+                    enabled = actionsEnabled,
                     containerColor = PetDrakoCyan,
                     modifier = Modifier.weight(1f),
-                )
-                PetActionButton(
-                    text = "Interactuar",
-                    icon = Res.drawable.ic_handshake,
-                    onClick = onInteract,
-                    containerColor = PetTitoGreen,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // "Set as active" button
-            if (isActive) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_check_circle),
-                        contentDescription = null,
-                        tint = SuccessGreen,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Mascota principal",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = SuccessGreen,
-                    )
-                }
-            } else {
-                AlphaPrimaryButton(
-                    text = "Seleccionar como principal",
-                    onClick = onSetActive,
-                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -725,10 +423,7 @@ private fun PetProfileCard(
 
 @Composable
 private fun SmallPetCard(
-    pet: PetProfile,
-    currentHunger: Int,
-    currentHappiness: Int,
-    currentEnergy: Int,
+    pet: StudentPetDto,
     onClick: () -> Unit,
 ) {
     Card(
@@ -745,18 +440,16 @@ private fun SmallPetCard(
                 .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Pet image
             Image(
-                painter = painterResource(petImageResource(pet.id)),
-                contentDescription = pet.name,
+                painter = painterResource(petImage(pet.petCatalog?.species.orEmpty())),
+                contentDescription = pet.displayName,
                 modifier = Modifier.size(56.dp),
             )
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Name
             Text(
-                text = pet.name,
+                text = pet.displayName,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = glassTextColor(),
@@ -767,13 +460,9 @@ private fun SmallPetCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Mini stat dots
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                StatDot(color = PetLunaOrange, value = currentHunger)
-                StatDot(color = PetDrakoCyan, value = currentHappiness)
-                StatDot(color = PetTitoGreen, value = currentEnergy)
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                StatDot(color = PetLunaOrange, value = pet.hungerLevel)
+                StatDot(color = PetDrakoCyan, value = pet.happinessLevel)
             }
         }
     }
@@ -782,10 +471,7 @@ private fun SmallPetCard(
 // ── Locked Pet Card ──
 
 @Composable
-private fun LockedPetCard(
-    pet: PetProfile,
-    childLevel: Int,
-) {
+private fun LockedPetCard(pet: PetCatalogDto) {
     Card(
         modifier = Modifier.width(150.dp),
         shape = MaterialTheme.shapes.large,
@@ -800,18 +486,13 @@ private fun LockedPetCard(
                 .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
+            Image(
+                painter = painterResource(petImage(pet.species)),
+                contentDescription = pet.name,
                 modifier = Modifier
                     .size(64.dp)
                     .alpha(0.5f),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(petImageResource(pet.id)),
-                    contentDescription = pet.name,
-                    modifier = Modifier.size(64.dp),
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -844,7 +525,7 @@ private fun LockedPetCard(
                         tint = glassTextColor(),
                     )
                     Text(
-                        text = "Nivel ${pet.unlockLevel}",
+                        text = "Nivel ${pet.minLevelRequired}",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = glassTextColor(),
@@ -855,61 +536,82 @@ private fun LockedPetCard(
     }
 }
 
-// ── Shared Components ──
+// ── Feed Dialog ──
 
+/** Lets the child pick which inventory item to give; the backend accepts any owned accessory. */
 @Composable
-private fun LevelBadge(level: Int) {
-    Box(
-        modifier = Modifier
-            .clip(MaterialTheme.shapes.extraSmall)
-            .background(glassCardColor()),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "Nv.$level",
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            color = glassTextColor(),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-        )
-    }
-}
-
-@Composable
-private fun XpProgressBar(
-    xp: Int,
-    xpToNextLevel: Int,
+private fun FeedDialog(
+    pet: StudentPetDto,
+    items: List<InventoryItemDto>,
+    onPick: (InventoryItemDto) -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = MaterialTheme.shapes.large,
+        containerColor = glassCardColor(),
+        title = {
             Text(
-                text = "XP",
-                style = MaterialTheme.typography.labelSmall,
-                color = glassTextSecondary(),
+                text = "¿Qué le das a ${pet.displayName}?",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = glassTextColor(),
             )
-            Text(
-                text = "$xp / $xpToNextLevel",
-                style = MaterialTheme.typography.labelSmall,
-                color = glassTextSecondary(),
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        LinearProgressIndicator(
-            progress = { xp.toFloat() / xpToNextLevel.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp),
-            color = XpBarStart,
-            // circadian-exempt: fixed subtle track groove behind the filled bar,
-            // same low-alpha white used for every progress track in the app.
-            trackColor = Color.White.copy(alpha = 0.2f),
-            strokeCap = StrokeCap.Round,
+        },
+        text = {
+            if (items.isEmpty()) {
+                Text(
+                    text = "No tienes comida ni juguetes. ¡Cómpralos en la Tienda!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = glassTextSecondary(),
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items.forEach { item -> FeedOption(item = item, onClick = { onPick(item) }) }
+                }
+            }
+        },
+        confirmButton = {
+            AlphaTextButton(text = "Cerrar", onClick = onDismiss)
+        },
+    )
+}
+
+@Composable
+private fun FeedOption(item: InventoryItemDto, onClick: () -> Unit) {
+    val accessory = item.accessory ?: return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.small)
+            .clickable(onClick = onClick)
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(accessoryIcon(accessory)),
+            contentDescription = null,
+            tint = glassTextColor(),
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = accessory.name,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = glassTextColor(),
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            text = "x${item.quantity}",
+            style = MaterialTheme.typography.labelLarge,
+            color = glassTextSecondary(),
         )
     }
 }
+
+// ── Shared Components ──
 
 @Composable
 private fun PetStatBar(
@@ -954,11 +656,13 @@ private fun PetActionButton(
     text: String,
     icon: DrawableResource,
     onClick: () -> Unit,
+    enabled: Boolean,
     containerColor: Color,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         shape = MaterialTheme.shapes.small,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
         colors = ButtonDefaults.buttonColors(
@@ -987,7 +691,7 @@ private fun PetActionButton(
 /**
  * A small coloured dot indicating a stat value (used in compact pet cards).
  *
- * @param color The stat colour (orange=hunger, cyan=happiness, green=energy).
+ * @param color The stat colour (orange = hunger, cyan = happiness).
  * @param value 0–100 stat value; the dot opacity scales with the value.
  */
 @Composable

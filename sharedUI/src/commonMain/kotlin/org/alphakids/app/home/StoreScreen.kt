@@ -1,5 +1,6 @@
 package org.alphakids.app.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,15 +19,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,18 +36,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import org.alphakids.app.parent.domain.model.GameProgressManager
-import androidx.compose.material3.Icon
+import alphakids_kmp.sharedui.generated.resources.Res
+import alphakids_kmp.sharedui.generated.resources.ic_check_circle
+import alphakids_kmp.sharedui.generated.resources.ic_close
+import alphakids_kmp.sharedui.generated.resources.ic_coin
+import alphakids_kmp.sharedui.generated.resources.ic_gift
+import alphakids_kmp.sharedui.generated.resources.ic_lock
+import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
 import org.alphakids.app.components.AlphaPrimaryButton
 import org.alphakids.app.components.AlphaTextButton
+import org.alphakids.app.data.remote.dto.AccessoryCatalogDto
+import org.alphakids.app.data.remote.dto.PetCatalogDto
+import org.alphakids.app.store.domain.model.PetAvailability
+import org.alphakids.app.store.domain.model.availability
+import org.alphakids.app.store.domain.model.canAfford
+import org.alphakids.app.store.domain.model.isFood
 import org.alphakids.app.theme.CoinGold
 import org.alphakids.app.theme.ErrorRed
 import org.alphakids.app.theme.SuccessGreen
@@ -56,13 +68,6 @@ import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import org.alphakids.app.theme.isNightTime
 import org.jetbrains.compose.resources.painterResource
-import alphakids_kmp.sharedui.generated.resources.Res
-import alphakids_kmp.sharedui.generated.resources.ic_shopping_cart
-import alphakids_kmp.sharedui.generated.resources.ic_close
-import alphakids_kmp.sharedui.generated.resources.ic_gift
-import alphakids_kmp.sharedui.generated.resources.ic_coin
-import alphakids_kmp.sharedui.generated.resources.ic_lock
-import alphakids_kmp.sharedui.generated.resources.ic_check_circle
 
 // ── Data Models ──
 
@@ -72,91 +77,76 @@ private enum class StoreCategory(val displayName: String) {
     Accesorios("Accesorios"),
 }
 
-/**
- * Represents a purchasable item in the Tienda.
- *
- * @param id Unique identifier.
- * @param name Display name.
- * @param emoji Placeholder image using emoji.
- * @param price Cost in coins.
- * @param category Which section the item belongs to.
- * @param requiredLevel Minimum child level to unlock; 0 = always available.
- */
-private data class StoreItem(
-    val id: String,
-    val name: String,
-    val emoji: String,
-    val price: Int,
-    val category: StoreCategory,
-    val requiredLevel: Int = 0,
-)
+/** A purchasable entry built from the backend catalogs. */
+private sealed interface StoreItem {
+    val key: String
+    val name: String
+    val price: Int
 
-// ── Mock Data ──
+    data class Pet(val catalog: PetCatalogDto, val availability: PetAvailability) : StoreItem {
+        override val key: String get() = "pet_${catalog.id}"
+        override val name: String get() = catalog.name
+        override val price: Int get() = catalog.coinPrice
+    }
 
-private val allItems = listOf(
-    // Mascotas
-    StoreItem("pet_dragon", "Dragón Bebé", "\uD83D\uDC09", price = 100, category = StoreCategory.Mascotas, requiredLevel = 3),
-    StoreItem("pet_cat", "Gato Mágico", "\uD83D\uDC31", price = 80, category = StoreCategory.Mascotas, requiredLevel = 2),
-    StoreItem("pet_owl", "Búho Sabio", "\uD83E\uDD89", price = 120, category = StoreCategory.Mascotas, requiredLevel = 4),
-    // Alimentos
-    StoreItem("food_cake", "Pastel de Luna", "\uD83E\uDDC1", price = 15, category = StoreCategory.Alimentos),
-    StoreItem("food_fish", "Pescado Brillante", "\uD83D\uDC1F", price = 10, category = StoreCategory.Alimentos),
-    StoreItem("food_fruit", "Fruta Estelar", "\uD83C\uDF4E", price = 20, category = StoreCategory.Alimentos),
-    // Accesorios
-    StoreItem("acc_hat", "Sombrero Aventurero", "\uD83C\uDFA9", price = 30, category = StoreCategory.Accesorios),
-    StoreItem("acc_scarf", "Bufanda Arcoíris", "\uD83E\uDDE3", price = 25, category = StoreCategory.Accesorios),
-    StoreItem("acc_crown", "Corona Real", "\uD83D\uDC51", price = 50, category = StoreCategory.Accesorios),
-)
+    /** Accessories stack, so they can be bought again; [owned] is the inventory quantity. */
+    data class Accessory(val accessory: AccessoryCatalogDto, val owned: Int) : StoreItem {
+        override val key: String get() = "acc_${accessory.id}"
+        override val name: String get() = accessory.name
+        override val price: Int get() = accessory.coinPrice
+    }
+}
+
+private fun PetsUiState.itemsFor(category: StoreCategory): List<StoreItem> = when (category) {
+    StoreCategory.Mascotas -> petCatalog.map { StoreItem.Pet(it, it.availability(childLevel, ownedCatalogIds)) }
+    StoreCategory.Alimentos, StoreCategory.Accesorios -> accessories
+        .filter { it.isFood == (category == StoreCategory.Alimentos) }
+        .map { accessory ->
+            val owned = inventory.filter { it.accessory?.id == accessory.id }.sumOf { it.quantity }
+            StoreItem.Accessory(accessory, owned)
+        }
+}
+
+private fun PetsUiState.ownedItems(): List<StoreItem> =
+    pets.mapNotNull { pet -> pet.petCatalog?.let { StoreItem.Pet(it, PetAvailability.Owned) } } +
+        usableInventory.mapNotNull { item -> item.accessory?.let { StoreItem.Accessory(it, item.quantity) } }
 
 // ── Public Composable ──
 
 /**
- * Full Tienda (Store) screen for Tab 3 of AdventureHome.
+ * Tienda (Store) sub-tab of Mascotas, backed by the real store API.
  *
- * Shows a coin header, category section tabs, and a grid of product
- * cards with purchase flow.
+ * Stateless: catalogs, inventory and the coin balance come from
+ * [PetsViewModel]. Buying only asks the backend; an item appears once the
+ * server confirms it, and the balance shown is always the server's.
  *
- * @param coins Current coin balance from the parent ViewModel.
- * @param onSpendCoins Called with the item price when a purchase is confirmed.
- * @param childLevel Current child level — items above this are locked.
+ * @param state Current Mascotas state.
+ * @param onBuyPet Called after the child confirms a pet purchase.
+ * @param onBuyAccessory Called after the child confirms an accessory purchase.
  * @param modifier Modifier for the root layout.
  */
 @Composable
 fun StoreScreen(
-    coins: Int,
-    onSpendCoins: (Int) -> Unit,
-    childLevel: Int = 1,
+    state: PetsUiState,
+    onBuyPet: (PetCatalogDto) -> Unit,
+    onBuyAccessory: (AccessoryCatalogDto) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Session-persistent inventory via GameProgressManager
-    var purchasedIds by remember { mutableStateOf(GameProgressManager.inventory) }
-    // Currently selected category section
     var selectedCategory by remember { mutableStateOf(StoreCategory.Mascotas) }
-    // Non-null when the purchase confirmation dialog is open
     var pendingPurchase by remember { mutableStateOf<StoreItem?>(null) }
-    // Toggle for inventory overlay
     var showInventory by remember { mutableStateOf(false) }
 
-    val filteredItems = allItems.filter { it.category == selectedCategory }
-
-    Column(
-        modifier = modifier
-            .circadianBackground()
-            .fillMaxSize(),
-    ) {
-        // ── Header: title + coins + inventory button ──
+    Column(modifier = modifier.fillMaxSize()) {
         StoreHeader(
-            coins = coins,
+            coins = state.coins,
             onInventoryClick = { showInventory = true },
         )
 
-        // ── Category tabs ──
         CategoryTabs(
             selectedCategory = selectedCategory,
             onCategorySelected = { selectedCategory = it },
         )
 
-        // ── Product grid ──
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier
@@ -167,42 +157,57 @@ fun StoreScreen(
             contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
         ) {
             items(
-                items = filteredItems,
-                key = { it.id },
+                items = state.itemsFor(selectedCategory),
+                key = { it.key },
             ) { item ->
                 ProductCard(
                     item = item,
-                    isPurchased = item.id in purchasedIds,
-                    currentCoins = coins,
-                    childLevel = childLevel,
+                    currentCoins = state.coins,
+                    enabled = !state.isBusy,
                     onBuy = { pendingPurchase = item },
                 )
             }
         }
     }
 
-    // ── Purchase confirmation dialog ──
     pendingPurchase?.let { item ->
         PurchaseConfirmationDialog(
             item = item,
-            currentCoins = coins,
+            currentCoins = state.coins,
             onConfirm = {
-                // Persist in session-scoped manager (survives tab switches)
-                GameProgressManager.addToInventory(item.id)
-                purchasedIds = GameProgressManager.inventory
-                onSpendCoins(item.price)
+                when (item) {
+                    is StoreItem.Pet -> onBuyPet(item.catalog)
+                    is StoreItem.Accessory -> onBuyAccessory(item.accessory)
+                }
                 pendingPurchase = null
             },
             onDismiss = { pendingPurchase = null },
         )
     }
 
-    // ── Inventory overlay ──
     if (showInventory) {
         InventoryOverlay(
-            purchasedIds = purchasedIds,
-            allItems = allItems,
+            ownedItems = state.ownedItems(),
             onClose = { showInventory = false },
+        )
+    }
+}
+
+// ── Item Artwork ──
+
+@Composable
+private fun StoreItemArt(item: StoreItem, size: Dp) {
+    when (item) {
+        is StoreItem.Pet -> Image(
+            painter = painterResource(petImage(item.catalog.species)),
+            contentDescription = item.name,
+            modifier = Modifier.size(size),
+        )
+        is StoreItem.Accessory -> Icon(
+            painter = painterResource(accessoryIcon(item.accessory)),
+            contentDescription = item.name,
+            tint = glassTextColor(),
+            modifier = Modifier.size(size * 0.6f),
         )
     }
 }
@@ -211,12 +216,9 @@ fun StoreScreen(
 
 @Composable
 private fun InventoryOverlay(
-    purchasedIds: Set<String>,
-    allItems: List<StoreItem>,
+    ownedItems: List<StoreItem>,
     onClose: () -> Unit,
 ) {
-    val purchasedItems = allItems.filter { it.id in purchasedIds }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -227,7 +229,6 @@ private fun InventoryOverlay(
                 .fillMaxSize()
                 .padding(16.dp),
         ) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -265,7 +266,7 @@ private fun InventoryOverlay(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (purchasedItems.isEmpty()) {
+            if (ownedItems.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -298,57 +299,60 @@ private fun InventoryOverlay(
                     contentPadding = PaddingValues(bottom = 16.dp),
                 ) {
                     items(
-                        items = purchasedItems,
-                        key = { it.id },
+                        items = ownedItems,
+                        key = { it.key },
                     ) { item ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = MaterialTheme.shapes.medium,
-                            colors = CardDefaults.cardColors(
-                                containerColor = glassCardColor(),
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                // circadian-exempt: a subtle fixed-tint highlight ring behind
-                                // the item glyph, not text — reads the same either cycle.
-                                Box(
-                                    modifier = Modifier
-                                        .size(56.dp)
-                                        .clip(MaterialTheme.shapes.small)
-                                        .background(Color.White.copy(alpha = 0.1f)),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = item.emoji,
-                                        style = MaterialTheme.typography.displaySmall,
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = item.name,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Center,
-                                    color = glassTextColor(),
-                                )
-                                Text(
-                                    text = item.category.displayName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = glassTextSecondary(),
-                                )
-                            }
-                        }
+                        InventoryCard(item)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun InventoryCard(item: StoreItem) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = glassCardColor()),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // circadian-exempt: a subtle fixed-tint highlight ring behind
+            // the item art, not text — reads the same either cycle.
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(Color.White.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                StoreItemArt(item, size = 48.dp)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = item.name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                color = glassTextColor(),
+            )
+            Text(
+                text = when (item) {
+                    is StoreItem.Pet -> "Mascota"
+                    is StoreItem.Accessory -> "x${item.owned}"
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = glassTextSecondary(),
+            )
         }
     }
 }
@@ -475,14 +479,14 @@ private fun CategoryTabs(
 @Composable
 private fun ProductCard(
     item: StoreItem,
-    isPurchased: Boolean,
     currentCoins: Int,
-    childLevel: Int,
+    enabled: Boolean,
     onBuy: () -> Unit,
 ) {
-    val isLocked = item.requiredLevel > childLevel
-    val hasInsufficientCoins = !isPurchased && !isLocked && currentCoins < item.price
-    val isNight = isNightTime()
+    val availability = (item as? StoreItem.Pet)?.availability
+    val isPurchased = availability == PetAvailability.Owned
+    val isLocked = availability == PetAvailability.Locked
+    val hasInsufficientCoins = !isPurchased && !isLocked && !canAfford(currentCoins, item.price)
 
     Card(
         modifier = Modifier.fillMaxWidth().height(200.dp),
@@ -503,7 +507,7 @@ private fun ProductCard(
             verticalArrangement = Arrangement.Center,
         ) {
             // circadian-exempt: a subtle fixed-tint highlight ring behind
-            // the item glyph, not text — reads the same either cycle.
+            // the item art, not text — reads the same either cycle.
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -522,10 +526,7 @@ private fun ProductCard(
                         modifier = Modifier.size(28.dp),
                     )
                 } else {
-                    Text(
-                        text = item.emoji,
-                        style = MaterialTheme.typography.displaySmall,
-                    )
+                    StoreItemArt(item, size = 56.dp)
                 }
             }
 
@@ -541,6 +542,14 @@ private fun ProductCard(
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
+
+            if (item is StoreItem.Accessory && item.owned > 0) {
+                Text(
+                    text = "Tienes ${item.owned}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = glassTextSecondary(),
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -562,9 +571,9 @@ private fun ProductCard(
                         )
                     }
                 }
-                isLocked -> {
+                item is StoreItem.Pet && isLocked -> {
                     Text(
-                        text = "Nivel ${item.requiredLevel} requerido",
+                        text = "Nivel ${item.catalog.minLevelRequired} requerido",
                         style = MaterialTheme.typography.bodyMedium,
                         color = glassTextSecondary(),
                         textAlign = TextAlign.Center,
@@ -599,6 +608,7 @@ private fun ProductCard(
                     } else {
                         Button(
                             onClick = onBuy,
+                            enabled = enabled,
                             shape = MaterialTheme.shapes.small,
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -631,6 +641,7 @@ private fun PurchaseConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    // Preview only: the backend charges and reports the real balance.
     val remainingCoins = currentCoins - item.price
 
     AlertDialog(
@@ -642,10 +653,7 @@ private fun PurchaseConfirmationDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = item.emoji,
-                    style = MaterialTheme.typography.displayMedium,
-                )
+                StoreItemArt(item, size = 72.dp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = item.name,
@@ -668,7 +676,7 @@ private fun PurchaseConfirmationDialog(
         },
         confirmButton = {
             AlphaPrimaryButton(
-                text = "\u00A1Comprar!",
+                text = "¡Comprar!",
                 onClick = onConfirm,
             )
         },

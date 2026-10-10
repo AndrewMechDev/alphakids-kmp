@@ -63,15 +63,7 @@ class AchievementsViewModel(
 
         // No child selected → show session data
         if (childId == null) {
-            val fallback = fallbackAchievementData(
-                ocrCount = AchievementAnalytics.ocrSessionCount(),
-                spellCount = AchievementAnalytics.spellSessionCount(),
-                historyEntries = AchievementAnalytics.getRecentHistory(),
-                coins = GameProgressManager.coinsBalance,
-                stars = GameProgressManager.totalStarsEarned,
-                wordsCompleted = GameProgressManager.wordsCompleted,
-            )
-            _uiState.update { AchievementsUiState.Success(fallback) }
+            _uiState.update { AchievementsUiState.Success(fallbackData(childId = null)) }
             return
         }
 
@@ -97,6 +89,7 @@ class AchievementsViewModel(
 
                 // 2. Build from real data if available, otherwise fallback
                 val achievementData = if (achievements != null && achievements.progress != null) {
+                    GameProgressManager.applyServerProgress(achievements.progress)
                     achievements.toAchievementData(
                         ocrCount = ocrCount,
                         spellCount = spellCount,
@@ -104,32 +97,33 @@ class AchievementsViewModel(
                         dictionaryWordCount = dictWordCount,
                     )
                 } else {
-                    // Offline / API unavailable → use session data
-                    fallbackAchievementData(
-                        ocrCount = ocrCount,
-                        spellCount = spellCount,
-                        historyEntries = recentHistory,
-                        coins = GameProgressManager.coinsBalance,
-                        stars = GameProgressManager.totalStarsEarned,
-                        wordsCompleted = GameProgressManager.wordsCompleted,
-                    )
+                    // Offline / API unavailable → last progress the backend reported
+                    fallbackData(childId)
                 }
 
                 _uiState.update { AchievementsUiState.Success(achievementData) }
 
             } catch (e: Exception) {
                 // Last resort: show fallback instead of error
-                val fallback = fallbackAchievementData(
-                    ocrCount = AchievementAnalytics.ocrSessionCount(),
-                    spellCount = AchievementAnalytics.spellSessionCount(),
-                    historyEntries = AchievementAnalytics.getRecentHistory(),
-                    coins = GameProgressManager.coinsBalance,
-                    stars = GameProgressManager.totalStarsEarned,
-                    wordsCompleted = GameProgressManager.wordsCompleted,
-                )
-                _uiState.update { AchievementsUiState.Success(fallback) }
+                _uiState.update { AchievementsUiState.Success(fallbackData(childId)) }
             }
         }
+    }
+
+    /**
+     * Local analytics plus the last progress the backend reported for
+     * [childId] (zeros if none was received yet) — never locally counted coins.
+     */
+    private fun fallbackData(childId: String?): AchievementData {
+        val economy = childId?.let(GameProgressManager::economyFor)
+        return fallbackAchievementData(
+            ocrCount = AchievementAnalytics.ocrSessionCount(),
+            spellCount = AchievementAnalytics.spellSessionCount(),
+            historyEntries = AchievementAnalytics.getRecentHistory(),
+            coins = economy?.coinsBalance ?: 0,
+            stars = economy?.totalStars ?: 0,
+            wordsCompleted = economy?.wordsCompleted ?: 0,
+        )
     }
 
     /** Retry loading with the cached child ID. */
