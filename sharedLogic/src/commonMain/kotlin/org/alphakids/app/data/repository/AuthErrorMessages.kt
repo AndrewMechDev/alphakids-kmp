@@ -1,8 +1,7 @@
 package org.alphakids.app.data.repository
 
-import io.ktor.client.network.sockets.ConnectTimeoutException
-import io.ktor.client.network.sockets.SocketTimeoutException
-import io.ktor.client.plugins.HttpRequestTimeoutException
+import org.alphakids.app.data.remote.isTimeout
+import org.alphakids.app.domain.error.DataErrorMessages
 
 /** Which credential call failed — the same status means different things. */
 internal enum class AuthOperation { LOGIN, REGISTER }
@@ -14,6 +13,7 @@ internal enum class AuthOperation { LOGIN, REGISTER }
  * not meant for parents: login failures say "Invalid credentials", schema
  * failures say "Validation failed", and exception text is technical. Only the
  * meaning is taken from the response; the wording shown is always ours.
+ * Connection and server texts are the shared [DataErrorMessages].
  */
 internal object AuthErrorMessages {
     const val INVALID_CREDENTIALS = "Correo o contraseña incorrectos."
@@ -21,10 +21,10 @@ internal object AuthErrorMessages {
     const val INVALID_REGISTRATION =
         "Revisa tus datos: el correo debe ser válido y la contraseña tener al menos 8 caracteres."
     const val TOO_MANY_ATTEMPTS = "Demasiados intentos. Espera un momento y vuelve a intentarlo."
-    const val SERVER_UNAVAILABLE = "El servicio no está disponible en este momento. Inténtalo más tarde."
-    const val TIMEOUT = "El servidor tardó demasiado en responder. Inténtalo de nuevo."
-    const val NO_CONNECTION = "No pudimos conectarnos. Revisa tu conexión a internet e inténtalo de nuevo."
-    const val UNEXPECTED = "Ocurrió un error inesperado. Inténtalo de nuevo."
+    const val SERVER_UNAVAILABLE = DataErrorMessages.SERVER_UNAVAILABLE
+    const val TIMEOUT = DataErrorMessages.TIMEOUT
+    const val NO_CONNECTION = DataErrorMessages.NO_CONNECTION
+    const val UNEXPECTED = DataErrorMessages.UNEXPECTED
 
     /** Backend text for a duplicate email (AuthService.register). */
     private const val BACKEND_EMAIL_TAKEN = "ya está registrado"
@@ -40,10 +40,7 @@ internal object AuthErrorMessages {
     }
 
     /** Message for a call that never produced an HTTP response. */
-    fun forFailure(cause: Throwable): String = when (cause) {
-        is HttpRequestTimeoutException, is ConnectTimeoutException, is SocketTimeoutException -> TIMEOUT
-        else -> NO_CONNECTION
-    }
+    fun forFailure(cause: Throwable): String = if (cause.isTimeout()) TIMEOUT else NO_CONNECTION
 
     private fun isEmailTaken(status: Int, backendMessage: String?): Boolean =
         status == 409 || (status == 400 && backendMessage?.contains(BACKEND_EMAIL_TAKEN) == true)

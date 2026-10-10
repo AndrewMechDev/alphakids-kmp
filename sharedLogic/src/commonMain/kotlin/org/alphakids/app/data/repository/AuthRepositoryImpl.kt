@@ -3,11 +3,11 @@ package org.alphakids.app.data.repository
 import io.ktor.client.call.*
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.*
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
 import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
 import org.alphakids.app.data.remote.TokenStorage
+import org.alphakids.app.data.remote.backendMessage
 import org.alphakids.app.data.remote.dto.*
 import org.alphakids.app.data.remote.withoutBearerAuth
 import org.alphakids.app.onboarding.domain.model.AuthResponse
@@ -130,15 +130,6 @@ class AuthRepositoryImpl(
 
     private fun failure(email: String, message: String) =
         AuthResponse(success = false, message = message, email = email)
-
-    /** The `message` of the backend's `{statusCode, message}` error body, if readable. */
-    private suspend fun HttpResponse.backendMessage(): String? = try {
-        body<ApiErrorDto>().message
-    } catch (e: CancellationException) {
-        throw e
-    } catch (_: Exception) {
-        null
-    }
 
     private companion object {
         /** Logout must not keep the user waiting on a slow revocation. */
