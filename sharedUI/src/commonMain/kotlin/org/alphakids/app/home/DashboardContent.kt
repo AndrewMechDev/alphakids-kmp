@@ -163,6 +163,16 @@ fun DashboardContent(
             color = glassTextColor(),
         )
 
+        // Part of the dashboard failed to load: say so instead of letting
+        // missing words or a missing pet read as "nothing yet".
+        state.error?.let { message ->
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+
         // Alphi mascot — directly on background, bigger
         Box(
             modifier = Modifier.fillMaxWidth(),

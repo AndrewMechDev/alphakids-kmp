@@ -96,9 +96,9 @@ class PetsViewModel(
             val petCatalog = async { storeRepository.getPetsCatalog(studentId) }
             val accessories = async { storeRepository.getAccessoriesCatalog(studentId) }
             val inventory = async { storeRepository.getInventory(studentId) }
-            val progress = async { gameRepository.getAchievements(studentId)?.progress }
+            val progress = async { gameRepository.getAchievements(studentId) }
 
-            val serverProgress = progress.await()?.also(::applyProgress)
+            val serverProgress = progress.await().getOrNull()?.progress?.also(::applyProgress)
             val loaded = listOf(pets.await(), petCatalog.await(), accessories.await(), inventory.await())
             if (loaded.any { it == null } || serverProgress == null) {
                 _state.update { it.copy(isLoading = false, loadFailed = true) }
@@ -189,7 +189,7 @@ class PetsViewModel(
     }
 
     private suspend fun refreshEconomy(): Boolean {
-        val progress = gameRepository.getAchievements(studentId)?.progress ?: return false
+        val progress = gameRepository.getAchievements(studentId).getOrNull()?.progress ?: return false
         applyProgress(progress)
         return true
     }

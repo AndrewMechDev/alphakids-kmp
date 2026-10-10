@@ -48,6 +48,7 @@ import org.alphakids.app.data.remote.dto.WordDto
 import org.alphakids.app.game.domain.model.GameWord
 import org.alphakids.app.game.domain.model.newGameAttemptId
 import org.alphakids.app.game.domain.model.ScanText
+import org.alphakids.app.domain.error.errorMessage
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -57,7 +58,6 @@ import org.alphakids.app.theme.SuccessGreen
 import org.alphakids.app.theme.circadianBackground
 import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
-import kotlin.coroutines.cancellation.CancellationException
 
 private val cardGradients = listOf(
     AlphaGradients.Nature,
@@ -80,26 +80,19 @@ fun WordSelectionScreen(
     var flow by remember { mutableStateOf("") }
 
     LaunchedEffect(childId) {
-        try {
-            val id = childId
-            if (id != null && id.isNotBlank()) {
-                val result = gameRepo.getPlayableWords(id)
-                if (result != null) {
-                    words = result.words
-                    flow = result.flow
-                } else {
-                    error = "No se pudieron cargar las palabras. ¿Tienes conexión a internet?"
+        val id = childId
+        if (id.isNullOrBlank()) {
+            error = "No hay un niño activo. Selecciona un perfil primero."
+        } else {
+            val result = gameRepo.getPlayableWords(id)
+            result
+                .onSuccess {
+                    words = it.words
+                    flow = it.flow
                 }
-            } else {
-                error = "No hay un niño activo. Selecciona un perfil primero."
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            error = "No pudimos cargar las palabras. Inténtalo de nuevo."
-        } finally {
-            isLoading = false
+                .onFailure { error = result.errorMessage }
         }
+        isLoading = false
     }
 
     Box(

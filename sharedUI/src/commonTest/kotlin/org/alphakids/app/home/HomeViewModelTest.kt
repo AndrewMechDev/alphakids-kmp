@@ -7,6 +7,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.DataErrorMessages
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.parent.data.mock.MockParentRepository
 import org.alphakids.app.parent.domain.model.ChildSummary
 import org.alphakids.app.parent.domain.model.GameProgressManager
@@ -83,5 +87,25 @@ class HomeViewModelTest {
         GameProgressManager.applyServerProgress(progress(coins = 999, studentId = "stu_2"))
 
         assertEquals(40, vm.state.value.coins)
+    }
+
+    @Test
+    fun an_empty_word_list_is_not_an_error() {
+        game.playableWords = Result.success(PlayableWordsResponseDto(flow = "CATALOG", words = emptyList()))
+
+        val state = viewModel().state.value
+
+        assertEquals(0, state.wordsPending)
+        assertNull(state.error)
+    }
+
+    @Test
+    fun a_failed_word_list_is_reported_instead_of_reading_as_no_words() {
+        game.playableWords = dataFailure(DataError.Network)
+
+        val state = viewModel().state.value
+
+        assertEquals(0, state.wordsPending)
+        assertEquals(DataErrorMessages.NO_CONNECTION, state.error)
     }
 }

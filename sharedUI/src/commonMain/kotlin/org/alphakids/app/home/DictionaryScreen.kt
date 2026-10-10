@@ -35,6 +35,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import org.alphakids.app.components.AlphaBackIcon
+import org.alphakids.app.components.AlphaInlineLoading
+import org.alphakids.app.components.EmptyStateView
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -66,10 +68,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import org.alphakids.app.audio.AudioService
 import org.alphakids.app.audio.LocalAudioService
+import org.alphakids.app.data.remote.dto.DictionaryResponseDto
+import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
+import org.alphakids.app.domain.error.firstErrorMessage
 import org.alphakids.app.domain.model.DictionaryWord
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
@@ -128,6 +135,51 @@ private fun difficultyColor(difficulty: String): Color = when (difficulty) {
     else -> Color.Gray
 }
 
+/**
+ * Playable words (not learned yet) plus the learned dictionary words, one
+ * entry per word, sorted alphabetically.
+ */
+private fun dictionaryWords(
+    playable: PlayableWordsResponseDto,
+    dictionary: DictionaryResponseDto,
+): List<DictionaryWord> {
+    // "ASSIGNED" means these came from a teacher's pending WordAssignment;
+    // "CATALOG" is the generic fallback shown when nothing is assigned.
+    val playableCategory = if (playable.flow == "ASSIGNED") "Asignada" else "Catálogo"
+    val playableWords = playable.words.map { dto ->
+        DictionaryWord(
+            word = dto.text,
+            imageName = "",
+            imageUrl = dto.imageUrl ?: "",
+            audioUrl = dto.audioUrl ?: "",
+            category = playableCategory,
+            difficulty = dto.difficultyLabel.ifBlank { "INICIAL" },
+            stars = 0,
+            learned = false,
+        )
+    }
+    val learnedWords = dictionary.dictionary.flatMap { (_, words) ->
+        words.map { dto ->
+            DictionaryWord(
+                word = dto.text,
+                imageName = "",
+                imageUrl = dto.imageUrl ?: "",
+                audioUrl = dto.audioUrl ?: "",
+                // The dictionary endpoint doesn't say whether a learned word
+                // originally came from a teacher assignment, so it can't be
+                // reliably tagged "Asignada" here — defaults to "Catálogo".
+                category = "Catálogo",
+                difficulty = dto.difficultyLabel.ifBlank { "INICIAL" },
+                stars = 0,
+                learned = true,
+            )
+        }
+    }
+    return (playableWords + learnedWords)
+        .distinctBy { it.word.uppercase() }
+        .sortedBy { it.word.uppercase() }
+}
+
 // ── Filter chip definitions ──
 
 private data class FilterChipOption(val label: String, val index: Int)
@@ -159,54 +211,29 @@ fun DictionaryScreen(
 
     var fetchedWords by remember { mutableStateOf<List<DictionaryWord>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var loadError by remember { mutableStateOf<String?>(null) }
+    var loadAttempt by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(childId) {
-        try {
-            if (childId != null) {
-                val playableResult = gameRepo.getPlayableWords(childId)
-                // "ASSIGNED" means these came from a teacher's pending WordAssignment;
-                // "CATALOG" is the generic fallback shown when nothing is assigned.
-                val playableCategory = if (playableResult?.flow == "ASSIGNED") "Asignada" else "Catálogo"
-                val playableWords = playableResult?.words?.map { dto ->
-                    DictionaryWord(
-                        word = dto.text,
-                        imageName = "",
-                        imageUrl = dto.imageUrl ?: "",
-                        audioUrl = dto.audioUrl ?: "",
-                        category = playableCategory,
-                        difficulty = dto.difficultyLabel.ifBlank { "INICIAL" },
-                        stars = 0,
-                        learned = false,
-                    )
-                } ?: emptyList()
-
-                val dictResult = gameRepo.getDictionary(childId)
-                val dictWords = dictResult?.dictionary?.flatMap { (_, words) ->
-                    words.map { dto ->
-                        DictionaryWord(
-                            word = dto.text,
-                            imageName = "",
-                            imageUrl = dto.imageUrl ?: "",
-                            audioUrl = dto.audioUrl ?: "",
-                            // The dictionary endpoint doesn't say whether a learned word
-                            // originally came from a teacher assignment, so it can't be
-                            // reliably tagged "Asignada" here — defaults to "Catálogo".
-                            category = "Catálogo",
-                            difficulty = dto.difficultyLabel.ifBlank { "INICIAL" },
-                            stars = 0,
-                            learned = true,
-                        )
-                    }
-                } ?: emptyList()
-
-                val allWords = (playableWords + dictWords)
-                    .distinctBy { it.word.uppercase() }
-                    .sortedBy { it.word.uppercase() }
-                fetchedWords = allWords
-            }
-        } finally {
+    LaunchedEffect(childId, loadAttempt) {
+        if (childId == null) {
             isLoading = false
+            return@LaunchedEffect
         }
+        isLoading = true
+        loadError = null
+        // Both requests are independent.
+        val (playable, dictionary) = coroutineScope {
+            val playable = async { gameRepo.getPlayableWords(childId) }
+            val dictionary = async { gameRepo.getDictionary(childId) }
+            playable.await() to dictionary.await()
+        }
+        val failure = firstErrorMessage(listOf(playable, dictionary))
+        if (failure != null) {
+            loadError = failure
+        } else {
+            fetchedWords = dictionaryWords(playable.getOrThrow(), dictionary.getOrThrow())
+        }
+        isLoading = false
     }
 
     var searchQuery by remember { mutableStateOf("") }
@@ -316,7 +343,21 @@ fun DictionaryScreen(
 
             // Word grid
             val isEmpty = filteredWords.isEmpty()
-            if (isEmpty) {
+            if (isLoading) {
+                AlphaInlineLoading(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    message = "Cargando diccionario...",
+                )
+            } else if (loadError != null) {
+                // A failed request is not an empty dictionary.
+                EmptyStateView(
+                    title = "No pudimos cargar el diccionario",
+                    subtitle = loadError.orEmpty(),
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    actionText = "Reintentar",
+                    onAction = { loadAttempt++ },
+                )
+            } else if (isEmpty) {
                 if (childId == null) {
                     EmptyState(
                         modifier = Modifier.weight(1f).fillMaxWidth(),

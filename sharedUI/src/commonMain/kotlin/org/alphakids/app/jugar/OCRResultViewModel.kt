@@ -100,8 +100,8 @@ class OCRResultViewModel(
                     ),
                 ),
             )
-            result?.progress?.let(GameProgressManager::applyServerProgress)
-            finish(if (result != null) ProgressSync.SAVED else ProgressSync.NOT_SAVED)
+            result.getOrNull()?.progress?.let(GameProgressManager::applyServerProgress)
+            finish(if (result.isSuccess) ProgressSync.SAVED else ProgressSync.NOT_SAVED)
         }
     }
 

@@ -11,6 +11,8 @@ import org.alphakids.app.data.remote.dto.PetCatalogDto
 import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
 import org.alphakids.app.data.remote.dto.StudentPetDto
 import org.alphakids.app.data.remote.dto.StudentProgressDto
+import org.alphakids.app.domain.error.DataError
+import org.alphakids.app.domain.error.dataFailure
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.store.domain.model.PurchaseResult
 import org.alphakids.app.store.domain.repository.StoreRepository
@@ -37,14 +39,22 @@ fun ownedPet(hunger: Int = 40) = StudentPetDto(
     customName = "Michi", hungerLevel = hunger, happinessLevel = 50,
 )
 
-/** Backend stand-in whose progress the tests change to simulate server-side effects. */
-class FakeGameRepository(var progress: StudentProgressDto? = progress(coins = 0)) : GameRepository {
-    override suspend fun getPlayableWords(studentId: String): PlayableWordsResponseDto? =
-        PlayableWordsResponseDto(flow = "CATALOG")
-    override suspend fun getDictionary(studentId: String): DictionaryResponseDto? = null
-    override suspend fun getAchievements(studentId: String): AchievementsResponseDto? =
-        progress?.let { AchievementsResponseDto(progress = it) }
-    override suspend fun completeSession(request: GameSessionCompleteRequestDto): GameSessionResultDto? = null
+/**
+ * Backend stand-in whose progress the tests change to simulate server-side
+ * effects. A null [progress] means GET /achievements fails with [progressError].
+ */
+class FakeGameRepository(
+    var progress: StudentProgressDto? = progress(coins = 0),
+    var progressError: DataError = DataError.Network,
+    var playableWords: Result<PlayableWordsResponseDto> = Result.success(PlayableWordsResponseDto(flow = "CATALOG")),
+) : GameRepository {
+    override suspend fun getPlayableWords(studentId: String) = playableWords
+    override suspend fun getDictionary(studentId: String): Result<DictionaryResponseDto> =
+        Result.success(DictionaryResponseDto())
+    override suspend fun getAchievements(studentId: String): Result<AchievementsResponseDto> =
+        progress?.let { Result.success(AchievementsResponseDto(progress = it)) } ?: dataFailure(progressError)
+    override suspend fun completeSession(request: GameSessionCompleteRequestDto): Result<GameSessionResultDto> =
+        dataFailure(DataError.Unknown)
 }
 
 class FakeStoreRepository(

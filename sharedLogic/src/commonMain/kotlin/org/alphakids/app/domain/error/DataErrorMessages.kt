@@ -34,3 +34,7 @@ val DataError.userMessage: String
 /** The message to show for a failed result; [DataErrorMessages.UNEXPECTED] if it did not fail. */
 val Result<*>.errorMessage: String
     get() = dataError?.userMessage ?: DataErrorMessages.UNEXPECTED
+
+/** The message of the first failed result, or null when every result succeeded. */
+fun firstErrorMessage(results: List<Result<*>>): String? =
+    results.firstOrNull { it.isFailure }?.errorMessage
