@@ -42,7 +42,7 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 - [x] T4 `fix/game-flow-state`: H9 (word lost on process death), M1 (rewards granted twice), M9 (spaces in words), L2 (unencoded route args), L3 (repeat flow, time = 0), M11 (tests for rewards and OCR vote).
 - [x] T5 `fix/viewmodel-lifecycle`: M2 (ViewModels via remember{}, leaked scope), M6 (sequential network calls).
 - [x] T6 `perf/ocr-pipeline`: M4 (recognizer never closed, no throttling, per-frame recomposition).
-- [ ] T7 `fix/auth-session-isolation`: H1 (Ktor bearer cache), H2 (singletons not reset), M5 (logout cancelled), L1 (fake OTP), L4 (raw e.message shown), M11 (auth refresh tests with MockEngine).
+- [x] T7 `fix/auth-session-isolation`: H1 (Ktor bearer cache), H2 (singletons not reset), M5 (logout cancelled), L1 (fake OTP), L4 (raw e.message shown), M11 (auth refresh tests with MockEngine).
 - [ ] T8 `fix/manifest-permissions-backup`: H5 (unused sensitive permissions), H6 (wrong tools namespace), H7 (allowBackup with plain tokens).
 - [ ] T9 `fix/repository-errors`: M3 (swallowed exceptions incl. CancellationException), M12 (duplicate repo methods).
 - [ ] T10 `chore/release-hygiene`: L5 (dead code), L6 (emoji in UI), L7 (versionCode, pre-release deps).
@@ -75,6 +75,7 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 ## iOS debt (out of scope)
 
 - T3 changed `StoreRepository`, `StudentPetRepository` and `GameProgressManager`; `iosApp` Swift bridges (`StoreRepository+Async.swift`, `StudentPetRepository+Async.swift`) and `PetsScreen.swift`, `StoreScreen.swift`, `AchievementsScreen.swift`, `OCRResultScreen.swift` must be updated before iOS builds again.
+- T7 removed OTP APIs used by `RegisterViewModel.swift`, `RegisterScreen.swift`, `AuthRepository+Async.swift`.
 
 ## Progress
 
@@ -85,8 +86,11 @@ Defect IDs reference the audit (C = critical, H = high, M = medium, L = low).
 | T2 | delegated (same writer) | 49a0a02, f68aea5; merge 5a45892 | assembleDebug + allTests green (re-run by parent on develop) | medium, under budget |
 | T3 | delegated (multi-file writer trigger) | 340f82c, 536d9f7, a5f4ca0; merge 59fa3a1 | MockEngine contract tests RED on old routes then GREEN; assembleDebug + allTests green (re-run by parent) | medium, slice budget reached; consent granted, reviewer unavailable (provider auth disabled for org), lineage abandoned by user decision |
 | T4 | delegated (multi-file writer trigger) | 9bd28c0, 6e4ba94, 3cdf880, 909fb9c; merge 76b9c5e | RED on space normalization and route encoding, then GREEN; assembleDebug + allTests green (146 tests; re-run by parent) | medium, slice budget reached; consent declined by user |
+| T7 | delegated (multi-file writer trigger) | 1afb47b, 9cd300e, aed5148, 817e040, a2a96aa; merge 2b7e954 | H1 regression, session and error tests RED then GREEN; assembleDebug + allTests green with --rerun-tasks (184 tests) | medium, slice budget reached; consent declined by user |
 | T6 | delegated (multi-file writer trigger) | a94a0d7, 8b088a6, 94855d6; merge 394c187 | gate/stats/session tests RED (missing types) then GREEN; assembleDebug + allTests green (171 tests) | medium, slice budget reached; consent declined by user |
 | T5 | delegated (multi-file writer trigger) | 082be66, 56e3a90, 0209afa; merge 60c1c4e | concurrency tests RED (200/400/200 ms) then GREEN (100/200/100 ms); assembleDebug + allTests green (152 tests) | medium, slice budget reached; consent declined by user |
+
+Notes: T7 removed the fake OTP step (Register -> Setup Wizard), single `LogoutUseCase` (NonCancellable) for all logout buttons, bearer cache invalidated on token change, register password min 8 (backend). iOS debt: `RegisterViewModel.swift`, `RegisterScreen.swift`, `AuthRepository+Async.swift` use removed OTP APIs. Not device-tested.
 
 Notes: T6 pipeline constants live in `OcrPipelineConfig` (1280x720 keep-only-latest, MIN_ANALYSIS_INTERVAL 200 ms, STATS_WINDOW 30); the Flutter replica must use the same values. Recognizer owned by `OcrPipeline` ViewModel (survives rotation, closed in onCleared). Perfetto: `ocr.recognize` section, `ocr.frames.analyzed/skipped` counters. Not device-tested.
 
@@ -100,4 +104,4 @@ Notes: T1 keeps sounds playing across screen changes on purpose (Dashboard plays
 
 ## Next step
 
-T7.
+T8.
