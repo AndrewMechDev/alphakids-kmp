@@ -57,10 +57,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.TimeSource
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
+import org.alphakids.app.game.domain.model.ScanStabilityVote
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.LocalAudioService
@@ -77,21 +76,6 @@ import org.alphakids.app.theme.glassTextColor
 import org.alphakids.app.theme.glassTextSecondary
 import coil3.compose.AsyncImage
 import org.alphakids.app.theme.circadianBackground
-
-/** Minimum time between two validated scan attempts, so a single framing of
- * the word doesn't get processed dozens of times per second. */
-private val SCAN_COOLDOWN = 800.milliseconds
-
-/**
- * How many consecutive camera frames must produce the exact same cleaned
- * text before it's accepted as a result. ML Kit's recognizer applies its own
- * language-model correction to the whole line, so one frame with a rotated
- * or partially-occluded letter can make it "read" an entirely different
- * word — not just mis-read one character. Requiring agreement across
- * several frames filters out that single-frame noise before it ever reaches
- * the letter slots.
- */
-private const val STABILITY_FRAMES = 3
 
 /** How long the success celebration / mismatch message stays on screen
  * before the flow continues on its own — no button to tap either way, so
@@ -115,13 +99,10 @@ fun WordScannerChallenge(
     var attempts by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<OcrResult?>(null) }
     var showResult by remember { mutableStateOf(false) }
-    var lastAttemptMark by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
 
-    // Frame-stability voting state — see STABILITY_FRAMES. pendingCandidate/
-    // pendingCount track how many consecutive frames agree on the same
-    // cleaned text; only an agreeing streak gets locked in as a result.
-    var pendingCandidate by remember { mutableStateOf("") }
-    var pendingCount by remember { mutableStateOf(0) }
+    // Frame-stability voting (see ScanStabilityVote): only a streak of
+    // identical frames gets locked in as a result.
+    val vote = remember(letters.size) { ScanStabilityVote(targetLength = letters.size) }
 
     val audioService = LocalAudioService.current
 
@@ -137,9 +118,7 @@ fun WordScannerChallenge(
     fun resetScan() {
         showResult = false
         result = null
-        lastAttemptMark = null
-        pendingCandidate = ""
-        pendingCount = 0
+        vote.reset()
         letterSlots.forEachIndexed { index, _ -> letterSlots[index] = "" }
     }
 
@@ -177,33 +156,20 @@ fun WordScannerChallenge(
     // just mis-read one character. The slots always mirror the current raw
     // candidate (so what's shown is always what the camera is actually
     // seeing), but a result is only locked in once the SAME cleaned text
-    // repeats for STABILITY_FRAMES frames in a row.
+    // repeats for ScanStabilityVote.STABILITY_FRAMES frames in a row.
     val onTextDetected: (String) -> Unit = { raw ->
         if (!showResult) {
-            val cleaned = raw.filter { ch -> ch.isLetter() }.uppercase()
+            val outcome = vote.onFrame(raw)
 
-            if (cleaned == pendingCandidate) {
-                pendingCount++
-            } else {
-                pendingCandidate = cleaned
-                pendingCount = 1
-            }
-
-            val liveChars = cleaned.take(letterSlots.size)
+            val liveChars = outcome.liveLetters
             for (i in letterSlots.indices) {
                 letterSlots[i] = liveChars.getOrNull(i)?.toString() ?: ""
             }
 
-            val mark = lastAttemptMark
-            val cooledDown = mark == null || mark.elapsedNow() > SCAN_COOLDOWN
-            val isStable = pendingCount >= STABILITY_FRAMES
-            val isComplete = cleaned.length >= letters.size
-
-            if (isStable && isComplete && cooledDown) {
-                lastAttemptMark = TimeSource.Monotonic.markNow()
+            val fullWord = outcome.lockedIn
+            if (fullWord != null) {
                 attempts++
 
-                val fullWord = cleaned.take(letters.size)
                 val isMatch = WordBank.validateWord(fullWord, word.word)
                 result = OcrResult(success = isMatch, detectedText = fullWord)
                 showResult = true

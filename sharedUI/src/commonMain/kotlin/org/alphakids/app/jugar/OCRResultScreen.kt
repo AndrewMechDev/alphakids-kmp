@@ -48,6 +48,7 @@ import org.alphakids.app.data.remote.dto.GameSessionCompleteRequestDto
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.game.domain.model.GameSessionState
+import org.alphakids.app.game.domain.model.rewardsForAttempts
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -87,7 +88,7 @@ fun OCRResultScreen(
     attempts: Int,
     timeSpent: Long,
 ) {
-    val rewards = calculateRewards(attempts)
+    val rewards = rewardsForAttempts(attempts)
     val audioService = LocalAudioService.current
 
     // Play celebration sound on screen launch
@@ -477,24 +478,4 @@ private fun StatItem(
             color = glassTextSecondary(),
         )
     }
-}
-
-/**
- * Calculates rewards based on number of attempts.
- *
- * - **1 attempt**: 100 coins, 3 stars
- * - **2 attempts**: 75 coins, 2 stars
- * - **3-4 attempts**: 50 coins, 1 star
- * - **5+ attempts**: 25 coins, 1 star
- */
-private data class Rewards(
-    val coins: Int,
-    val stars: Int,
-)
-
-private fun calculateRewards(attempts: Int): Rewards = when {
-    attempts <= 1 -> Rewards(coins = 100, stars = 3)
-    attempts == 2 -> Rewards(coins = 75, stars = 2)
-    attempts <= 4 -> Rewards(coins = 50, stars = 1)
-    else -> Rewards(coins = 25, stars = 1)
 }
