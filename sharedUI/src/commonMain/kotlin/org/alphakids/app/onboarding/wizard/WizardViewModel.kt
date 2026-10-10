@@ -12,7 +12,8 @@ import org.alphakids.app.onboarding.domain.model.WizardStep
  * Shared ViewModel for the 6-step onboarding wizard.
  *
  * Holds [WizardState] including current [WizardStep] and the accumulated [WizardData].
- * One instance is created in [org.alphakids.app.App] and passed to each wizard screen.
+ * Scoped to the wizard navigation graph (see [wizardGraph]): every wizard
+ * screen shares one instance, which is cleared when the flow leaves the back stack.
  */
 data class WizardState(
     val step: WizardStep = WizardStep.SetupIntro,

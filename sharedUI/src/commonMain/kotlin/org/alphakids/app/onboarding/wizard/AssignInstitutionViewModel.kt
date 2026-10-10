@@ -1,8 +1,7 @@
 package org.alphakids.app.onboarding.wizard
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,12 +31,13 @@ data class AssignInstitutionUiState(
  *
  * Fetches the list of active institutions via [ParentRepository.getPublicInstitutions]
  * and manages the picker state for institution → grade → section selection.
+ * Requests run in [viewModelScope], so they are cancelled when the screen
+ * leaves the back stack.
  */
 class AssignInstitutionViewModel(
     private val parentRepository: ParentRepository,
     private val wizardViewModel: WizardViewModel,
-) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+) : ViewModel() {
     private val _uiState = MutableStateFlow(AssignInstitutionUiState())
     val uiState: StateFlow<AssignInstitutionUiState> = _uiState.asStateFlow()
 
@@ -45,7 +45,7 @@ class AssignInstitutionViewModel(
     fun loadInstitutions() {
         _uiState.update { it.copy(isLoading = true, error = null) }
 
-        scope.launch {
+        viewModelScope.launch {
             val result = parentRepository.getPublicInstitutions()
             _uiState.update {
                 it.copy(
@@ -67,7 +67,7 @@ class AssignInstitutionViewModel(
      * institution field required.
      */
     private fun loadSiblingInstitutions() {
-        scope.launch {
+        viewModelScope.launch {
             val siblings = parentRepository.getChildren()
                 .filter { it.institutionId != null && it.institutionName != null }
                 .associate { it.institutionId!! to it.name }
