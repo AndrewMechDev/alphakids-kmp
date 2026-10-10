@@ -28,10 +28,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,12 +70,12 @@ fun ChildDetailScreen(
     childId: String,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = remember { ChildDetailViewModel(koinInject()) }
-    val state by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(childId) {
-        viewModel.loadData(childId)
+    // One instance per child in the ParentDashboard back stack entry,
+    // loaded on creation: switching tabs does not fetch the child again.
+    val viewModel = viewModel(key = "child-detail:$childId") {
+        ChildDetailViewModel(koinInject()).apply { loadData(childId) }
     }
+    val state by viewModel.uiState.collectAsState()
 
     if (state.isLoading) {
         Box(

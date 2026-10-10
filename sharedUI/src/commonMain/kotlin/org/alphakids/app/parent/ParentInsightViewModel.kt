@@ -2,6 +2,9 @@ package org.alphakids.app.parent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +34,12 @@ data class ParentInsightUiState(
     val error: String? = null,
 )
 
+/**
+ * ViewModel for [ParentInsightCenter].
+ *
+ * Children and recent activity are fetched concurrently, then every child's
+ * stats are fetched concurrently to build the aggregated KPIs.
+ */
 class ParentInsightViewModel(
     private val parentRepository: ParentRepository,
 ) : ViewModel() {
@@ -47,29 +56,27 @@ class ParentInsightViewModel(
 
         viewModelScope.launch {
             try {
-                val children = parentRepository.getChildren()
-                val activity = parentRepository.getRecentActivity()
-
-                var totalWords = 0
-                var totalTime = 0
-                var totalCoins = 0
-                var totalStars = 0
-                var totalOcr = 0
-                var totalSpelling = 0
-
-                for (child in children) {
-                    try {
-                        val stats = parentRepository.getChildStats(child.id)
-                        totalWords += stats.wordsLearned
-                        totalTime += stats.timePlayedMinutes
-                        totalCoins += stats.coinsEarned
-                        totalStars += stats.starsEarned
-                        totalOcr += stats.ocrCompleted
-                        totalSpelling += stats.spellingCompleted
-                    } catch (_: Exception) {
-                        // skip failed stat loads
-                    }
+                val (children, activity, allStats) = coroutineScope {
+                    val children = async { parentRepository.getChildren() }
+                    val activity = async { parentRepository.getRecentActivity() }
+                    val allStats = children.await().map { child ->
+                        async {
+                            try {
+                                parentRepository.getChildStats(child.id)
+                            } catch (_: Exception) {
+                                null // skip failed stat loads
+                            }
+                        }
+                    }.awaitAll().filterNotNull()
+                    Triple(children.await(), activity.await(), allStats)
                 }
+
+                val totalWords = allStats.sumOf { it.wordsLearned }
+                val totalTime = allStats.sumOf { it.timePlayedMinutes }
+                val totalCoins = allStats.sumOf { it.coinsEarned }
+                val totalStars = allStats.sumOf { it.starsEarned }
+                val totalOcr = allStats.sumOf { it.ocrCompleted }
+                val totalSpelling = allStats.sumOf { it.spellingCompleted }
 
                 val avgLevel = if (children.isNotEmpty()) {
                     children.sumOf { it.level } / children.size

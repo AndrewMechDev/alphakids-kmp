@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,17 +39,14 @@ import org.alphakids.app.theme.glassTextSecondary
  */
 @Composable
 fun VerificationScreen(navController: NavController, email: String) {
-    val viewModel = remember {
+    // Initialized once per email when created, so a configuration change
+    // does not clear the typed code or request another code.
+    val viewModel = viewModel(key = "verification:$email") {
         val authRepository: AuthRepository = koinInject()
-        VerificationViewModel(authRepository)
+        VerificationViewModel(authRepository).apply { initialize(email) }
     }
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
-
-    // Initialize with email
-    LaunchedEffect(email) {
-        viewModel.initialize(email)
-    }
 
     // Navigate on success
     LaunchedEffect(state.isVerified) {

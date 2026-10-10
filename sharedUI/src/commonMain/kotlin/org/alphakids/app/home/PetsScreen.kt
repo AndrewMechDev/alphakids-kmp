@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -97,9 +98,9 @@ fun PetsScreen(
     studentId: String,
     modifier: Modifier = Modifier,
 ) {
-    // Created like the app's other screen ViewModels; lifecycle-scoped
-    // ViewModel creation is a separate fix.
-    val viewModel = remember(studentId) {
+    // Scoped to the AdventureHome back stack entry, so switching tabs keeps
+    // the loaded pets and store instead of fetching them again.
+    val viewModel = viewModel(key = "pets:$studentId") {
         PetsViewModel(
             studentId = studentId,
             storeRepository = koinInject<StoreRepository>(),

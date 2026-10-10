@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
@@ -34,19 +33,8 @@ import org.alphakids.app.onboarding.SplashScreen
 import org.alphakids.app.onboarding.WelcomeSelectionScreen
 import org.alphakids.app.onboarding.NetflixProfilesScreen
 import org.alphakids.app.onboarding.VerificationScreen
-import org.alphakids.app.onboarding.wizard.AssignInstitutionScreen
-import org.alphakids.app.onboarding.wizard.AssignInstitutionViewModel
-import org.alphakids.app.onboarding.wizard.ChooseAvatarScreen
-import org.alphakids.app.onboarding.wizard.ChooseAvatarViewModel
-import org.alphakids.app.onboarding.wizard.ChooseFirstPetScreen
-import org.alphakids.app.onboarding.wizard.ChooseFirstPetViewModel
-import org.alphakids.app.onboarding.wizard.CreateChildProfileScreen
-import org.alphakids.app.onboarding.wizard.SetupWizardScreen
-import org.alphakids.app.onboarding.wizard.WelcomeScreen
-import org.alphakids.app.onboarding.wizard.WizardViewModel
+import org.alphakids.app.onboarding.wizard.wizardGraph
 import org.alphakids.app.parent.ParentHomeScreen
-import org.alphakids.app.onboarding.data.mock.MockPetsRepository
-import org.alphakids.app.parent.domain.repository.ParentRepository
 import org.alphakids.app.theme.CircadianTheme
 import org.alphakids.app.audio.ProvideAudioService
 
@@ -56,9 +44,6 @@ fun App() {
     CircadianTheme {
     ProvideAudioService {
         val navController = rememberNavController()
-
-        // Shared wizard ViewModel — survives navigation across wizard screens
-        val wizardViewModel = remember { WizardViewModel() }
 
         Box(
             modifier = Modifier
@@ -134,103 +119,7 @@ fun App() {
                 )
             }
 
-            composable(
-                Screen.SetupWizard.route,
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) {
-                SetupWizardScreen(
-                    navController = navController,
-                    wizardViewModel = wizardViewModel,
-                )
-            }
-
-            composable(
-                Screen.CreateChild.route,
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) {
-                CreateChildProfileScreen(
-                    navController = navController,
-                    wizardViewModel = wizardViewModel,
-                )
-            }
-
-            composable(
-                Screen.ChooseAvatar.route,
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) {
-                val chooseAvatarViewModel = remember {
-                    ChooseAvatarViewModel(wizardViewModel)
-                }
-                ChooseAvatarScreen(
-                    navController = navController,
-                    wizardViewModel = wizardViewModel,
-                    chooseAvatarViewModel = chooseAvatarViewModel,
-                )
-            }
-
-            composable(
-                Screen.AssignInstitution.route,
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) {
-                val parentRepo: ParentRepository = koinInject()
-                val assignViewModel = remember {
-                    AssignInstitutionViewModel(
-                        parentRepository = parentRepo,
-                        wizardViewModel = wizardViewModel,
-                    )
-                }
-                AssignInstitutionScreen(
-                    navController = navController,
-                    wizardViewModel = wizardViewModel,
-                    assignViewModel = assignViewModel,
-                )
-            }
-
-            composable(
-                Screen.ChooseFirstPet.route,
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) {
-                val petsRepository: MockPetsRepository = koinInject()
-                val choosePetViewModel = remember {
-                    ChooseFirstPetViewModel(
-                        petsRepository = petsRepository,
-                        wizardViewModel = wizardViewModel,
-                    )
-                }
-                ChooseFirstPetScreen(
-                    navController = navController,
-                    wizardViewModel = wizardViewModel,
-                    choosePetViewModel = choosePetViewModel,
-                )
-            }
-
-            composable(
-                Screen.Welcome.route,
-                enterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { it }) + fadeIn(tween(AlphaMotion.Medium)) },
-                exitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { -it / 3 }) + fadeOut(tween(AlphaMotion.Medium)) },
-                popEnterTransition = { slideInHorizontally(tween(AlphaMotion.Medium), initialOffsetX = { -it / 3 }) + fadeIn(tween(AlphaMotion.Medium)) },
-                popExitTransition = { slideOutHorizontally(tween(AlphaMotion.Medium), targetOffsetX = { it }) + fadeOut(tween(AlphaMotion.Medium)) },
-            ) {
-                WelcomeScreen(
-                    navController = navController,
-                    wizardViewModel = wizardViewModel,
-                )
-            }
+            wizardGraph(navController)
 
             composable(
                 Screen.AwaitingApproval.route,

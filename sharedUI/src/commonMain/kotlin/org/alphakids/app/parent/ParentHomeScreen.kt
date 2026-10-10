@@ -49,6 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -107,8 +108,8 @@ private val parentTabs = listOf(
 fun ParentHomeScreen(
     navController: NavController,
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
-    var selectedChildId by remember { mutableStateOf<String?>(null) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var selectedChildId by rememberSaveable { mutableStateOf<String?>(null) }
     var showMenu by remember { mutableStateOf(false) }
     val authRepository: AuthRepository = koinInject()
     val scope = rememberCoroutineScope()

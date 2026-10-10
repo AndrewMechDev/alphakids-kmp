@@ -2,6 +2,8 @@ package org.alphakids.app.parent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +27,7 @@ data class ChildDetailUiState(
  * ViewModel for [ChildDetailScreen].
  *
  * Loads child summary and stats from [ParentRepository] for a specific child.
+ * Both requests are independent, so they run concurrently.
  */
 class ChildDetailViewModel(
     private val parentRepository: ParentRepository,
@@ -38,7 +41,11 @@ class ChildDetailViewModel(
 
         viewModelScope.launch {
             try {
-                val children = parentRepository.getChildren()
+                val (children, stats) = coroutineScope {
+                    val children = async { parentRepository.getChildren() }
+                    val stats = async { parentRepository.getChildStats(childId) }
+                    children.await() to stats.await()
+                }
                 val child = children.find { it.id == childId }
 
                 if (child == null) {
@@ -50,8 +57,6 @@ class ChildDetailViewModel(
                     }
                     return@launch
                 }
-
-                val stats = parentRepository.getChildStats(childId)
 
                 _uiState.update {
                     it.copy(

@@ -1,5 +1,6 @@
 package org.alphakids.app.onboarding.wizard
 
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,7 +29,7 @@ data class ChoosePetUiState(
 class ChooseFirstPetViewModel(
     private val petsRepository: MockPetsRepository,
     private val wizardViewModel: WizardViewModel,
-) {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ChoosePetUiState())
     val uiState: StateFlow<ChoosePetUiState> = _uiState.asStateFlow()
 
