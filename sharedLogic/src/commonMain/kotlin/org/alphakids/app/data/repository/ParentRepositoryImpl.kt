@@ -7,9 +7,6 @@ import org.alphakids.app.data.remote.AlphaKidsApiClient
 import org.alphakids.app.data.remote.ApiConstants
 import org.alphakids.app.data.remote.dto.AchievementsResponseDto
 import org.alphakids.app.data.remote.dto.CreateChildRequestDto
-import org.alphakids.app.data.remote.dto.DictionaryResponseDto
-import org.alphakids.app.data.remote.dto.InventoryItemDto
-import org.alphakids.app.data.remote.dto.PlayableWordsResponseDto
 import org.alphakids.app.data.remote.dto.PublicInstitutionDto
 import org.alphakids.app.data.remote.dto.StudentResponseDto
 import org.alphakids.app.domain.model.Grade
@@ -123,48 +120,6 @@ class ParentRepositoryImpl(
             response.body<AchievementsResponseDto>().toChildStats()
         } catch (_: Exception) {
             ChildStats()
-        }
-    }
-
-    /**
-     * Obtiene las palabras jugables para un estudiante.
-     * GET /students/:id/playable-words
-     */
-    suspend fun getPlayableWords(studentId: String): PlayableWordsResponseDto? {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentPlayableWords(studentId))
-            if (!response.status.isSuccess()) return null
-            response.body<PlayableWordsResponseDto>()
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    /**
-     * Obtiene el diccionario del estudiante.
-     * GET /students/:id/dictionary
-     */
-    suspend fun getDictionary(studentId: String): DictionaryResponseDto? {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentDictionary(studentId))
-            if (!response.status.isSuccess()) return null
-            response.body<DictionaryResponseDto>()
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    /**
-     * Obtiene el inventario del estudiante.
-     * GET /students/:id/inventory
-     */
-    suspend fun getInventory(studentId: String): List<InventoryItemDto> {
-        return try {
-            val response = api.httpClient.get(ApiConstants.studentInventory(studentId))
-            if (!response.status.isSuccess()) return emptyList()
-            response.body<List<InventoryItemDto>>()
-        } catch (_: Exception) {
-            emptyList()
         }
     }
 
