@@ -18,7 +18,7 @@ import kotlin.time.TimeSource
  * - it has at least [targetLength] letters, and
  * - more than [cooldown] passed since the previous locked-in attempt.
  *
- * Frames are cleaned to uppercase letters only, so spaces, digits and
+ * Frames are cleaned with [ScanText.letters], so spaces, digits and
  * punctuation picked up around the word never break the streak.
  */
 class ScanStabilityVote(
@@ -43,7 +43,7 @@ class ScanStabilityVote(
     private var lastAttemptMark: TimeMark? = null
 
     fun onFrame(raw: String): Outcome {
-        val cleaned = raw.filter { it.isLetter() }.uppercase()
+        val cleaned = ScanText.letters(raw)
 
         if (cleaned == pendingCandidate) {
             pendingCount++

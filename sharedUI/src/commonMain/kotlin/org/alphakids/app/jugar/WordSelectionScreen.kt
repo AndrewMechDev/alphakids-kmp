@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.alphakids.app.data.remote.dto.WordDto
 import org.alphakids.app.game.domain.model.GameSessionState
+import org.alphakids.app.game.domain.model.ScanText
 import org.alphakids.app.game.domain.repository.GameRepository
 import org.alphakids.app.koinInject
 import org.alphakids.app.navigation.Screen
@@ -289,7 +290,7 @@ private fun WordCard(
                 )
 
                 Text(
-                    text = "${word.text.length} letras",
+                    text = "${ScanText.letters(word.text).length} letras",
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White.copy(alpha = 0.8f),
                 )

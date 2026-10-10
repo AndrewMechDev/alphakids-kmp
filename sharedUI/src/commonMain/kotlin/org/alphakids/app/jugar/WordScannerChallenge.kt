@@ -60,6 +60,7 @@ import kotlinx.coroutines.delay
 import org.alphakids.app.domain.model.ChallengeWord
 import org.alphakids.app.domain.model.WordBank
 import org.alphakids.app.game.domain.model.ScanStabilityVote
+import org.alphakids.app.game.domain.model.ScanText
 import org.alphakids.app.navigation.Screen
 import org.alphakids.app.audio.AudioCategory
 import org.alphakids.app.audio.LocalAudioService
@@ -94,7 +95,9 @@ fun WordScannerChallenge(
     navController: NavController,
     word: ChallengeWord = WordBank.words.first(),
 ) {
-    val letters = word.word.toList().map { it.toString() }
+    // Slots follow the shared scan rule (letters only), the same rule the
+    // camera read goes through, so words with spaces can complete.
+    val letters = ScanText.letters(word.word).map { it.toString() }
     val letterSlots = remember { mutableStateListOf(*Array(letters.size) { "" }) }
     var attempts by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<OcrResult?>(null) }
@@ -170,7 +173,7 @@ fun WordScannerChallenge(
             if (fullWord != null) {
                 attempts++
 
-                val isMatch = WordBank.validateWord(fullWord, word.word)
+                val isMatch = ScanText.matches(detected = fullWord, target = word.word)
                 result = OcrResult(success = isMatch, detectedText = fullWord)
                 showResult = true
 
@@ -437,7 +440,7 @@ private fun WordHintSection(word: ChallengeWord, referenceImageSize: Dp = 64.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${word.word.length} letras",
+                    text = "${ScanText.letters(word.word).length} letras",
                     style = MaterialTheme.typography.bodyMedium,
                     color = glassTextSecondary(),
                     fontWeight = FontWeight.SemiBold,
